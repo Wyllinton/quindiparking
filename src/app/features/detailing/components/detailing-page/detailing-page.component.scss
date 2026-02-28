@@ -1,0 +1,43 @@
+.form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  .form-group { flex: 1; min-width: 180px; }
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.service-card {
+  padding: 20px;
+  h4 { font-size: 0.9375rem; font-weight: 600; color: #0D1642; margin-bottom: 6px; }
+}
+
+.service-desc {
+  font-size: 0.8125rem;
+  color: #7F8C8D;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.service-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.service-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1A237E;
+}
+
+.service-time {
+  font-size: 0.75rem;
+  color: #7F8C8D;
+}
+

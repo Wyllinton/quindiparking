@@ -1,0 +1,49 @@
+<div class="a11y-overlay" (click)="closed.emit()"></div>
+<div class="a11y-panel slide-up" role="dialog" aria-label="Panel de accesibilidad" (qpClickOutside)="closed.emit()">
+  <div class="a11y-header">
+    <h3>♿ Accesibilidad</h3>
+    <button class="a11y-close" (click)="closed.emit()" aria-label="Cerrar panel">✕</button>
+  </div>
+
+  <div class="a11y-body">
+    <div class="a11y-section">
+      <label>Tamaño de texto: {{ settings.fontSize }}px</label>
+      <div class="a11y-btn-group">
+        <button class="btn btn--outline btn--sm" (click)="decreaseFontSize()" aria-label="Disminuir texto">A−</button>
+        <button class="btn btn--outline btn--sm" (click)="resetFontSize()" aria-label="Restablecer texto">A</button>
+        <button class="btn btn--outline btn--sm" (click)="increaseFontSize()" aria-label="Aumentar texto">A+</button>
+      </div>
+    </div>
+
+    <div class="a11y-section">
+      <button class="a11y-toggle" [class.active]="settings.highContrast" (click)="toggleHighContrast()">
+        <span>🔲 Alto contraste</span>
+        <span class="a11y-status">{{ settings.highContrast ? 'ON' : 'OFF' }}</span>
+      </button>
+    </div>
+
+    <div class="a11y-section">
+      <button class="a11y-toggle" [class.active]="settings.grayscale" (click)="toggleGrayscale()">
+        <span>🔘 Escala de grises</span>
+        <span class="a11y-status">{{ settings.grayscale ? 'ON' : 'OFF' }}</span>
+      </button>
+    </div>
+
+    <div class="a11y-section">
+      <button class="a11y-toggle" [class.active]="settings.highlightLinks" (click)="toggleHighlightLinks()">
+        <span>🔗 Resaltar enlaces</span>
+        <span class="a11y-status">{{ settings.highlightLinks ? 'ON' : 'OFF' }}</span>
+      </button>
+    </div>
+
+    <div class="a11y-section">
+      <button class="a11y-toggle" [class.active]="settings.dyslexiaFont" (click)="toggleDyslexiaFont()">
+        <span>🔤 Fuente dislexia</span>
+        <span class="a11y-status">{{ settings.dyslexiaFont ? 'ON' : 'OFF' }}</span>
+      </button>
+    </div>
+
+    <button class="btn btn--outline btn--sm a11y-reset" (click)="resetAll()">Restablecer todo</button>
+  </div>
+</div>
+

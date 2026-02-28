@@ -1,0 +1,14 @@
+@if (visible) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)" role="dialog" aria-modal="true" [attr.aria-label]="title">
+    <div class="modal-content slide-up" [class.modal--sm]="size === 'sm'" [class.modal--lg]="size === 'lg'">
+      <div class="modal-header">
+        <h2>{{ title }}</h2>
+        <button class="modal-close" (click)="close()" aria-label="Cerrar modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+}
+

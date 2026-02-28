@@ -1,0 +1,122 @@
+<div class="page-header">
+  <h1>Membresías</h1>
+  <button class="btn btn--primary" (click)="showForm = !showForm">
+    @if (showForm) { Cancelar } @else { + Nueva membresía }
+  </button>
+</div>
+
+<!-- Create form -->
+@if (showForm) {
+  <div class="card form-card fade-in" style="margin-bottom: 24px;">
+    <h3 style="margin-bottom: 16px; font-size: 1rem;">Crear membresía</h3>
+    <form [formGroup]="form" (ngSubmit)="createMembership()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mUserId">ID Usuario</label>
+          <input id="mUserId" type="number" formControlName="userId" placeholder="5">
+        </div>
+        <div class="form-group">
+          <label for="mPlan">Plan</label>
+          <select id="mPlan" formControlName="membershipPlanId">
+            <option [ngValue]="null" disabled>Seleccionar plan</option>
+            @for (plan of plans; track plan.id) {
+              <option [ngValue]="plan.id">{{ plan.name }} — {{ plan.monthlyFee | currencyFormat }}/mes</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="mStart">Fecha inicio</label>
+          <input id="mStart" type="date" formControlName="startDate">
+        </div>
+        <div class="form-group">
+          <label for="mEnd">Fecha fin</label>
+          <input id="mEnd" type="date" formControlName="endDate">
+        </div>
+      </div>
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="autoRenew"> Renovación automática
+      </label>
+      <div style="margin-top: 16px;">
+        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting">
+          @if (submitting) { Creando... } @else { Crear membresía }
+        </button>
+      </div>
+    </form>
+  </div>
+}
+
+<!-- Plans catalog -->
+<section style="margin-bottom: 32px;">
+  <h2 class="section-title">Planes disponibles</h2>
+  @if (loadingPlans) {
+    <qp-loading></qp-loading>
+  } @else {
+    <div class="plans-grid">
+      @for (plan of plans; track plan.id) {
+        <div class="card plan-card">
+          <h4>{{ plan.name }}</h4>
+          <p class="plan-desc">{{ plan.description }}</p>
+          <div class="plan-meta">
+            <span class="plan-price">{{ plan.monthlyFee | currencyFormat }}<small>/mes</small></span>
+            <span class="plan-discount">{{ plan.discountPercentage }}% dto.</span>
+          </div>
+          <p class="plan-duration">Duración: {{ plan.durationInDays }} días</p>
+        </div>
+      } @empty {
+        <p style="color: #7F8C8D;">No hay planes registrados.</p>
+      }
+    </div>
+  }
+</section>
+
+<!-- Memberships table -->
+<section>
+  <h2 class="section-title">Membresías registradas</h2>
+  @if (loadingMemberships) {
+    <qp-loading></qp-loading>
+  } @else {
+    <div class="table-container card" style="padding: 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Plan</th>
+            <th>Inicio</th>
+            <th>Fin</th>
+            <th>Estado</th>
+            <th>Auto-renovar</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of memberships; track m.id) {
+            <tr>
+              <td>{{ m.id }}</td>
+              <td>{{ m.userId }}</td>
+              <td>{{ m.membershipPlanId }}</td>
+              <td>{{ m.startDate | date:'shortDate' }}</td>
+              <td>{{ m.endDate | date:'shortDate' }}</td>
+              <td><span class="badge {{ getStatusBadge(m.status.toString()) }}">{{ m.status }}</span></td>
+              <td>{{ m.autoRenew ? 'Sí' : 'No' }}</td>
+              <td class="actions-cell">
+                @if (m.status !== 'ACTIVE') {
+                  <button class="btn btn--success btn--sm" (click)="activate(m.id)">Activar</button>
+                }
+                @if (m.status === 'ACTIVE') {
+                  <button class="btn btn--outline btn--sm" (click)="renew(m.id)">Renovar</button>
+                  <button class="btn btn--danger btn--sm" (click)="cancel(m.id)">Cancelar</button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" style="text-align: center; color: #7F8C8D;">No hay membresías registradas</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+

@@ -1,0 +1,84 @@
+<div class="page-header">
+  <h1>Reportes</h1>
+</div>
+
+<!-- Financial Stats -->
+<section class="report-section fade-in">
+  <h2 class="section-title">Estadísticas Financieras</h2>
+  @if (loadingStats) {
+    <qp-loading></qp-loading>
+  } @else if (financialStats) {
+    <div class="stats-grid">
+      <div class="card mini-stat">
+        <span class="mini-stat-value">{{ financialStats.totalInvoices }}</span>
+        <span class="mini-stat-label">Total facturas</span>
+      </div>
+      <div class="card mini-stat">
+        <span class="mini-stat-value">{{ financialStats.paidInvoices }}</span>
+        <span class="mini-stat-label">Pagadas</span>
+      </div>
+      <div class="card mini-stat">
+        <span class="mini-stat-value">{{ financialStats.pendingInvoices }}</span>
+        <span class="mini-stat-label">Pendientes</span>
+      </div>
+      <div class="card mini-stat">
+        <span class="mini-stat-value">{{ financialStats.totalRevenue | currencyFormat }}</span>
+        <span class="mini-stat-label">Ingresos totales</span>
+      </div>
+    </div>
+  }
+</section>
+
+<!-- Revenue Report -->
+<section class="report-section fade-in">
+  <h2 class="section-title">Reporte de Ingresos</h2>
+  <div class="report-filters card">
+    <div class="filter-row">
+      <div class="form-group">
+        <label for="startDate">Fecha inicio</label>
+        <input id="startDate" type="date" [(ngModel)]="startDate">
+      </div>
+      <div class="form-group">
+        <label for="endDate">Fecha fin</label>
+        <input id="endDate" type="date" [(ngModel)]="endDate">
+      </div>
+      <button class="btn btn--primary" (click)="loadRevenueReport()" [disabled]="loadingReport || !startDate || !endDate">
+        Generar reporte
+      </button>
+    </div>
+  </div>
+
+  @if (loadingReport) {
+    <qp-loading></qp-loading>
+  } @else if (revenueReport) {
+    <div class="card report-result">
+      <div class="report-grid">
+        <div class="report-item">
+          <span class="report-label">Período</span>
+          <span class="report-value">{{ revenueReport.startDate | date:'shortDate' }} — {{ revenueReport.endDate | date:'shortDate' }}</span>
+        </div>
+        <div class="report-item">
+          <span class="report-label">Total facturado</span>
+          <span class="report-value">{{ revenueReport.totalInvoiced | currencyFormat }}</span>
+        </div>
+        <div class="report-item">
+          <span class="report-label">Total pagado</span>
+          <span class="report-value">{{ revenueReport.totalPaid | currencyFormat }}</span>
+        </div>
+        <div class="report-item">
+          <span class="report-label">Monto pendiente</span>
+          <span class="report-value">{{ revenueReport.pendingAmount | currencyFormat }}</span>
+        </div>
+        <div class="report-item">
+          <span class="report-label">Facturas</span>
+          <span class="report-value">{{ revenueReport.invoiceCount }}</span>
+        </div>
+        <div class="report-item">
+          <span class="report-label">Pagos</span>
+          <span class="report-value">{{ revenueReport.paymentCount }}</span>
+        </div>
+      </div>
+    </div>
+  }
+</section>
+

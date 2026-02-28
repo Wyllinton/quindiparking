@@ -1,0 +1,43 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #E0E6E3;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-logo { font-size: 1.5rem; }
+
+.navbar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1A237E;
+  letter-spacing: -0.3px;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar-user {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2C3E50;
+  padding: 6px 12px;
+  background: #F4F7F6;
+  border-radius: 20px;
+}
+

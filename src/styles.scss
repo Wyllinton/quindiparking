@@ -1,1 +1,292 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=OpenDyslexic:wght@400;700&display=swap');
+
+// ═══ Variables ═══
+$primary: #1A237E;
+$primary-light: #3949AB;
+$primary-dark: #0D1642;
+$success: #2ECC71;
+$success-dark: #27AE60;
+$text: #2C3E50;
+$text-light: #7F8C8D;
+$bg: #F4F7F6;
+$bg-card: #ffffff;
+$warning: #F1C40F;
+$warning-dark: #D4AC0D;
+$danger: #E74C3C;
+$danger-light: #FADBD8;
+$border: #E0E6E3;
+$shadow: rgba(0, 0, 0, 0.08);
+$shadow-lg: rgba(0, 0, 0, 0.12);
+$radius: 12px;
+$radius-sm: 8px;
+$radius-lg: 16px;
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-dyslexia: 'OpenDyslexic', sans-serif;
+$transition: all 0.2s ease;
+
+// ═══ Reset ═══
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-family;
+  color: $text;
+  background: $bg;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+a {
+  color: $primary;
+  text-decoration: none;
+  transition: $transition;
+  &:hover { color: $primary-light; }
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  outline: none;
+  transition: $transition;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  padding: 10px 14px;
+  transition: $transition;
+  background: #fff;
+  color: $text;
+  width: 100%;
+
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $text-light;
+  }
+}
+
+label {
+  display: block;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 6px;
+  color: $text;
+}
+
+// ═══ Utility ═══
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: $radius-sm;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  transition: $transition;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: $primary;
+    color: #fff;
+    &:hover:not(:disabled) { background: $primary-light; transform: translateY(-1px); }
+  }
+
+  &--success {
+    background: $success;
+    color: #fff;
+    &:hover:not(:disabled) { background: $success-dark; }
+  }
+
+  &--danger {
+    background: $danger;
+    color: #fff;
+    &:hover:not(:disabled) { background: #C0392B; }
+  }
+
+  &--outline {
+    background: transparent;
+    border: 1.5px solid $border;
+    color: $text;
+    &:hover:not(:disabled) { border-color: $primary; color: $primary; }
+  }
+
+  &--sm {
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+  }
+
+  &--lg {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+
+  &--icon {
+    padding: 8px;
+    border-radius: 50%;
+    min-width: 36px;
+    min-height: 36px;
+  }
+}
+
+.card {
+  background: $bg-card;
+  border-radius: $radius;
+  padding: 24px;
+  box-shadow: 0 2px 8px $shadow;
+  border: 1px solid rgba($border, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--success { background: rgba($success, 0.12); color: $success-dark; }
+  &--warning { background: rgba($warning, 0.15); color: $warning-dark; }
+  &--danger  { background: rgba($danger, 0.12); color: $danger; }
+  &--info    { background: rgba($primary, 0.1); color: $primary; }
+  &--gray    { background: rgba($text-light, 0.15); color: $text-light; }
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-error {
+  font-size: 0.75rem;
+  color: $danger;
+  margin-top: 4px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $primary-dark;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: $radius;
+  border: 1px solid $border;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  th {
+    background: rgba($primary, 0.04);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: $text;
+    white-space: nowrap;
+    border-bottom: 2px solid $border;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba($border, 0.5);
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: $transition;
+    &:hover { background: rgba($primary, 0.02); }
+    &:last-child td { border-bottom: none; }
+  }
+}
+
+// ═══ Accessibility overrides ═══
+body.high-contrast {
+  background: #000 !important;
+  color: #fff !important;
+
+  .card, .btn, input, select, textarea, table, th, td {
+    border-color: #fff !important;
+  }
+
+  .card { background: #111 !important; color: #fff !important; }
+  a { color: #FFD700 !important; }
+  .btn--primary { background: #FFD700 !important; color: #000 !important; }
+  .sidebar { background: #111 !important; }
+  .navbar { background: #111 !important; border-color: #333 !important; }
+}
+
+body.grayscale {
+  filter: grayscale(100%);
+}
+
+body.highlight-links {
+  a, button {
+    outline: 2px solid $warning !important;
+    outline-offset: 2px;
+  }
+}
+
+body.dyslexia-font {
+  font-family: $font-dyslexia !important;
+  * { font-family: $font-dyslexia !important; }
+}
+
+// ═══ Scrollbar ═══
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba($text-light, 0.3); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba($text-light, 0.5); }
+
+// ═══ Animations ═══
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-in { animation: fadeIn 0.3s ease; }
+.slide-up { animation: slideUp 0.4s ease; }

@@ -1,0 +1,96 @@
+<div class="page-header">
+  <h1>Car Wash / Detailing</h1>
+  <button class="btn btn--primary" (click)="showForm = !showForm">
+    @if (showForm) { Cancelar } @else { + Nueva orden }
+  </button>
+</div>
+
+<!-- New order form -->
+@if (showForm) {
+  <div class="card form-card fade-in" style="margin-bottom: 24px;">
+    <h3 style="margin-bottom: 16px; font-size: 1rem;">Solicitar servicio</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sessionId">ID Sesión de parqueo</label>
+        <input id="sessionId" type="number" [(ngModel)]="parkingSessionId" placeholder="100">
+      </div>
+      <div class="form-group">
+        <label for="serviceSelect">Servicio</label>
+        <select id="serviceSelect" [(ngModel)]="selectedServiceId">
+          <option [ngValue]="null" disabled>Seleccionar servicio</option>
+          @for (svc of services; track svc.id) {
+            <option [ngValue]="svc.id">{{ svc.name }} — {{ svc.price | currencyFormat }}</option>
+          }
+        </select>
+      </div>
+      <button class="btn btn--success" style="margin-bottom: 16px; align-self: flex-end;" (click)="requestOrder()" [disabled]="submitting || !parkingSessionId || !selectedServiceId">
+        @if (submitting) { Creando... } @else { Crear orden }
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Services catalog -->
+<section style="margin-bottom: 32px;">
+  <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Catálogo de servicios</h2>
+  @if (loading) {
+    <qp-loading></qp-loading>
+  } @else {
+    <div class="services-grid">
+      @for (svc of services; track svc.id) {
+        <div class="card service-card">
+          <h4>{{ svc.name }}</h4>
+          <p class="service-desc">{{ svc.description }}</p>
+          <div class="service-meta">
+            <span class="service-price">{{ svc.price | currencyFormat }}</span>
+            <span class="service-time">⏱ {{ svc.estimatedDurationMinutes }} min</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+<!-- Orders table -->
+<section>
+  <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Órdenes de servicio</h2>
+  @if (loadingOrders) {
+    <qp-loading></qp-loading>
+  } @else {
+    <div class="table-container card" style="padding: 0;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Sesión</th>
+            <th>Servicio</th>
+            <th>Solicitado</th>
+            <th>Estado</th>
+            <th>Precio</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders; track order.id) {
+            <tr>
+              <td>{{ order.id }}</td>
+              <td>{{ order.parkingSessionId }}</td>
+              <td>{{ order.detailingServiceId }}</td>
+              <td>{{ order.requestedAt | date:'short' }}</td>
+              <td><span class="badge {{ getStatusBadge(order.status.toString()) }}">{{ order.status }}</span></td>
+              <td>{{ order.price | currencyFormat }}</td>
+              <td>
+                @if (order.status === 'REQUESTED' || order.status === 'IN_PROGRESS') {
+                  <button class="btn btn--success btn--sm" (click)="completeOrder(order.id)">Completar</button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="7" style="text-align: center; color: #7F8C8D;">No hay órdenes registradas</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+

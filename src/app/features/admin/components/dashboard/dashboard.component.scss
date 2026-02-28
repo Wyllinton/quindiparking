@@ -1,0 +1,54 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+
+  &--occupied  { background: rgba(#7F8C8D, 0.12); }
+  &--available { background: rgba(#2ECC71, 0.12); }
+  &--rate      { background: rgba(#1A237E, 0.08); }
+  &--members   { background: rgba(#F1C40F, 0.15); }
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0D1642;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  color: #7F8C8D;
+  margin-top: 2px;
+}
+
+.dashboard-timestamp {
+  margin-top: 20px;
+  font-size: 0.75rem;
+  color: #7F8C8D;
+  text-align: right;
+}
+

@@ -1,0 +1,4210 @@
+openapi: 3.0.1
+info:
+  title: QuindiParking API
+  description: API para la gestión de parqueadero con membresías, servicios de detailing, facturación y pagos.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Servidor de desarrollo
+  - url: https://api.quindiparking.com/v1
+    description: Servidor de producción
+tags:
+  - name: Authentication
+    description: Endpoints para autenticación, registro y gestión de sesión
+  - name: Users
+    description: Endpoints para gestión de usuarios
+  - name: Vehicles
+    description: Endpoints para gestión de vehículos
+  - name: Parking Spaces
+    description: Endpoints para gestión de espacios de parqueadero
+  - name: Parking Sessions
+    description: Endpoints para gestión de sesiones de parqueo
+  - name: Detailing Services
+    description: Endpoints para gestión de servicios de detailing (catálogo)
+  - name: Service Orders
+    description: Endpoints para gestión de órdenes de servicio (detailing)
+  - name: Memberships
+    description: Endpoints para gestión de membresías de usuarios
+  - name: Membership Plans
+    description: Endpoints para gestión de planes de membresía
+  - name: Invoices
+    description: Endpoints para gestión de facturas
+  - name: Payments
+    description: Endpoints para procesamiento y gestión de pagos
+  - name: Admin Dashboard
+    description: Endpoints para dashboard administrativo y estadísticas
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login
+      description: Autentica un usuario con email y contraseña, retorna información del usuario y un token JWT.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Registrar usuario
+      description: Registra un nuevo usuario con rol USER por defecto.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Obtener usuario actual
+      description: Retorna el perfil del usuario autenticado.
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil de usuario obtenido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Cerrar sesión
+      description: Cierra la sesión del usuario actual (limpia el contexto de seguridad).
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sesión cerrada exitosamente
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Session closed successfully"
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Crear usuario
+      description: Crea un nuevo usuario (solo ADMIN).
+      operationId: createUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDTO'
+      responses:
+        '201':
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Users
+      summary: Obtener todos los usuarios
+      description: Lista todos los usuarios del sistema (solo ADMIN).
+      operationId: getAllUsers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Usuarios recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Obtener usuario por ID
+      description: Retorna un usuario por su identificador. ADMIN puede ver cualquier usuario; USER solo su propio perfil.
+      operationId: getUserById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Users
+      summary: Actualizar usuario
+      description: Actualiza los datos de un usuario. ADMIN puede actualizar cualquier usuario; USER solo su propio perfil.
+      operationId: updateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDTO'
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Email ya registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Users
+      summary: Eliminar usuario
+      description: Elimina un usuario del sistema (solo ADMIN).
+      operationId: deleteUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Usuario eliminado exitosamente
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/me/profile:
+    get:
+      tags:
+        - Users
+      summary: Obtener mi perfil
+      description: Retorna el perfil del usuario autenticado (equivalente a /auth/me).
+      operationId: getMyProfile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Perfil recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '401':
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{id}/change-password:
+    post:
+      tags:
+        - Users
+      summary: Cambiar contraseña
+      description: Cambia la contraseña de un usuario. ADMIN puede cambiar cualquier contraseña; USER solo la propia. Valida la contraseña actual.
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChangeRequest'
+      responses:
+        '204':
+          description: Contraseña cambiada exitosamente
+        '400':
+          description: Datos inválidos o contraseñas no coinciden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Contraseña actual incorrecta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /users/{id}/activate:
+    patch:
+      tags:
+        - Users
+      summary: Activar/desactivar usuario
+      description: Cambia el estado activo de un usuario (solo ADMIN).
+      operationId: activateUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserActiveStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /vehicles:
+    post:
+      tags:
+        - Vehicles
+      summary: Crear vehículo
+      description: Crea un nuevo vehículo. Cualquier usuario autenticado puede crear vehículos (se asocia al usuario autenticado).
+      operationId: createVehicle
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDTO'
+      responses:
+        '201':
+          description: Vehículo creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Propietario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Placa ya registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Vehicles
+      summary: Obtener todos los vehículos
+      description: Lista todos los vehículos del sistema (solo ADMIN).
+      operationId: getAllVehicles
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Vehículos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleDTO'
+  /vehicles/{id}:
+    get:
+      tags:
+        - Vehicles
+      summary: Obtener vehículo por ID
+      description: Retorna un vehículo por su identificador. ADMIN puede ver cualquier vehículo; USER solo los suyos.
+      operationId: getVehicleById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Vehículo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDTO'
+        '404':
+          description: Vehículo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Vehicles
+      summary: Actualizar vehículo
+      description: Actualiza los datos de un vehículo. ADMIN puede actualizar cualquier vehículo; USER solo los suyos.
+      operationId: updateVehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleDTO'
+      responses:
+        '200':
+          description: Vehículo actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Vehículo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Placa ya registrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Vehicles
+      summary: Eliminar vehículo
+      description: Elimina un vehículo del sistema. ADMIN puede eliminar cualquier vehículo; USER solo los suyos.
+      operationId: deleteVehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Vehículo eliminado exitosamente
+        '404':
+          description: Vehículo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /vehicles/license-plate/{licensePlate}:
+    get:
+      tags:
+        - Vehicles
+      summary: Obtener vehículo por placa
+      description: Busca un vehículo por su placa (solo ADMIN).
+      operationId: getVehicleByLicensePlate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: licensePlate
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Vehículo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDTO'
+        '404':
+          description: Vehículo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /vehicles/user/{userId}:
+    get:
+      tags:
+        - Vehicles
+      summary: Obtener vehículos por usuario
+      description: Lista los vehículos de un usuario específico. ADMIN puede ver de cualquier usuario; USER solo los suyos.
+      operationId: getVehiclesByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Vehículos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleDTO'
+  /vehicles/type/{vehicleType}:
+    get:
+      tags:
+        - Vehicles
+      summary: Obtener vehículos por tipo
+      description: Lista los vehículos de un tipo específico (ADMIN y OPERATOR).
+      operationId: getVehiclesByType
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: vehicleType
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/VehicleType'
+      responses:
+        '200':
+          description: Vehículos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleDTO'
+        '400':
+          description: Tipo de vehículo inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /vehicles/check-plate/{licensePlate}:
+    get:
+      tags:
+        - Vehicles
+      summary: Verificar si placa existe
+      description: Verifica si una placa ya está registrada (solo ADMIN).
+      operationId: existsByLicensePlate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: licensePlate
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verificación completada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsDTO'
+  /parking-spaces:
+    post:
+      tags:
+        - Parking Spaces
+      summary: Crear espacio de parqueadero
+      description: Crea un nuevo espacio de parqueadero (solo ADMIN).
+      operationId: createParkingSpace
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSpaceDTO'
+      responses:
+        '201':
+          description: Espacio creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSpaceDTO'
+        '400':
+          description: Datos inválidos o número de espacio ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Parking Spaces
+      summary: Obtener todos los espacios
+      description: Lista todos los espacios de parqueadero, opcionalmente filtrados por estado.
+      operationId: getAllParkingSpaces
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ParkingSpaceStatus'
+      responses:
+        '200':
+          description: Espacios recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSpaceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-spaces/{id}:
+    get:
+      tags:
+        - Parking Spaces
+      summary: Obtener espacio por ID
+      description: Retorna un espacio de parqueadero por su identificador.
+      operationId: getParkingSpaceById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Espacio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSpaceDTO'
+        '404':
+          description: Espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Parking Spaces
+      summary: Actualizar espacio
+      description: Actualiza un espacio de parqueadero (solo ADMIN).
+      operationId: updateParkingSpace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSpaceDTO'
+      responses:
+        '200':
+          description: Espacio actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSpaceDTO'
+        '400':
+          description: Datos inválidos o número de espacio ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Parking Spaces
+      summary: Eliminar espacio
+      description: Elimina un espacio de parqueadero (solo ADMIN).
+      operationId: deleteParkingSpace
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Espacio eliminado exitosamente
+        '404':
+          description: Espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-spaces/number/{spaceNumber}:
+    get:
+      tags:
+        - Parking Spaces
+      summary: Obtener espacio por número
+      description: Retorna un espacio por su número.
+      operationId: getParkingSpaceByNumber
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: spaceNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Espacio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSpaceDTO'
+        '404':
+          description: Espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-spaces/available/{vehicleType}:
+    get:
+      tags:
+        - Parking Spaces
+      summary: Obtener espacios disponibles por tipo de vehículo
+      description: Lista los espacios disponibles para un tipo de vehículo específico.
+      operationId: getAvailableSpacesByVehicleType
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: vehicleType
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/VehicleType'
+      responses:
+        '200':
+          description: Espacios recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSpaceDTO'
+        '400':
+          description: Tipo de vehículo inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-spaces/{id}/status:
+    patch:
+      tags:
+        - Parking Spaces
+      summary: Actualizar estado del espacio
+      description: Cambia el estado de un espacio de parqueadero (ADMIN y OPERATOR).
+      operationId: updateSpaceStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateParkingSpaceStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSpaceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-spaces/stats/available:
+    get:
+      tags:
+        - Parking Spaces
+      summary: Contar espacios disponibles
+      description: Obtiene el número total de espacios disponibles.
+      operationId: countAvailableSpaces
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Conteo recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountDTO'
+  /parking-spaces/stats/occupied:
+    get:
+      tags:
+        - Parking Spaces
+      summary: Contar espacios ocupados
+      description: Obtiene el número total de espacios ocupados.
+      operationId: countOccupiedSpaces
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Conteo recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountDTO'
+  /parking-sessions:
+    post:
+      tags:
+        - Parking Sessions
+      summary: Crear sesión de parqueo manualmente
+      description: Crea una sesión de parqueo manualmente (solo ADMIN).
+      operationId: createParkingSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParkingSessionDTO'
+      responses:
+        '201':
+          description: Sesión creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Vehículo o espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener todas las sesiones
+      description: Lista todas las sesiones de parqueo, opcionalmente filtradas por estado (solo ADMIN).
+      operationId: getAllParkingSessions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/SessionStatus'
+      responses:
+        '200':
+          description: Sesiones recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSessionDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/checkin:
+    post:
+      tags:
+        - Parking Sessions
+      summary: Check-in
+      description: Registra el ingreso de un vehículo a un espacio de parqueadero (ADMIN y OPERATOR).
+      operationId: checkIn
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequestDTO'
+      responses:
+        '201':
+          description: Check-in registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Vehículo o espacio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Espacio no disponible o vehículo ya estacionado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/checkout/{sessionId}:
+    post:
+      tags:
+        - Parking Sessions
+      summary: Check-out
+      description: Registra la salida de un vehículo y calcula el costo de la sesión (ADMIN y OPERATOR).
+      operationId: checkOut
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Check-out registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '404':
+          description: Sesión no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: La sesión no está activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/{id}:
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener sesión por ID
+      description: Retorna una sesión de parqueo por su identificador.
+      operationId: getParkingSessionById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Sesión encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '404':
+          description: Sesión no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Parking Sessions
+      summary: Eliminar sesión
+      description: Elimina una sesión de parqueo (solo ADMIN).
+      operationId: deleteParkingSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Sesión eliminada exitosamente
+        '404':
+          description: Sesión no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/vehicle/{vehicleId}:
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener sesiones por vehículo
+      description: Lista las sesiones de un vehículo específico. ADMIN puede ver de cualquier vehículo; USER solo de los suyos.
+      operationId: getParkingSessionsByVehicleId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Sesiones recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSessionDTO'
+  /parking-sessions/vehicle/{vehicleId}/active:
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener sesión activa por vehículo
+      description: Retorna la sesión activa de un vehículo, si existe.
+      operationId: getActiveSessionByVehicleId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: vehicleId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Sesión activa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '404':
+          description: No hay sesión activa para el vehículo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/space/{parkingSpaceId}/active:
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener sesión activa por espacio
+      description: Retorna la sesión activa de un espacio de parqueadero, si existe (ADMIN y OPERATOR).
+      operationId: getActiveSessionByParkingSpaceId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSpaceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Sesión activa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParkingSessionDTO'
+        '404':
+          description: No hay sesión activa para el espacio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /parking-sessions/date-range:
+    get:
+      tags:
+        - Parking Sessions
+      summary: Obtener sesiones por rango de fechas
+      description: Lista las sesiones dentro de un rango de fechas (solo ADMIN).
+      operationId: getSessionsByDateRange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Sesiones recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ParkingSessionDTO'
+        '400':
+          description: Rango de fechas inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /detailing-services:
+    post:
+      tags:
+        - Detailing Services
+      summary: Crear servicio de detailing
+      description: Crea un nuevo servicio de detailing en el catálogo (solo ADMIN).
+      operationId: createDetailingService
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetailingServiceDTO'
+      responses:
+        '201':
+          description: Servicio creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailingServiceDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El servicio ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Detailing Services
+      summary: Obtener todos los servicios
+      description: Lista todos los servicios de detailing, opcionalmente filtrados por estado.
+      operationId: getAllDetailingServices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ServiceOrderStatus'
+      responses:
+        '200':
+          description: Servicios recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DetailingServiceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /detailing-services/{id}:
+    get:
+      tags:
+        - Detailing Services
+      summary: Obtener servicio por ID
+      description: Retorna un servicio de detailing por su identificador.
+      operationId: getDetailingServiceById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Servicio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailingServiceDTO'
+        '404':
+          description: Servicio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Detailing Services
+      summary: Actualizar servicio
+      description: Actualiza un servicio de detailing existente (solo ADMIN).
+      operationId: updateDetailingService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DetailingServiceDTO'
+      responses:
+        '200':
+          description: Servicio actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailingServiceDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Servicio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Nombre del servicio ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Detailing Services
+      summary: Eliminar servicio
+      description: Elimina un servicio de detailing (solo ADMIN).
+      operationId: deleteDetailingService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Servicio eliminado exitosamente
+        '404':
+          description: Servicio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /detailing-services/name/{name}:
+    get:
+      tags:
+        - Detailing Services
+      summary: Obtener servicio por nombre
+      description: Retorna un servicio de detailing por su nombre.
+      operationId: getDetailingServiceByName
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Servicio encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailingServiceDTO'
+        '404':
+          description: Servicio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /detailing-services/{id}/status:
+    patch:
+      tags:
+        - Detailing Services
+      summary: Actualizar estado del servicio
+      description: Cambia el estado de un servicio de detailing (solo ADMIN).
+      operationId: updateDetailingServiceStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailingServiceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Servicio no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /detailing-services/check/{id}:
+    get:
+      tags:
+        - Detailing Services
+      summary: Verificar si servicio existe por ID
+      description: Verifica si un servicio de detailing existe por su ID (solo ADMIN).
+      operationId: existsDetailingServiceById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Verificación completada
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /service-orders:
+    post:
+      tags:
+        - Service Orders
+      summary: Crear orden de servicio manualmente
+      description: Crea una orden de servicio manualmente (solo ADMIN).
+      operationId: createServiceOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceOrderDTO'
+      responses:
+        '201':
+          description: Orden creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sesión de parqueo o servicio de detailing no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Service Orders
+      summary: Obtener todas las órdenes de servicio
+      description: Lista todas las órdenes de servicio, opcionalmente filtradas por estado (solo ADMIN).
+      operationId: getAllServiceOrders
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/ServiceOrderStatus'
+      responses:
+        '200':
+          description: Órdenes recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /service-orders/request:
+    post:
+      tags:
+        - Service Orders
+      summary: Solicitar servicio de detailing
+      description: Solicita un servicio de detailing para una sesión de parqueo. Cualquier usuario autenticado puede solicitar.
+      operationId: requestService
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRequestDTO'
+      responses:
+        '201':
+          description: Servicio solicitado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sesión de parqueo o servicio de detailing no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /service-orders/{serviceOrderId}/complete:
+    patch:
+      tags:
+        - Service Orders
+      summary: Completar servicio
+      description: Marca una orden de servicio como completada (ADMIN y OPERATOR).
+      operationId: completeService
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: serviceOrderId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Servicio completado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '404':
+          description: Orden de servicio no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: No se puede completar una orden cancelada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /service-orders/{id}:
+    get:
+      tags:
+        - Service Orders
+      summary: Obtener orden de servicio por ID
+      description: Retorna una orden de servicio por su identificador.
+      operationId: getServiceOrderById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Orden encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '404':
+          description: Orden no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Service Orders
+      summary: Actualizar orden de servicio
+      description: Actualiza una orden de servicio existente (solo ADMIN).
+      operationId: updateServiceOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceOrderDTO'
+      responses:
+        '200':
+          description: Orden actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Orden no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Service Orders
+      summary: Eliminar orden de servicio
+      description: Elimina una orden de servicio (solo ADMIN).
+      operationId: deleteServiceOrder
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Orden eliminada exitosamente
+        '404':
+          description: Orden no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /service-orders/session/{parkingSessionId}:
+    get:
+      tags:
+        - Service Orders
+      summary: Obtener órdenes por sesión de parqueo
+      description: Lista las órdenes de servicio de una sesión de parqueo específica (ADMIN y OPERATOR).
+      operationId: getServiceOrdersByParkingSessionId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Órdenes recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceOrderDTO'
+  /service-orders/detailing-service/{detailingServiceId}:
+    get:
+      tags:
+        - Service Orders
+      summary: Obtener órdenes por servicio de detailing
+      description: Lista las órdenes de servicio para un servicio de detailing específico (solo ADMIN).
+      operationId: getServiceOrdersByDetailingServiceId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: detailingServiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Órdenes recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceOrderDTO'
+  /service-orders/date-range:
+    get:
+      tags:
+        - Service Orders
+      summary: Obtener órdenes por rango de fechas
+      description: Lista las órdenes de servicio dentro de un rango de fechas (solo ADMIN).
+      operationId: getServiceOrdersByDateRange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Órdenes recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Rango de fechas inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /service-orders/session/{parkingSessionId}/total-cost:
+    get:
+      tags:
+        - Service Orders
+      summary: Calcular costo total de servicios
+      description: Calcula el costo total de los servicios de detailing para una sesión de parqueo (ADMIN y OPERATOR).
+      operationId: calculateTotalServiceCost
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Costo calculado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountDTO'
+  /service-orders/{id}/status:
+    patch:
+      tags:
+        - Service Orders
+      summary: Actualizar estado de la orden
+      description: Cambia el estado de una orden de servicio (ADMIN y OPERATOR).
+      operationId: updateServiceOrderStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceOrderDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Orden no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships:
+    post:
+      tags:
+        - Memberships
+      summary: Crear membresía
+      description: Crea una nueva membresía para un usuario (solo ADMIN).
+      operationId: createMembership
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipDTO'
+      responses:
+        '201':
+          description: Membresía creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuario o plan de membresía no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Memberships
+      summary: Obtener todas las membresías
+      description: Lista todas las membresías, opcionalmente filtradas por estado (solo ADMIN).
+      operationId: getAllMemberships
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/MembershipStatus'
+      responses:
+        '200':
+          description: Membresías recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/{id}:
+    get:
+      tags:
+        - Memberships
+      summary: Obtener membresía por ID
+      description: Retorna una membresía por su identificador. ADMIN puede ver cualquier membresía; USER solo las suyas.
+      operationId: getMembershipById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresía encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Memberships
+      summary: Actualizar membresía
+      description: Actualiza una membresía existente (solo ADMIN).
+      operationId: updateMembership
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipDTO'
+      responses:
+        '200':
+          description: Membresía actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Memberships
+      summary: Eliminar membresía
+      description: Elimina una membresía (solo ADMIN).
+      operationId: deleteMembership
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Membresía eliminada exitosamente
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/user/{userId}:
+    get:
+      tags:
+        - Memberships
+      summary: Obtener membresías por usuario
+      description: Lista las membresías de un usuario específico. ADMIN puede ver de cualquier usuario; USER solo las suyas.
+      operationId: getMembershipsByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresías recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipDTO'
+  /memberships/user/{userId}/active:
+    get:
+      tags:
+        - Memberships
+      summary: Obtener membresía activa de un usuario
+      description: Retorna la membresía activa de un usuario, si existe.
+      operationId: getActiveMembershipByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresía activa encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '404':
+          description: No hay membresía activa para el usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/user/{userId}/active-at-date:
+    get:
+      tags:
+        - Memberships
+      summary: Verificar membresía activa en una fecha
+      description: Verifica si un usuario tiene una membresía activa en una fecha específica.
+      operationId: hasActiveMembershipAtDate
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Verificación completada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipActiveCheckDTO'
+        '400':
+          description: Formato de fecha inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/user/{userId}/discount:
+    get:
+      tags:
+        - Memberships
+      summary: Obtener porcentaje de descuento
+      description: Obtiene el porcentaje de descuento de un usuario basado en su membresía activa.
+      operationId: getDiscountPercentageByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Descuento recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscountDTO'
+  /memberships/{id}/activate:
+    patch:
+      tags:
+        - Memberships
+      summary: Activar membresía
+      description: Activa una membresía pendiente o expirada (solo ADMIN).
+      operationId: activateMembership
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresía activada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Estado inválido para activación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/{id}/cancel:
+    patch:
+      tags:
+        - Memberships
+      summary: Cancelar membresía
+      description: Cancela una membresía activa (solo ADMIN).
+      operationId: cancelMembership
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresía cancelada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Estado inválido para cancelación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/{id}/renew:
+    patch:
+      tags:
+        - Memberships
+      summary: Renovar membresía
+      description: Renueva una membresía cuando auto-renew está habilitado (solo ADMIN).
+      operationId: renewMembership
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Membresía renovada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipDTO'
+        '404':
+          description: Membresía no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Estado inválido para renovación
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /memberships/stats/active-count:
+    get:
+      tags:
+        - Memberships
+      summary: Contar membresías activas
+      description: Obtiene el número total de membresías activas (solo ADMIN).
+      operationId: countActiveMemberships
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Conteo recuperado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountDTO'
+  /membership-plans:
+    post:
+      tags:
+        - Membership Plans
+      summary: Crear plan de membresía
+      description: Crea un nuevo plan de membresía en el catálogo (solo ADMIN).
+      operationId: createMembershipPlan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipPlanDTO'
+      responses:
+        '201':
+          description: Plan creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Nombre del plan ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Membership Plans
+      summary: Obtener todos los planes
+      description: Lista todos los planes de membresía.
+      operationId: getAllMembershipPlans
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Planes recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipPlanDTO'
+  /membership-plans/{id}:
+    get:
+      tags:
+        - Membership Plans
+      summary: Obtener plan por ID
+      description: Retorna un plan de membresía por su identificador.
+      operationId: getMembershipPlanById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Plan encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanDTO'
+        '404':
+          description: Plan no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+        - Membership Plans
+      summary: Actualizar plan
+      description: Actualiza un plan de membresía existente (solo ADMIN).
+      operationId: updateMembershipPlan
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MembershipPlanDTO'
+      responses:
+        '200':
+          description: Plan actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Plan no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Nombre del plan ya existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Membership Plans
+      summary: Eliminar plan
+      description: Elimina un plan de membresía (solo ADMIN).
+      operationId: deleteMembershipPlan
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Plan eliminado exitosamente
+        '404':
+          description: Plan no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /membership-plans/name/{name}:
+    get:
+      tags:
+        - Membership Plans
+      summary: Obtener plan por nombre
+      description: Retorna un plan de membresía por su nombre.
+      operationId: getMembershipPlanByName
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Plan encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanDTO'
+        '404':
+          description: Plan no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /membership-plans/active:
+    get:
+      tags:
+        - Membership Plans
+      summary: Obtener planes activos
+      description: Lista solo los planes de membresía activos.
+      operationId: getActiveMembershipPlans
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Planes activos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipPlanDTO'
+  /membership-plans/with-discount:
+    get:
+      tags:
+        - Membership Plans
+      summary: Obtener planes con descuento
+      description: Lista los planes de membresía activos que incluyen descuento.
+      operationId: getPlansWithDiscount
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Planes recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MembershipPlanDTO'
+  /membership-plans/{id}/status:
+    patch:
+      tags:
+        - Membership Plans
+      summary: Actualizar estado del plan
+      description: Cambia el estado de un plan de membresía (solo ADMIN).
+      operationId: updateMembershipPlanStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRecordStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MembershipPlanDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Plan no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /membership-plans/check-name/{name}:
+    get:
+      tags:
+        - Membership Plans
+      summary: Verificar si nombre de plan existe
+      description: Verifica si ya existe un plan con el nombre especificado (solo ADMIN).
+      operationId: existsMembershipPlanByName
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verificación completada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExistsDTO'
+  /invoices:
+    post:
+      tags:
+        - Invoices
+      summary: Crear factura manualmente
+      description: Crea una nueva factura manualmente (solo ADMIN).
+      operationId: createInvoice
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceDTO'
+      responses:
+        '201':
+          description: Factura creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Usuario o sesión de parqueo no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Invoices
+      summary: Obtener todas las facturas
+      description: Lista todas las facturas, opcionalmente filtradas por estado (solo ADMIN).
+      operationId: getAllInvoices
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/InvoiceStatus'
+      responses:
+        '200':
+          description: Facturas recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/generate-from-session/{parkingSessionId}:
+    post:
+      tags:
+        - Invoices
+      summary: Generar factura desde sesión
+      description: Genera una factura a partir de una sesión de parqueo completada, aplicando descuentos automáticos (ADMIN y OPERATOR).
+      operationId: generateInvoiceFromSession
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '201':
+          description: Factura generada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDTO'
+        '404':
+          description: Sesión de parqueo no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Ya existe una factura para esta sesión
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/{id}:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener factura por ID
+      description: Retorna una factura por su identificador. ADMIN puede ver cualquier factura; USER solo las suyas.
+      operationId: getInvoiceById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Factura encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDTO'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Invoices
+      summary: Eliminar factura
+      description: Elimina una factura (solo ADMIN).
+      operationId: deleteInvoice
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Factura eliminada exitosamente
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/session/{parkingSessionId}:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener factura por sesión
+      description: Retorna la factura asociada a una sesión de parqueo (solo ADMIN).
+      operationId: getInvoiceBySessionId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Factura encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDTO'
+        '404':
+          description: No se encontró factura para la sesión
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/user/{userId}:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener facturas por usuario
+      description: Lista las facturas de un usuario específico. ADMIN puede ver de cualquier usuario; USER solo las suyas.
+      operationId: getInvoicesByUserId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Facturas recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceDTO'
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/date-range:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener facturas por rango de fechas
+      description: Lista las facturas dentro de un rango de fechas (solo ADMIN).
+      operationId: getInvoicesByDateRange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Facturas recuperadas exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceDTO'
+        '400':
+          description: Rango de fechas inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/calculate/{parkingSessionId}:
+    get:
+      tags:
+        - Invoices
+      summary: Calcular monto total de sesión
+      description: Calcula el monto total para una sesión de parqueo, incluyendo descuentos e impuestos (solo ADMIN).
+      operationId: calculateTotalAmount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parkingSessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Monto calculado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountDTO'
+        '404':
+          description: Sesión de parqueo no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/{id}/status:
+    patch:
+      tags:
+        - Invoices
+      summary: Actualizar estado de factura
+      description: Cambia el estado de una factura (solo ADMIN).
+      operationId: updateInvoiceStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateInvoiceStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /invoices/revenue/{userId}:
+    get:
+      tags:
+        - Invoices
+      summary: Obtener ingresos totales por usuario
+      description: Obtiene los ingresos totales generados por un usuario (solo ADMIN).
+      operationId: getTotalRevenueByUser
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Ingresos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountDTO'
+  /payments:
+    post:
+      tags:
+        - Payments
+      summary: Crear pago manualmente
+      description: Crea un nuevo pago manualmente (solo ADMIN).
+      operationId: createPayment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentDTO'
+      responses:
+        '201':
+          description: Pago creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+        - Payments
+      summary: Obtener todos los pagos
+      description: Lista todos los pagos, opcionalmente filtrados por estado o método (solo ADMIN).
+      operationId: getAllPayments
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PaymentStatus'
+        - name: method
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PaymentMethod'
+      responses:
+        '200':
+          description: Pagos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Valor de filtro inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/process:
+    post:
+      tags:
+        - Payments
+      summary: Procesar pago
+      description: Procesa un pago para una factura, validando que el monto no exceda el saldo pendiente (ADMIN y OPERATOR).
+      operationId: processPayment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessPaymentRequestDTO'
+      responses:
+        '201':
+          description: Pago procesado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Datos inválidos o monto excede saldo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Factura ya pagada o monto excede saldo pendiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/process-multiple:
+    post:
+      tags:
+        - Payments
+      summary: Procesar múltiples pagos
+      description: Procesa múltiples pagos parciales para una factura de forma segura (solo ADMIN).
+      operationId: processMultiplePayments
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessMultiplePaymentsRequestDTO'
+      responses:
+        '201':
+          description: Pagos procesados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Datos de solicitud inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El monto total excede el saldo pendiente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/{id}:
+    get:
+      tags:
+        - Payments
+      summary: Obtener pago por ID
+      description: Retorna un pago por su identificador. ADMIN puede ver cualquier pago; USER solo los suyos.
+      operationId: getPaymentById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Pago encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDTO'
+        '404':
+          description: Pago no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+        - Payments
+      summary: Eliminar pago
+      description: Elimina un pago (solo ADMIN).
+      operationId: deletePayment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: Pago eliminado exitosamente
+        '404':
+          description: Pago no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/invoice/{invoiceId}:
+    get:
+      tags:
+        - Payments
+      summary: Obtener pagos por factura
+      description: Lista los pagos asociados a una factura específica (solo ADMIN).
+      operationId: getPaymentsByInvoiceId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Pagos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDTO'
+  /payments/date-range:
+    get:
+      tags:
+        - Payments
+      summary: Obtener pagos por rango de fechas
+      description: Lista los pagos dentro de un rango de fechas (solo ADMIN).
+      operationId: getPaymentsByDateRange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Pagos recuperados exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Rango de fechas inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/invoice/{invoiceId}/total-paid:
+    get:
+      tags:
+        - Payments
+      summary: Calcular total pagado de factura
+      description: Calcula el monto total pagado para una factura (solo ADMIN).
+      operationId: calculateTotalPaidAmount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Monto calculado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountDTO'
+  /payments/invoice/{invoiceId}/pending:
+    get:
+      tags:
+        - Payments
+      summary: Calcular monto pendiente de factura
+      description: Calcula el monto pendiente de pago para una factura (solo ADMIN).
+      operationId: calculatePendingAmount
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Monto calculado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmountDTO'
+        '404':
+          description: Factura no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/{id}/status:
+    patch:
+      tags:
+        - Payments
+      summary: Actualizar estado del pago
+      description: Cambia el estado de un pago (solo ADMIN).
+      operationId: updatePaymentStatus
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePaymentStatusDTO'
+      responses:
+        '200':
+          description: Estado actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDTO'
+        '400':
+          description: Valor de estado inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Pago no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /admin/dashboard/summary:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener resumen del dashboard
+      description: Obtiene un resumen completo del estado actual del sistema (solo ADMIN).
+      operationId: getDashboardSummary
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Resumen obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_DashboardSummaryDTO'
+  /admin/dashboard/parking-spaces/stats:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener estadísticas de espacios
+      description: Obtiene estadísticas de los espacios de parqueadero (solo ADMIN).
+      operationId: getParkingSpaceStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_ParkingSpaceStatsDTO'
+  /admin/dashboard/parking-sessions/stats:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener estadísticas de sesiones
+      description: Obtiene estadísticas de las sesiones de parqueo (solo ADMIN).
+      operationId: getParkingSessionStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_ParkingSessionStatsDTO'
+  /admin/dashboard/memberships/stats:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener estadísticas de membresías
+      description: Obtiene estadísticas de las membresías (solo ADMIN).
+      operationId: getMembershipStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_MembershipStatsDTO'
+  /admin/dashboard/financial/stats:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener estadísticas financieras
+      description: Obtiene estadísticas financieras del sistema (solo ADMIN).
+      operationId: getFinancialStats
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estadísticas obtenidas exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_FinancialStatsDTO'
+  /admin/dashboard/financial/revenue-report:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener reporte de ingresos
+      description: Obtiene un reporte de ingresos para un rango de fechas específico (solo ADMIN).
+      operationId: getRevenueReport
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Reporte obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_RevenueReportDTO'
+        '400':
+          description: Rango de fechas inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /admin/dashboard/health:
+    get:
+      tags:
+        - Admin Dashboard
+      summary: Obtener estado de salud del sistema
+      description: Verifica que los componentes principales del sistema estén funcionando (solo ADMIN).
+      operationId: getHealthStatus
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Estado de salud obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseDTO_SystemHealthDTO'
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: usuario@ejemplo.com
+        password:
+          type: string
+          minLength: 6
+          maxLength: 100
+          example: "password123"
+      required:
+        - email
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: usuario@ejemplo.com
+        firstName:
+          type: string
+          example: Juan
+        lastName:
+          type: string
+          example: Pérez
+        role:
+          type: string
+          example: USER
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIs..."
+    RegisterRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Juan
+        lastName:
+          type: string
+          example: Pérez
+        email:
+          type: string
+          format: email
+          example: juan@ejemplo.com
+        password:
+          type: string
+          minLength: 8
+          maxLength: 100
+          example: "Password123!"
+        phoneNumber:
+          type: string
+          pattern: "^[0-9+\\- ]{7,15}$"
+          example: "+57 300 123 4567"
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - phoneNumber
+    UserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        firstName:
+          type: string
+          example: Juan
+        lastName:
+          type: string
+          example: Pérez
+        email:
+          type: string
+          format: email
+          example: juan@ejemplo.com
+        phoneNumber:
+          type: string
+          pattern: "^[0-9+\\- ]{7,15}$"
+          example: "+57 300 123 4567"
+        role:
+          type: string
+          example: USER
+        isActive:
+          type: boolean
+          example: true
+      required:
+        - id
+        - firstName
+        - lastName
+        - email
+        - phoneNumber
+        - role
+        - isActive
+    CreateUserDTO:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: Ana
+        lastName:
+          type: string
+          example: Gómez
+        email:
+          type: string
+          format: email
+          example: ana@ejemplo.com
+        password:
+          type: string
+          minLength: 8
+          maxLength: 100
+          example: "SecurePass123!"
+        phoneNumber:
+          type: string
+          pattern: "^[0-9+\\- ]{7,15}$"
+          example: "+57 311 555 1234"
+        role:
+          type: string
+          example: OPERATOR
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - phoneNumber
+        - role
+    PasswordChangeRequest:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          minLength: 8
+          maxLength: 100
+          example: "OldPass123!"
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 100
+          pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@$!%*?&]).+$"
+          description: Debe contener al menos una mayúscula, una minúscula, un número y un carácter especial
+          example: "NewPass456!"
+        confirmPassword:
+          type: string
+          minLength: 8
+          maxLength: 100
+          example: "NewPass456!"
+      required:
+        - currentPassword
+        - newPassword
+        - confirmPassword
+    UpdateUserActiveStatusDTO:
+      type: object
+      properties:
+        isActive:
+          type: boolean
+          example: true
+      required:
+        - isActive
+    VehicleDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        userId:
+          type: integer
+          example: 5
+        licensePlate:
+          type: string
+          pattern: "^[A-Z0-9-]{5,10}$"
+          example: "ABC-123"
+        vehicleType:
+          type: string
+          example: "CAR"
+        brand:
+          type: string
+          example: "Toyota"
+        color:
+          type: string
+          example: "Rojo"
+      required:
+        - id
+        - userId
+        - licensePlate
+        - vehicleType
+        - brand
+        - color
+    ParkingSpaceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        spaceNumber:
+          type: string
+          example: "A-12"
+        vehicleTypeAllowed:
+          type: string
+          example: "CAR"
+        status:
+          type: string
+          example: "AVAILABLE"
+        locationDescription:
+          type: string
+          example: "Primer piso, ala norte"
+      required:
+        - id
+        - spaceNumber
+        - vehicleTypeAllowed
+        - status
+        - locationDescription
+    UpdateParkingSpaceStatusDTO:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ParkingSpaceStatus'
+      required:
+        - status
+    CheckInRequestDTO:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+          example: 10
+        parkingSpaceId:
+          type: integer
+          example: 1
+      required:
+        - vehicleId
+        - parkingSpaceId
+    ParkingSessionDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 100
+        vehicleId:
+          type: integer
+          example: 10
+        parkingSpaceId:
+          type: integer
+          example: 1
+        checkInTime:
+          type: string
+          format: date-time
+          example: "2025-02-27T10:30:00"
+        checkOutTime:
+          type: string
+          format: date-time
+          example: "2025-02-27T12:45:00"
+        totalMinutes:
+          type: integer
+          example: 135
+        baseAmount:
+          type: number
+          format: bigdecimal
+          example: 13500.00
+        discountAmount:
+          type: number
+          format: bigdecimal
+          example: 0.00
+        finalAmount:
+          type: number
+          format: bigdecimal
+          example: 13500.00
+        status:
+          type: string
+          example: "COMPLETED"
+      required:
+        - id
+        - vehicleId
+        - parkingSpaceId
+        - checkInTime
+        - totalMinutes
+        - baseAmount
+        - discountAmount
+        - finalAmount
+        - status
+    DetailingServiceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Lavado completo"
+        description:
+          type: string
+          example: "Lavado exterior e interior, aspirado y encerado"
+        price:
+          type: number
+          format: double
+          example: 50000.00
+        estimatedDurationMinutes:
+          type: integer
+          example: 60
+        status:
+          $ref: '#/components/schemas/ServiceOrderStatus'
+      required:
+        - id
+        - name
+        - description
+        - price
+        - estimatedDurationMinutes
+        - status
+    UpdateStatusDTO:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ServiceOrderStatus'
+      required:
+        - status
+    ServiceRequestDTO:
+      type: object
+      properties:
+        parkingSessionId:
+          type: integer
+          example: 100
+        detailingServiceId:
+          type: integer
+          example: 1
+      required:
+        - parkingSessionId
+        - detailingServiceId
+    ServiceOrderDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 200
+        parkingSessionId:
+          type: integer
+          example: 100
+        detailingServiceId:
+          type: integer
+          example: 1
+        requestedAt:
+          type: string
+          format: date-time
+          example: "2025-02-27T10:35:00"
+        completedAt:
+          type: string
+          format: date-time
+          example: "2025-02-27T11:35:00"
+        status:
+          $ref: '#/components/schemas/ServiceOrderStatus'
+        price:
+          type: number
+          format: bigdecimal
+          example: 50000.00
+      required:
+        - id
+        - parkingSessionId
+        - detailingServiceId
+        - requestedAt
+        - status
+        - price
+    MembershipDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 50
+        userId:
+          type: integer
+          example: 5
+        membershipPlanId:
+          type: integer
+          example: 2
+        startDate:
+          type: string
+          format: date-time
+          example: "2025-01-01T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59"
+        status:
+          type: string
+          example: "ACTIVE"
+        autoRenew:
+          type: boolean
+          example: true
+      required:
+        - id
+        - userId
+        - membershipPlanId
+        - startDate
+        - endDate
+        - status
+        - autoRenew
+    MembershipActiveCheckDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 5
+        checkedDate:
+          type: string
+          format: date-time
+          example: "2025-02-27T10:30:00"
+        activeMembership:
+          type: boolean
+          example: true
+    DiscountDTO:
+      type: object
+      properties:
+        userId:
+          type: integer
+          example: 5
+        discountPercentage:
+          type: number
+          format: bigdecimal
+          example: 10.00
+    MembershipPlanDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Plan Básico"
+        description:
+          type: string
+          example: "Acceso estándar con descuento del 5%"
+        monthlyFee:
+          type: number
+          format: bigdecimal
+          example: 50000.00
+        discountPercentage:
+          type: number
+          format: bigdecimal
+          example: 5.00
+        durationInDays:
+          type: integer
+          example: 30
+        status:
+          type: string
+          example: "ACTIVE"
+      required:
+        - id
+        - name
+        - description
+        - monthlyFee
+        - discountPercentage
+        - durationInDays
+        - status
+    UpdateRecordStatusDTO:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/RecordStatus'
+      required:
+        - status
+    InvoiceDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 300
+        userId:
+          type: integer
+          example: 5
+        parkingSessionId:
+          type: integer
+          example: 100
+        issueDate:
+          type: string
+          format: date-time
+          example: "2025-02-27T12:45:00"
+        subtotal:
+          type: number
+          format: bigdecimal
+          example: 13500.00
+        discount:
+          type: number
+          format: bigdecimal
+          example: 1350.00
+        tax:
+          type: number
+          format: bigdecimal
+          example: 2430.00
+        totalAmount:
+          type: number
+          format: bigdecimal
+          example: 14580.00
+        status:
+          type: string
+          example: "PENDING"
+      required:
+        - id
+        - userId
+        - parkingSessionId
+        - issueDate
+        - subtotal
+        - discount
+        - tax
+        - totalAmount
+        - status
+    UpdateInvoiceStatusDTO:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/InvoiceStatus'
+      required:
+        - status
+    PaymentDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 400
+        invoiceId:
+          type: integer
+          example: 300
+        paymentMethod:
+          type: string
+          example: "CARD"
+        externalReference:
+          type: string
+          example: "TX-12345"
+        paymentDate:
+          type: string
+          format: date-time
+          example: "2025-02-27T13:00:00"
+        amount:
+          type: number
+          format: bigdecimal
+          example: 14580.00
+        status:
+          type: string
+          example: "APPROVED"
+      required:
+        - id
+        - invoiceId
+        - paymentMethod
+        - externalReference
+        - paymentDate
+        - amount
+        - status
+    ProcessPaymentRequestDTO:
+      type: object
+      properties:
+        invoiceId:
+          type: integer
+          example: 300
+        amount:
+          type: number
+          format: bigdecimal
+          example: 14580.00
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        externalReference:
+          type: string
+          example: "REF-001"
+      required:
+        - invoiceId
+        - amount
+        - paymentMethod
+    ProcessMultiplePaymentsRequestDTO:
+      type: object
+      properties:
+        invoiceId:
+          type: integer
+          example: 300
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentDTO'
+      required:
+        - invoiceId
+        - payments
+    UpdatePaymentStatusDTO:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+      required:
+        - status
+    AmountDTO:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: bigdecimal
+          example: 14580.00
+    CountDTO:
+      type: object
+      properties:
+        label:
+          type: string
+          example: "availableSpaces"
+        count:
+          type: integer
+          example: 15
+    ExistsDTO:
+      type: object
+      properties:
+        identifier:
+          type: string
+          example: "ABC-123"
+        exists:
+          type: boolean
+          example: true
+    DashboardSummaryDTO:
+      type: object
+      properties:
+        availableSpaces:
+          type: integer
+          example: 15
+        occupiedSpaces:
+          type: integer
+          example: 25
+        occupancyRate:
+          type: number
+          format: double
+          example: 62.5
+        activeMemberships:
+          type: integer
+          example: 42
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-02-27T10:30:00"
+    ParkingSpaceStatsDTO:
+      type: object
+      properties:
+        availableSpaces:
+          type: integer
+          example: 15
+        occupiedSpaces:
+          type: integer
+          example: 25
+        totalSpaces:
+          type: integer
+          example: 40
+        occupancyPercentage:
+          type: number
+          format: double
+          example: 62.5
+    ParkingSessionStatsDTO:
+      type: object
+      properties:
+        totalSessions:
+          type: integer
+          example: 1200
+        sessionsLast30Days:
+          type: integer
+          example: 350
+    MembershipStatsDTO:
+      type: object
+      properties:
+        activeMemberships:
+          type: integer
+          example: 42
+        totalMemberships:
+          type: integer
+          example: 50
+        activationRate:
+          type: number
+          format: double
+          example: 84.0
+    FinancialStatsDTO:
+      type: object
+      properties:
+        totalInvoices:
+          type: integer
+          example: 950
+        pendingInvoices:
+          type: integer
+          example: 30
+        paidInvoices:
+          type: integer
+          example: 920
+        totalRevenue:
+          type: number
+          format: double
+          example: 12500000.00
+    RevenueReportDTO:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+          example: "2025-02-01T00:00:00"
+        endDate:
+          type: string
+          format: date-time
+          example: "2025-02-28T23:59:59"
+        totalInvoiced:
+          type: number
+          format: double
+          example: 3500000.00
+        totalPaid:
+          type: number
+          format: double
+          example: 3450000.00
+        pendingAmount:
+          type: number
+          format: double
+          example: 50000.00
+        invoiceCount:
+          type: integer
+          example: 150
+        paymentCount:
+          type: integer
+          example: 148
+    SystemHealthDTO:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "UP"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-02-27T10:30:00"
+        message:
+          type: string
+          example: "All systems operational"
+        database:
+          type: string
+          example: "UP"
+    ResponseDTO_DashboardSummaryDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/DashboardSummaryDTO'
+    ResponseDTO_ParkingSpaceStatsDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/ParkingSpaceStatsDTO'
+    ResponseDTO_ParkingSessionStatsDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/ParkingSessionStatsDTO'
+    ResponseDTO_MembershipStatsDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/MembershipStatsDTO'
+    ResponseDTO_FinancialStatsDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/FinancialStatsDTO'
+    ResponseDTO_RevenueReportDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/RevenueReportDTO'
+    ResponseDTO_SystemHealthDTO:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: false
+        content:
+          $ref: '#/components/schemas/SystemHealthDTO'
+    # Enums (inferidos de los nombres y usos)
+    ServiceOrderStatus:
+      type: string
+      enum: [REQUESTED, IN_PROGRESS, COMPLETED, CANCELLED]
+    ParkingSpaceStatus:
+      type: string
+      enum: [AVAILABLE, OCCUPIED, RESERVED, OUT_OF_SERVICE]
+    SessionStatus:
+      type: string
+      enum: [ACTIVE, COMPLETED, CANCELLED]
+    VehicleType:
+      type: string
+      enum: [CAR, MOTORCYCLE, ELECTRIC]
+    MembershipStatus:
+      type: string
+      enum: [ACTIVE, EXPIRED, CANCELLED]
+    InvoiceStatus:
+      type: string
+      enum: [PENDING, PAID, CANCELLED]
+    PaymentMethod:
+      type: string
+      enum: [CASH, CARD, MERCADO_PAGO]
+    PaymentStatus:
+      type: string
+      enum: [APPROVED, REJECTED, PENDING]
+    RecordStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE]
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

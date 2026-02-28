@@ -1,0 +1,108 @@
+<div class="page-header">
+  <h1>Mapa de Parqueadero</h1>
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot legend-dot--available"></span> Disponible</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--occupied"></span> Ocupado</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--reserved"></span> Reservado</span>
+    <span class="legend-item"><span class="legend-dot legend-dot--oos"></span> Fuera de servicio</span>
+  </div>
+</div>
+
+@if (loading) {
+  <qp-loading size="lg"></qp-loading>
+} @else {
+  <div class="parking-grid fade-in">
+    @for (space of spaces; track space.id) {
+      <button
+        class="slot {{ getStatusClass(space.status.toString()) }}"
+        (click)="onSlotClick(space)"
+        [attr.aria-label]="'Espacio ' + space.spaceNumber + ' - ' + space.status"
+        [title]="space.spaceNumber + ' (' + space.status + ')'">
+        <span class="slot-number">{{ space.spaceNumber }}</span>
+        <span class="slot-icon">
+          @switch (space.status.toString()) {
+            @case ('AVAILABLE') { 🅿️ }
+            @case ('OCCUPIED') { 🚗 }
+            @case ('RESERVED') { 🔒 }
+            @case ('OUT_OF_SERVICE') { ⚠️ }
+          }
+        </span>
+      </button>
+    }
+  </div>
+}
+
+<!-- Modal -->
+<qp-modal [visible]="showModal" [title]="'Espacio ' + (selectedSpace?.spaceNumber || '')" (closed)="closeModal()">
+  @switch (modalMode) {
+    <!-- AVAILABLE: Check-in form -->
+    @case ('available') {
+      <div class="modal-section">
+        <p class="modal-status"><span class="badge badge--success">Disponible</span></p>
+        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="plate">Buscar vehículo por placa</label>
+          <div class="search-row">
+            <input id="plate" type="text" [(ngModel)]="licensePlate" placeholder="ABC-123" (keyup.enter)="searchVehicle()">
+            <button class="btn btn--primary btn--sm" (click)="searchVehicle()" [disabled]="searchingVehicle || !licensePlate.trim()">
+              @if (searchingVehicle) { Buscando... } @else { Buscar }
+            </button>
+          </div>
+        </div>
+
+        @if (foundVehicle) {
+          <div class="vehicle-info card">
+            <p><strong>Placa:</strong> {{ foundVehicle.licensePlate }}</p>
+            <p><strong>Tipo:</strong> {{ foundVehicle.vehicleType }}</p>
+            <p><strong>Marca:</strong> {{ foundVehicle.brand }}</p>
+            <p><strong>Color:</strong> {{ foundVehicle.color }}</p>
+          </div>
+          <button class="btn btn--success" style="width: 100%; margin-top: 12px;" (click)="performCheckIn()" [disabled]="checkingIn">
+            @if (checkingIn) { Registrando... } @else { ✓ Registrar entrada }
+          </button>
+        }
+      </div>
+    }
+
+    <!-- OCCUPIED: Session details + checkout -->
+    @case ('occupied') {
+      <div class="modal-section">
+        <p class="modal-status"><span class="badge badge--gray">Ocupado</span></p>
+        @if (loadingSession) {
+          <qp-loading size="sm"></qp-loading>
+        } @else if (activeSession) {
+          <div class="session-info">
+            <p><strong>Hora entrada:</strong> {{ activeSession.checkInTime | date:'medium' }}</p>
+            <p><strong>Tiempo:</strong> {{ activeSession.checkInTime | timeElapsed }}</p>
+            <p><strong>Vehículo ID:</strong> {{ activeSession.vehicleId }}</p>
+          </div>
+          <button class="btn btn--danger" style="width: 100%; margin-top: 16px;" (click)="performCheckOut()" [disabled]="checkingOut">
+            @if (checkingOut) { Procesando... } @else { Registrar salida }
+          </button>
+        } @else {
+          <p>No se encontró sesión activa.</p>
+        }
+      </div>
+    }
+
+    <!-- RESERVED -->
+    @case ('reserved') {
+      <div class="modal-section">
+        <p class="modal-status"><span class="badge badge--warning">Reservado</span></p>
+        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+        <p style="margin-top: 12px; color: #7F8C8D;">Este espacio se encuentra reservado.</p>
+      </div>
+    }
+
+    <!-- OUT OF SERVICE -->
+    @case ('oos') {
+      <div class="modal-section">
+        <p class="modal-status"><span class="badge badge--danger">Fuera de servicio</span></p>
+        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+        <p style="margin-top: 12px; color: #7F8C8D;">Espacio en mantenimiento.</p>
+      </div>
+    }
+  }
+</qp-modal>
+

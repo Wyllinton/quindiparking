@@ -1,0 +1,134 @@
+.legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: #7F8C8D;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+
+  &--available { background: #2ECC71; }
+  &--occupied  { background: #95A5A6; }
+  &--reserved  { background: #F1C40F; }
+  &--oos       { background: #E74C3C; }
+}
+
+.parking-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 8px;
+  max-width: 900px;
+}
+
+.slot {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px solid transparent;
+  font-size: 0.75rem;
+  transition: all 0.15s ease;
+  position: relative;
+
+  &:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    z-index: 2;
+  }
+
+  &:focus-visible {
+    outline: 3px solid #1A237E;
+    outline-offset: 2px;
+  }
+
+  &--available {
+    background: rgba(#2ECC71, 0.12);
+    border-color: rgba(#2ECC71, 0.3);
+    color: #27AE60;
+    &:hover { background: rgba(#2ECC71, 0.2); }
+  }
+
+  &--occupied {
+    background: rgba(#95A5A6, 0.15);
+    border-color: rgba(#95A5A6, 0.3);
+    color: #7F8C8D;
+    &:hover { background: rgba(#95A5A6, 0.25); }
+  }
+
+  &--reserved {
+    background: rgba(#F1C40F, 0.12);
+    border-color: rgba(#F1C40F, 0.3);
+    color: #D4AC0D;
+    &:hover { background: rgba(#F1C40F, 0.2); }
+  }
+
+  &--oos {
+    background: rgba(#E74C3C, 0.08);
+    border-color: rgba(#E74C3C, 0.2);
+    color: #E74C3C;
+    cursor: default;
+    &:hover { background: rgba(#E74C3C, 0.12); }
+  }
+}
+
+.slot-number {
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.3px;
+}
+
+.slot-icon {
+  font-size: 1.125rem;
+}
+
+// Modal internals
+.modal-section { min-height: 80px; }
+
+.modal-status { margin-bottom: 8px; }
+
+.modal-detail {
+  font-size: 0.875rem;
+  color: #7F8C8D;
+}
+
+.search-row {
+  display: flex;
+  gap: 8px;
+
+  input { flex: 1; }
+}
+
+.vehicle-info {
+  margin-top: 12px;
+  padding: 14px;
+  font-size: 0.875rem;
+
+  p { margin-bottom: 4px; }
+}
+
+.session-info {
+  margin-top: 12px;
+  font-size: 0.875rem;
+
+  p { margin-bottom: 6px; }
+}
+
+@media (max-width: 640px) {
+  .parking-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
