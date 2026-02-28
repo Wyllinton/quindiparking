@@ -1,2 +1,16 @@
 <router-outlet></router-outlet>
 <qp-toast></qp-toast>
+
+<!-- Floating accessibility button — visible on ALL pages -->
+<button
+  class="a11y-fab"
+  (click)="showAccessibilityPanel = !showAccessibilityPanel"
+  aria-label="Abrir panel de accesibilidad"
+  title="Accesibilidad">
+  ♿
+</button>
+
+@if (showAccessibilityPanel) {
+  <qp-accessibility-panel (closed)="showAccessibilityPanel = false"></qp-accessibility-panel>
+}
+

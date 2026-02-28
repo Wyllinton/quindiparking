@@ -3,7 +3,7 @@
 </div>
 
 <!-- Financial Stats -->
-<section class="report-section fade-in">
+<section class="report-section fade-in" role="region" aria-label="Estadísticas financieras">
   <h2 class="section-title">Estadísticas Financieras</h2>
   @if (loadingStats) {
     <qp-loading></qp-loading>
@@ -30,19 +30,19 @@
 </section>
 
 <!-- Revenue Report -->
-<section class="report-section fade-in">
+<section class="report-section fade-in" role="region" aria-label="Reporte de ingresos">
   <h2 class="section-title">Reporte de Ingresos</h2>
-  <div class="report-filters card">
+  <div class="report-filters card" role="form" aria-label="Filtros del reporte de ingresos">
     <div class="filter-row">
       <div class="form-group">
         <label for="startDate">Fecha inicio</label>
-        <input id="startDate" type="date" [(ngModel)]="startDate">
+        <input id="startDate" type="date" [(ngModel)]="startDate" aria-required="true">
       </div>
       <div class="form-group">
         <label for="endDate">Fecha fin</label>
-        <input id="endDate" type="date" [(ngModel)]="endDate">
+        <input id="endDate" type="date" [(ngModel)]="endDate" aria-required="true">
       </div>
-      <button class="btn btn--primary" (click)="loadRevenueReport()" [disabled]="loadingReport || !startDate || !endDate">
+      <button class="btn btn--primary" (click)="loadRevenueReport()" [disabled]="loadingReport || !startDate || !endDate" aria-label="Generar reporte de ingresos">
         Generar reporte
       </button>
     </div>
@@ -51,7 +51,7 @@
   @if (loadingReport) {
     <qp-loading></qp-loading>
   } @else if (revenueReport) {
-    <div class="card report-result">
+    <div class="card report-result" role="region" aria-label="Resultados del reporte">
       <div class="report-grid">
         <div class="report-item">
           <span class="report-label">Período</span>

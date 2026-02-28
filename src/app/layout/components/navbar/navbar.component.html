@@ -5,10 +5,6 @@
   </div>
 
   <div class="navbar-actions">
-    <button class="btn btn--outline btn--sm" (click)="toggleAccessibility()" aria-label="Panel de accesibilidad" title="Accesibilidad">
-      ♿ Accesibilidad
-    </button>
-
     @if (user) {
       <span class="navbar-user">{{ user.firstName }} {{ user.lastName }}</span>
     }
@@ -19,7 +15,4 @@
   </div>
 </nav>
 
-@if (showAccessibility) {
-  <qp-accessibility-panel (closed)="showAccessibility = false"></qp-accessibility-panel>
-}
 

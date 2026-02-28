@@ -249,6 +249,40 @@ body.high-contrast {
   .btn--primary { background: #FFD700 !important; color: #000 !important; }
   .sidebar { background: #111 !important; }
   .navbar { background: #111 !important; border-color: #333 !important; }
+
+  // Toast / notification fix for high contrast
+  .toast {
+    background: #000 !important;
+    color: #fff !important;
+    border-color: #fff !important;
+  }
+  .toast-message { color: #fff !important; }
+  .toast-close { color: #ccc !important; &:hover { color: #fff !important; } }
+  .toast-icon { color: #fff !important; }
+
+  // Accessibility panel in high contrast
+  .a11y-panel { background: #111 !important; color: #fff !important; border: 1px solid #fff !important; }
+  .a11y-header { border-color: #444 !important; }
+  .a11y-header h3 { color: #fff !important; }
+  .a11y-close { color: #ccc !important; &:hover { background: #333 !important; } }
+  .a11y-toggle { background: #222 !important; color: #fff !important; border-color: #555 !important;
+    &:hover { border-color: #fff !important; }
+    &.active { background: rgba(#FFD700, 0.15) !important; border-color: #FFD700 !important; color: #FFD700 !important; }
+  }
+  .a11y-status { color: inherit !important; }
+  .a11y-section label { color: #ccc !important; }
+
+  // Floating accessibility button in high contrast
+  .a11y-fab { background: #FFD700 !important; color: #000 !important; }
+
+  // Auth pages in high contrast
+  .auth-page { background: #000 !important; }
+  .auth-card { background: #111 !important; color: #fff !important; }
+  .auth-header h1 { color: #fff !important; }
+  .auth-header p { color: #ccc !important; }
+  .auth-footer { color: #ccc !important; }
+  .auth-footer a { color: #FFD700 !important; }
+  .form-error { color: #FF6B6B !important; }
 }
 
 body.grayscale {
@@ -265,6 +299,15 @@ body.highlight-links {
 body.dyslexia-font {
   font-family: $font-dyslexia !important;
   * { font-family: $font-dyslexia !important; }
+}
+
+body.reduce-motion {
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
 }
 
 // ═══ Scrollbar ═══

@@ -1,14 +1,14 @@
 <div class="page-header">
   <h1>Dashboard</h1>
-  <button class="btn btn--outline btn--sm" (click)="loadSummary()" [disabled]="loading">↻ Actualizar</button>
+  <button class="btn btn--outline btn--sm" (click)="loadSummary()" [disabled]="loading" aria-label="Actualizar datos del dashboard">↻ Actualizar</button>
 </div>
 
 @if (loading) {
   <qp-loading size="lg"></qp-loading>
 } @else if (summary) {
-  <div class="dashboard-grid fade-in">
+  <div class="dashboard-grid fade-in" role="region" aria-label="Resumen del parqueadero">
     <div class="card stat-card">
-      <div class="stat-icon stat-icon--occupied">🚗</div>
+      <div class="stat-icon stat-icon--occupied" role="img" aria-label="Vehículos">🚗</div>
       <div class="stat-info">
         <span class="stat-value">{{ summary.occupiedSpaces }}</span>
         <span class="stat-label">Vehículos estacionados</span>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="card stat-card">
-      <div class="stat-icon stat-icon--available">🅿️</div>
+      <div class="stat-icon stat-icon--available" role="img" aria-label="Parqueadero">🅿️</div>
       <div class="stat-info">
         <span class="stat-value">{{ summary.availableSpaces }}</span>
         <span class="stat-label">Espacios disponibles</span>
@@ -24,7 +24,7 @@
     </div>
 
     <div class="card stat-card">
-      <div class="stat-icon stat-icon--rate">📊</div>
+      <div class="stat-icon stat-icon--rate" role="img" aria-label="Estadística">📊</div>
       <div class="stat-info">
         <span class="stat-value">{{ summary.occupancyRate | number:'1.1-1' }}%</span>
         <span class="stat-label">Tasa de ocupación</span>
@@ -32,7 +32,7 @@
     </div>
 
     <div class="card stat-card">
-      <div class="stat-icon stat-icon--members">💳</div>
+      <div class="stat-icon stat-icon--members" role="img" aria-label="Membresías">💳</div>
       <div class="stat-info">
         <span class="stat-value">{{ summary.activeMemberships }}</span>
         <span class="stat-label">Membresías activas</span>

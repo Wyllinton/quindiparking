@@ -8,4 +8,5 @@
   })
   export class App {
     protected readonly title = signal('quindiparking');
+    showAccessibilityPanel = false;
   }

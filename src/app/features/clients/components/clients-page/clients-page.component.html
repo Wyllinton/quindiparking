@@ -1,46 +1,46 @@
 <div class="page-header">
   <h1>Clientes</h1>
-  <button class="btn btn--primary" (click)="openCreate()">+ Nuevo cliente</button>
+  <button class="btn btn--primary" (click)="openCreate()" aria-label="Crear nuevo cliente">+ Nuevo cliente</button>
 </div>
 
 <!-- Form modal -->
 <qp-modal [visible]="showForm" [title]="editing ? 'Editar cliente' : 'Nuevo cliente'" (closed)="closeForm()">
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulario de cliente">
     <div class="form-row">
       <div class="form-group">
         <label for="cfName">Nombre</label>
-        <input id="cfName" formControlName="firstName" placeholder="Juan">
+        <input id="cfName" formControlName="firstName" placeholder="Juan" aria-required="true">
       </div>
       <div class="form-group">
         <label for="clName">Apellido</label>
-        <input id="clName" formControlName="lastName" placeholder="Pérez">
+        <input id="clName" formControlName="lastName" placeholder="Pérez" aria-required="true">
       </div>
     </div>
     <div class="form-group">
       <label for="cEmail">Correo</label>
-      <input id="cEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com">
+      <input id="cEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com" aria-required="true">
     </div>
     @if (!editing) {
       <div class="form-group">
         <label for="cPass">Contraseña</label>
-        <input id="cPass" type="password" formControlName="password" placeholder="Mínimo 8 caracteres">
+        <input id="cPass" type="password" formControlName="password" placeholder="Mínimo 8 caracteres" aria-required="true">
       </div>
     }
     <div class="form-group">
       <label for="cPhone">Teléfono</label>
-      <input id="cPhone" formControlName="phoneNumber" placeholder="+57 300 123 4567">
+      <input id="cPhone" formControlName="phoneNumber" placeholder="+57 300 123 4567" aria-required="true">
     </div>
     <div class="form-group">
       <label for="cRole">Rol</label>
-      <select id="cRole" formControlName="role">
+      <select id="cRole" formControlName="role" aria-required="true">
         <option value="USER">Usuario</option>
         <option value="OPERATOR">Operador</option>
         <option value="ADMIN">Administrador</option>
       </select>
     </div>
     <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
-      <button type="button" class="btn btn--outline" (click)="closeForm()">Cancelar</button>
-      <button type="submit" class="btn btn--primary" [disabled]="form.invalid || submitting">
+      <button type="button" class="btn btn--outline" (click)="closeForm()" aria-label="Cancelar formulario">Cancelar</button>
+      <button type="submit" class="btn btn--primary" [disabled]="form.invalid || submitting" aria-label="Guardar cliente">
         @if (submitting) { Guardando... } @else { {{ editing ? 'Actualizar' : 'Crear' }} }
       </button>
     </div>
@@ -52,16 +52,16 @@
   <qp-loading size="lg"></qp-loading>
 } @else {
   <div class="table-container card fade-in" style="padding: 0;">
-    <table>
+    <table aria-label="Tabla de clientes">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Correo</th>
-          <th>Teléfono</th>
-          <th>Rol</th>
-          <th>Estado</th>
-          <th>Acciones</th>
+          <th scope="col">ID</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Correo</th>
+          <th scope="col">Teléfono</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Estado</th>
+          <th scope="col">Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -80,7 +80,7 @@
               }
             </td>
             <td>
-              <button class="btn btn--outline btn--sm" (click)="openEdit(user)">Editar</button>
+              <button class="btn btn--outline btn--sm" (click)="openEdit(user)" aria-label="Editar cliente {{ user.firstName }} {{ user.lastName }}">Editar</button>
             </td>
           </tr>
         } @empty {

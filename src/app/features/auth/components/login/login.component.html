@@ -1,34 +1,38 @@
-<div class="auth-page">
+<div class="auth-page" role="main">
   <div class="auth-card slide-up">
     <div class="auth-header">
-      <div class="auth-logo">🅿️</div>
+      <div class="auth-logo" role="img" aria-label="Logo de QuindiParking">🅿️</div>
       <h1>QuindiParking</h1>
       <p>Inicia sesión para continuar</p>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulario de inicio de sesión">
       <div class="form-group">
         <label for="email">Correo electrónico</label>
-        <input id="email" type="email" formControlName="email" placeholder="usuario@ejemplo.com" autocomplete="email">
+        <input id="email" type="email" formControlName="email" placeholder="usuario@ejemplo.com" autocomplete="email"
+               aria-required="true" [attr.aria-invalid]="form.get('email')?.touched && form.get('email')?.invalid"
+               [attr.aria-describedby]="form.get('email')?.touched && form.get('email')?.errors ? 'email-error' : null">
         @if (form.get('email')?.touched && form.get('email')?.errors?.['required']) {
-          <span class="form-error">El correo es obligatorio</span>
+          <span class="form-error" id="email-error" role="alert">El correo es obligatorio</span>
         }
         @if (form.get('email')?.touched && form.get('email')?.errors?.['email']) {
-          <span class="form-error">Ingresa un correo válido</span>
+          <span class="form-error" id="email-error" role="alert">Ingresa un correo válido</span>
         }
       </div>
 
       <div class="form-group">
         <label for="password">Contraseña</label>
-        <input id="password" type="password" formControlName="password" placeholder="••••••••" autocomplete="current-password">
+        <input id="password" type="password" formControlName="password" placeholder="••••••••" autocomplete="current-password"
+               aria-required="true" [attr.aria-invalid]="form.get('password')?.touched && form.get('password')?.invalid"
+               [attr.aria-describedby]="form.get('password')?.touched && form.get('password')?.errors ? 'password-error' : null">
         @if (form.get('password')?.touched && form.get('password')?.errors?.['required']) {
-          <span class="form-error">La contraseña es obligatoria</span>
+          <span class="form-error" id="password-error" role="alert">La contraseña es obligatoria</span>
         }
       </div>
 
-      <button type="submit" class="btn btn--primary btn--lg auth-btn" [disabled]="form.invalid || loading">
+      <button type="submit" class="btn btn--primary btn--lg auth-btn" [disabled]="form.invalid || loading" aria-label="Iniciar sesión">
         @if (loading) {
-          <span class="btn-spinner"></span> Ingresando...
+          <span class="btn-spinner" role="status" aria-label="Cargando"></span> Ingresando...
         } @else {
           Iniciar sesión
         }

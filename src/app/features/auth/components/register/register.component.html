@@ -1,56 +1,66 @@
-<div class="auth-page">
+<div class="auth-page" role="main">
   <div class="auth-card slide-up">
     <div class="auth-header">
-      <div class="auth-logo">🅿️</div>
+      <div class="auth-logo" role="img" aria-label="Logo de QuindiParking">🅿️</div>
       <h1>Crear cuenta</h1>
       <p>Regístrate en QuindiParking</p>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulario de registro">
       <div class="form-row">
         <div class="form-group">
           <label for="firstName">Nombre</label>
-          <input id="firstName" type="text" formControlName="firstName" placeholder="Juan">
+          <input id="firstName" type="text" formControlName="firstName" placeholder="Juan"
+                 aria-required="true" [attr.aria-invalid]="form.get('firstName')?.touched && form.get('firstName')?.invalid"
+                 [attr.aria-describedby]="form.get('firstName')?.touched && form.get('firstName')?.errors ? 'firstName-error' : null">
           @if (form.get('firstName')?.touched && form.get('firstName')?.errors?.['required']) {
-            <span class="form-error">Campo obligatorio</span>
+            <span class="form-error" id="firstName-error" role="alert">Campo obligatorio</span>
           }
         </div>
         <div class="form-group">
           <label for="lastName">Apellido</label>
-          <input id="lastName" type="text" formControlName="lastName" placeholder="Pérez">
+          <input id="lastName" type="text" formControlName="lastName" placeholder="Pérez"
+                 aria-required="true" [attr.aria-invalid]="form.get('lastName')?.touched && form.get('lastName')?.invalid"
+                 [attr.aria-describedby]="form.get('lastName')?.touched && form.get('lastName')?.errors ? 'lastName-error' : null">
           @if (form.get('lastName')?.touched && form.get('lastName')?.errors?.['required']) {
-            <span class="form-error">Campo obligatorio</span>
+            <span class="form-error" id="lastName-error" role="alert">Campo obligatorio</span>
           }
         </div>
       </div>
 
       <div class="form-group">
         <label for="regEmail">Correo electrónico</label>
-        <input id="regEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com" autocomplete="email">
+        <input id="regEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com" autocomplete="email"
+               aria-required="true" [attr.aria-invalid]="form.get('email')?.touched && form.get('email')?.invalid"
+               [attr.aria-describedby]="form.get('email')?.touched && form.get('email')?.errors ? 'regEmail-error' : null">
         @if (form.get('email')?.touched && form.get('email')?.errors?.['email']) {
-          <span class="form-error">Correo inválido</span>
+          <span class="form-error" id="regEmail-error" role="alert">Correo inválido</span>
         }
       </div>
 
       <div class="form-group">
         <label for="phone">Teléfono</label>
-        <input id="phone" type="tel" formControlName="phoneNumber" placeholder="+57 300 123 4567">
+        <input id="phone" type="tel" formControlName="phoneNumber" placeholder="+57 300 123 4567"
+               aria-required="true" [attr.aria-invalid]="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.invalid"
+               [attr.aria-describedby]="form.get('phoneNumber')?.touched && form.get('phoneNumber')?.errors ? 'phone-error' : null">
         @if (form.get('phoneNumber')?.touched && form.get('phoneNumber')?.errors?.['pattern']) {
-          <span class="form-error">Formato de teléfono inválido</span>
+          <span class="form-error" id="phone-error" role="alert">Formato de teléfono inválido</span>
         }
       </div>
 
       <div class="form-group">
         <label for="regPassword">Contraseña</label>
-        <input id="regPassword" type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+        <input id="regPassword" type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"
+               aria-required="true" [attr.aria-invalid]="form.get('password')?.touched && form.get('password')?.invalid"
+               [attr.aria-describedby]="form.get('password')?.touched && form.get('password')?.errors ? 'regPassword-error' : null">
         @if (form.get('password')?.touched && form.get('password')?.errors?.['minlength']) {
-          <span class="form-error">Mínimo 8 caracteres</span>
+          <span class="form-error" id="regPassword-error" role="alert">Mínimo 8 caracteres</span>
         }
       </div>
 
-      <button type="submit" class="btn btn--primary btn--lg auth-btn" [disabled]="form.invalid || loading">
+      <button type="submit" class="btn btn--primary btn--lg auth-btn" [disabled]="form.invalid || loading" aria-label="Crear cuenta">
         @if (loading) {
-          <span class="btn-spinner"></span> Registrando...
+          <span class="btn-spinner" role="status" aria-label="Cargando"></span> Registrando...
         } @else {
           Crear cuenta
         }

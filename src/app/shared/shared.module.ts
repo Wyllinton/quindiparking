@@ -9,6 +9,7 @@ import { ClickOutsideDirective } from './directives/click-outside.directive';
 import { ModalComponent } from './components/modal/modal.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { ToastComponent } from './components/toast/toast.component';
+import { AccessibilityPanelComponent } from '../layout/components/accessibility-panel/accessibility-panel.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { ToastComponent } from './components/toast/toast.component';
     ClickOutsideDirective,
     ModalComponent,
     LoadingSpinnerComponent,
-    ToastComponent
+    ToastComponent,
+    AccessibilityPanelComponent
   ],
   imports: [
     CommonModule,
@@ -35,7 +37,8 @@ import { ToastComponent } from './components/toast/toast.component';
     ClickOutsideDirective,
     ModalComponent,
     LoadingSpinnerComponent,
-    ToastComponent
+    ToastComponent,
+    AccessibilityPanelComponent
   ]
 })
 export class SharedModule {}

@@ -1,6 +1,6 @@
 <div class="page-header">
   <h1>Membresías</h1>
-  <button class="btn btn--primary" (click)="showForm = !showForm">
+  <button class="btn btn--primary" (click)="showForm = !showForm" aria-label="Alternar formulario de nueva membresía">
     @if (showForm) { Cancelar } @else { + Nueva membresía }
   </button>
 </div>
@@ -9,15 +9,15 @@
 @if (showForm) {
   <div class="card form-card fade-in" style="margin-bottom: 24px;">
     <h3 style="margin-bottom: 16px; font-size: 1rem;">Crear membresía</h3>
-    <form [formGroup]="form" (ngSubmit)="createMembership()">
+    <form [formGroup]="form" (ngSubmit)="createMembership()" aria-label="Formulario de creación de membresía">
       <div class="form-row">
         <div class="form-group">
           <label for="mUserId">ID Usuario</label>
-          <input id="mUserId" type="number" formControlName="userId" placeholder="5">
+          <input id="mUserId" type="number" formControlName="userId" placeholder="5" aria-required="true">
         </div>
         <div class="form-group">
           <label for="mPlan">Plan</label>
-          <select id="mPlan" formControlName="membershipPlanId">
+          <select id="mPlan" formControlName="membershipPlanId" aria-required="true">
             <option [ngValue]="null" disabled>Seleccionar plan</option>
             @for (plan of plans; track plan.id) {
               <option [ngValue]="plan.id">{{ plan.name }} — {{ plan.monthlyFee | currencyFormat }}/mes</option>
@@ -28,18 +28,18 @@
       <div class="form-row">
         <div class="form-group">
           <label for="mStart">Fecha inicio</label>
-          <input id="mStart" type="date" formControlName="startDate">
+          <input id="mStart" type="date" formControlName="startDate" aria-required="true">
         </div>
         <div class="form-group">
           <label for="mEnd">Fecha fin</label>
-          <input id="mEnd" type="date" formControlName="endDate">
+          <input id="mEnd" type="date" formControlName="endDate" aria-required="true">
         </div>
       </div>
       <label class="checkbox-label">
-        <input type="checkbox" formControlName="autoRenew"> Renovación automática
+        <input type="checkbox" formControlName="autoRenew" aria-label="Activar renovación automática"> Renovación automática
       </label>
       <div style="margin-top: 16px;">
-        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting">
+        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting" aria-label="Crear membresía">
           @if (submitting) { Creando... } @else { Crear membresía }
         </button>
       </div>
@@ -48,7 +48,7 @@
 }
 
 <!-- Plans catalog -->
-<section style="margin-bottom: 32px;">
+<section style="margin-bottom: 32px;" role="region" aria-label="Planes disponibles">
   <h2 class="section-title">Planes disponibles</h2>
   @if (loadingPlans) {
     <qp-loading></qp-loading>
@@ -72,23 +72,23 @@
 </section>
 
 <!-- Memberships table -->
-<section>
+<section role="region" aria-label="Membresías registradas">
   <h2 class="section-title">Membresías registradas</h2>
   @if (loadingMemberships) {
     <qp-loading></qp-loading>
   } @else {
     <div class="table-container card" style="padding: 0;">
-      <table>
+      <table aria-label="Tabla de membresías">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Usuario</th>
-            <th>Plan</th>
-            <th>Inicio</th>
-            <th>Fin</th>
-            <th>Estado</th>
-            <th>Auto-renovar</th>
-            <th>Acciones</th>
+            <th scope="col">ID</th>
+            <th scope="col">Usuario</th>
+            <th scope="col">Plan</th>
+            <th scope="col">Inicio</th>
+            <th scope="col">Fin</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Auto-renovar</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -103,11 +103,11 @@
               <td>{{ m.autoRenew ? 'Sí' : 'No' }}</td>
               <td class="actions-cell">
                 @if (m.status !== 'ACTIVE') {
-                  <button class="btn btn--success btn--sm" (click)="activate(m.id)">Activar</button>
+                  <button class="btn btn--success btn--sm" (click)="activate(m.id)" aria-label="Activar membresía {{ m.id }}">Activar</button>
                 }
                 @if (m.status === 'ACTIVE') {
-                  <button class="btn btn--outline btn--sm" (click)="renew(m.id)">Renovar</button>
-                  <button class="btn btn--danger btn--sm" (click)="cancel(m.id)">Cancelar</button>
+                  <button class="btn btn--outline btn--sm" (click)="renew(m.id)" aria-label="Renovar membresía {{ m.id }}">Renovar</button>
+                  <button class="btn btn--danger btn--sm" (click)="cancel(m.id)" aria-label="Cancelar membresía {{ m.id }}">Cancelar</button>
                 }
               </td>
             </tr>

@@ -43,6 +43,13 @@
       </button>
     </div>
 
+    <div class="a11y-section">
+      <button class="a11y-toggle" [class.active]="settings.reduceMotion" (click)="toggleReduceMotion()">
+        <span>⏸ Interrumpir animaciones</span>
+        <span class="a11y-status">{{ settings.reduceMotion ? 'ON' : 'OFF' }}</span>
+      </button>
+    </div>
+
     <button class="btn btn--outline btn--sm a11y-reset" (click)="resetAll()">Restablecer todo</button>
   </div>
 </div>

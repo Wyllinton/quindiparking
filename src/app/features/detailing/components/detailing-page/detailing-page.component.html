@@ -1,29 +1,29 @@
 <div class="page-header">
   <h1>Car Wash / Detailing</h1>
-  <button class="btn btn--primary" (click)="showForm = !showForm">
+  <button class="btn btn--primary" (click)="showForm = !showForm" aria-label="Alternar formulario de nueva orden">
     @if (showForm) { Cancelar } @else { + Nueva orden }
   </button>
 </div>
 
 <!-- New order form -->
 @if (showForm) {
-  <div class="card form-card fade-in" style="margin-bottom: 24px;">
+  <div class="card form-card fade-in" style="margin-bottom: 24px;" role="form" aria-label="Formulario de solicitud de servicio">
     <h3 style="margin-bottom: 16px; font-size: 1rem;">Solicitar servicio</h3>
     <div class="form-row">
       <div class="form-group">
         <label for="sessionId">ID Sesión de parqueo</label>
-        <input id="sessionId" type="number" [(ngModel)]="parkingSessionId" placeholder="100">
+        <input id="sessionId" type="number" [(ngModel)]="parkingSessionId" placeholder="100" aria-required="true">
       </div>
       <div class="form-group">
         <label for="serviceSelect">Servicio</label>
-        <select id="serviceSelect" [(ngModel)]="selectedServiceId">
+        <select id="serviceSelect" [(ngModel)]="selectedServiceId" aria-required="true">
           <option [ngValue]="null" disabled>Seleccionar servicio</option>
           @for (svc of services; track svc.id) {
             <option [ngValue]="svc.id">{{ svc.name }} — {{ svc.price | currencyFormat }}</option>
           }
         </select>
       </div>
-      <button class="btn btn--success" style="margin-bottom: 16px; align-self: flex-end;" (click)="requestOrder()" [disabled]="submitting || !parkingSessionId || !selectedServiceId">
+      <button class="btn btn--success" style="margin-bottom: 16px; align-self: flex-end;" (click)="requestOrder()" [disabled]="submitting || !parkingSessionId || !selectedServiceId" aria-label="Crear orden de servicio">
         @if (submitting) { Creando... } @else { Crear orden }
       </button>
     </div>
@@ -31,7 +31,7 @@
 }
 
 <!-- Services catalog -->
-<section style="margin-bottom: 32px;">
+<section style="margin-bottom: 32px;" role="region" aria-label="Catálogo de servicios">
   <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Catálogo de servicios</h2>
   @if (loading) {
     <qp-loading></qp-loading>
@@ -43,7 +43,7 @@
           <p class="service-desc">{{ svc.description }}</p>
           <div class="service-meta">
             <span class="service-price">{{ svc.price | currencyFormat }}</span>
-            <span class="service-time">⏱ {{ svc.estimatedDurationMinutes }} min</span>
+            <span class="service-time"><span role="img" aria-label="Duración estimada">⏱</span> {{ svc.estimatedDurationMinutes }} min</span>
           </div>
         </div>
       }
@@ -52,22 +52,22 @@
 </section>
 
 <!-- Orders table -->
-<section>
+<section role="region" aria-label="Órdenes de servicio">
   <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 12px;">Órdenes de servicio</h2>
   @if (loadingOrders) {
     <qp-loading></qp-loading>
   } @else {
     <div class="table-container card" style="padding: 0;">
-      <table>
+      <table aria-label="Tabla de órdenes de servicio">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Sesión</th>
-            <th>Servicio</th>
-            <th>Solicitado</th>
-            <th>Estado</th>
-            <th>Precio</th>
-            <th>Acciones</th>
+            <th scope="col">ID</th>
+            <th scope="col">Sesión</th>
+            <th scope="col">Servicio</th>
+            <th scope="col">Solicitado</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Precio</th>
+            <th scope="col">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -81,7 +81,7 @@
               <td>{{ order.price | currencyFormat }}</td>
               <td>
                 @if (order.status === 'REQUESTED' || order.status === 'IN_PROGRESS') {
-                  <button class="btn btn--success btn--sm" (click)="completeOrder(order.id)">Completar</button>
+                  <button class="btn btn--success btn--sm" (click)="completeOrder(order.id)" aria-label="Completar orden {{ order.id }}">Completar</button>
                 }
               </td>
             </tr>

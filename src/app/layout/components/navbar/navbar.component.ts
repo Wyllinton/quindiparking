@@ -12,7 +12,6 @@ import { UserDTO } from '../../../core/auth/models/user.model';
 })
 export class NavbarComponent implements OnInit {
   user: UserDTO | null = null;
-  showAccessibility = false;
 
   constructor(
     private authService: AuthService,
@@ -27,9 +26,6 @@ export class NavbarComponent implements OnInit {
     });
   }
 
-  toggleAccessibility(): void {
-    this.showAccessibility = !this.showAccessibility;
-  }
 
   logout(): void {
     this.authService.logout().subscribe({

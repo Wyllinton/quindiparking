@@ -6,10 +6,11 @@ interface AccessibilitySettings {
   grayscale: boolean;
   highlightLinks: boolean;
   dyslexiaFont: boolean;
+  reduceMotion: boolean;
 }
 
 const STORAGE_KEY = 'qp_accessibility';
-const DEFAULT: AccessibilitySettings = { fontSize: 16, highContrast: false, grayscale: false, highlightLinks: false, dyslexiaFont: false };
+const DEFAULT: AccessibilitySettings = { fontSize: 16, highContrast: false, grayscale: false, highlightLinks: false, dyslexiaFont: false, reduceMotion: false };
 
 @Component({
   selector: 'qp-accessibility-panel',
@@ -68,6 +69,11 @@ export class AccessibilityPanelComponent implements OnInit {
     this.save();
   }
 
+  toggleReduceMotion(): void {
+    this.settings.reduceMotion = !this.settings.reduceMotion;
+    this.save();
+  }
+
   resetAll(): void {
     this.settings = { ...DEFAULT };
     this.save();
@@ -85,6 +91,7 @@ export class AccessibilityPanelComponent implements OnInit {
     body.classList.toggle('grayscale', this.settings.grayscale);
     body.classList.toggle('highlight-links', this.settings.highlightLinks);
     body.classList.toggle('dyslexia-font', this.settings.dyslexiaFont);
+    body.classList.toggle('reduce-motion', this.settings.reduceMotion);
   }
 }
 

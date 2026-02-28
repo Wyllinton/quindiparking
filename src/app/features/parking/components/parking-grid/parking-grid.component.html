@@ -11,7 +11,7 @@
 @if (loading) {
   <qp-loading size="lg"></qp-loading>
 } @else {
-  <div class="parking-grid fade-in">
+  <div class="parking-grid fade-in" role="grid" aria-label="Mapa de espacios de parqueadero">
     @for (space of spaces; track space.id) {
       <button
         class="slot {{ getStatusClass(space.status.toString()) }}"
@@ -19,7 +19,7 @@
         [attr.aria-label]="'Espacio ' + space.spaceNumber + ' - ' + space.status"
         [title]="space.spaceNumber + ' (' + space.status + ')'">
         <span class="slot-number">{{ space.spaceNumber }}</span>
-        <span class="slot-icon">
+        <span class="slot-icon" aria-hidden="true">
           @switch (space.status.toString()) {
             @case ('AVAILABLE') { 🅿️ }
             @case ('OCCUPIED') { 🚗 }
@@ -44,8 +44,8 @@
         <div class="form-group" style="margin-top: 16px;">
           <label for="plate">Buscar vehículo por placa</label>
           <div class="search-row">
-            <input id="plate" type="text" [(ngModel)]="licensePlate" placeholder="ABC-123" (keyup.enter)="searchVehicle()">
-            <button class="btn btn--primary btn--sm" (click)="searchVehicle()" [disabled]="searchingVehicle || !licensePlate.trim()">
+            <input id="plate" type="text" [(ngModel)]="licensePlate" placeholder="ABC-123" (keyup.enter)="searchVehicle()" aria-required="true" aria-label="Placa del vehículo">
+            <button class="btn btn--primary btn--sm" (click)="searchVehicle()" [disabled]="searchingVehicle || !licensePlate.trim()" aria-label="Buscar vehículo">
               @if (searchingVehicle) { Buscando... } @else { Buscar }
             </button>
           </div>
@@ -58,7 +58,7 @@
             <p><strong>Marca:</strong> {{ foundVehicle.brand }}</p>
             <p><strong>Color:</strong> {{ foundVehicle.color }}</p>
           </div>
-          <button class="btn btn--success" style="width: 100%; margin-top: 12px;" (click)="performCheckIn()" [disabled]="checkingIn">
+          <button class="btn btn--success" style="width: 100%; margin-top: 12px;" (click)="performCheckIn()" [disabled]="checkingIn" aria-label="Registrar entrada del vehículo">
             @if (checkingIn) { Registrando... } @else { ✓ Registrar entrada }
           </button>
         }
@@ -77,7 +77,7 @@
             <p><strong>Tiempo:</strong> {{ activeSession.checkInTime | timeElapsed }}</p>
             <p><strong>Vehículo ID:</strong> {{ activeSession.vehicleId }}</p>
           </div>
-          <button class="btn btn--danger" style="width: 100%; margin-top: 16px;" (click)="performCheckOut()" [disabled]="checkingOut">
+          <button class="btn btn--danger" style="width: 100%; margin-top: 16px;" (click)="performCheckOut()" [disabled]="checkingOut" aria-label="Registrar salida del vehículo">
             @if (checkingOut) { Procesando... } @else { Registrar salida }
           </button>
         } @else {
