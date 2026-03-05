@@ -43,6 +43,22 @@
   margin-top: 8px;
 }
 
+.auth-links {
+  text-align: center;
+  margin-top: 16px;
+
+  .forgot-password-link {
+    color: #1A237E;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .auth-footer {
   text-align: center;
   margin-top: 24px;
@@ -53,6 +69,33 @@
     color: #1A237E;
     font-weight: 600;
   }
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #7F8C8D;
+  font-size: 0.8rem;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #E0E6E3;
+  }
+
+  span {
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+}
+
+.google-btn-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
 }
 
 .btn-spinner {

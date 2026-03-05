@@ -1,0 +1,45 @@
+<div class="auth-page" role="main">
+  <div class="auth-card slide-up">
+    <div class="auth-header">
+      <div class="auth-logo" role="img" aria-label="Icono de verificación en dos pasos">🔐</div>
+      <h1>Verificación en dos pasos</h1>
+      <p>Se ha enviado un código de verificación a <strong>{{ email }}</strong></p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulario de verificación en dos pasos">
+      <div class="form-group">
+        <label for="code2fa">Código de verificación</label>
+        <input id="code2fa" type="text" formControlName="code" placeholder="000000"
+               maxlength="6" autocomplete="one-time-code" inputmode="numeric"
+               aria-required="true"
+               [attr.aria-invalid]="form.get('code')?.touched && form.get('code')?.invalid"
+               [attr.aria-describedby]="form.get('code')?.touched && form.get('code')?.errors ? 'code2fa-error' : null">
+        @if (form.get('code')?.touched && form.get('code')?.errors?.['required']) {
+          <span class="form-error" id="code2fa-error" role="alert">El código es obligatorio</span>
+        }
+        @if (form.get('code')?.touched && form.get('code')?.errors?.['minlength']) {
+          <span class="form-error" id="code2fa-error" role="alert">El código debe tener 6 caracteres</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg auth-btn"
+              [disabled]="form.invalid || loading"
+              aria-label="Verificar código de dos pasos">
+        @if (loading) {
+          <span class="btn-spinner" role="status" aria-label="Verificando"></span> Verificando...
+        } @else {
+          Verificar
+        }
+      </button>
+    </form>
+
+    <p class="auth-info" role="note">
+      El código expira en unos minutos. Si no lo recibes, vuelve a iniciar sesión para obtener uno nuevo.
+    </p>
+
+    <p class="auth-footer">
+      <a routerLink="/auth/login">Volver al inicio de sesión</a>
+    </p>
+  </div>
+</div>
+

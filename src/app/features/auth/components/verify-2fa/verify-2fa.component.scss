@@ -12,26 +12,28 @@
   border-radius: 16px;
   padding: 40px;
   width: 100%;
-  max-width: 480px;
+  max-width: 420px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 
   .auth-logo { font-size: 3rem; margin-bottom: 8px; }
   h1 { font-size: 1.5rem; font-weight: 700; color: #0D1642; margin-bottom: 4px; }
-  p { color: #7F8C8D; font-size: 0.875rem; }
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  p { color: #7F8C8D; font-size: 0.875rem; line-height: 1.5; }
 }
 
 .auth-btn { width: 100%; margin-top: 8px; }
+
+.auth-info {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.8rem;
+  color: #7F8C8D;
+  line-height: 1.4;
+}
 
 .auth-footer {
   text-align: center;
@@ -39,33 +41,6 @@
   font-size: 0.875rem;
   color: #7F8C8D;
   a { color: #1A237E; font-weight: 600; }
-}
-
-.auth-divider {
-  display: flex;
-  align-items: center;
-  margin: 20px 0;
-  color: #7F8C8D;
-  font-size: 0.8rem;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #E0E6E3;
-  }
-
-  span {
-    padding: 0 12px;
-    white-space: nowrap;
-  }
-}
-
-.google-btn-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 8px;
 }
 
 .btn-spinner {
@@ -78,5 +53,7 @@
   animation: spin 0.6s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 

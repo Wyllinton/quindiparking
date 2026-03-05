@@ -1,0 +1,53 @@
+<div class="auth-page" role="main">
+  <div class="auth-card slide-up">
+    <div class="auth-header">
+      <div class="auth-logo" role="img" aria-label="Logo de QuindiParking">✉️</div>
+      <h1>Verificar correo electrónico</h1>
+      <p>Ingresa el código de 6 dígitos enviado a <strong>{{ email }}</strong></p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" aria-label="Formulario de verificación de correo">
+      <div class="form-group">
+        <label for="code">Código de verificación</label>
+        <input id="code" type="text" formControlName="code" placeholder="000000"
+               maxlength="6" autocomplete="one-time-code" inputmode="numeric"
+               aria-required="true"
+               [attr.aria-invalid]="form.get('code')?.touched && form.get('code')?.invalid"
+               [attr.aria-describedby]="form.get('code')?.touched && form.get('code')?.errors ? 'code-error' : null">
+        @if (form.get('code')?.touched && form.get('code')?.errors?.['required']) {
+          <span class="form-error" id="code-error" role="alert">El código es obligatorio</span>
+        }
+        @if (form.get('code')?.touched && form.get('code')?.errors?.['minlength']) {
+          <span class="form-error" id="code-error" role="alert">El código debe tener 6 caracteres</span>
+        }
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg auth-btn"
+              [disabled]="form.invalid || loading"
+              aria-label="Verificar correo electrónico">
+        @if (loading) {
+          <span class="btn-spinner" role="status" aria-label="Verificando"></span> Verificando...
+        } @else {
+          Verificar correo
+        }
+      </button>
+    </form>
+
+    <div class="auth-actions">
+      <button class="btn btn--outline btn--sm resend-btn"
+              (click)="resendCode()" [disabled]="resending"
+              aria-label="Reenviar código de verificación">
+        @if (resending) {
+          <span class="btn-spinner btn-spinner--dark" role="status" aria-label="Reenviando"></span> Reenviando...
+        } @else {
+          Reenviar código
+        }
+      </button>
+    </div>
+
+    <p class="auth-footer">
+      <a routerLink="/auth/login">Volver al inicio de sesión</a>
+    </p>
+  </div>
+</div>
+
