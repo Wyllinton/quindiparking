@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
+import { ReCaptchaV3Service } from 'ng-recaptcha';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { GoogleAuthService } from '../../../../core/auth/services/google-auth.service';
 import { AuthResponse } from '../../../../core/auth/models/auth-response.model';
@@ -25,6 +26,7 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     private fb: FormBuilder,
     private authService: AuthService,
     private googleAuthService: GoogleAuthService,
+    private recaptchaV3Service: ReCaptchaV3Service,
     private router: Router,
     private notify: NotificationService
   ) {
@@ -59,11 +61,21 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   onSubmit(): void {
     if (this.form.invalid) return;
     this.loading = true;
-    this.authService.register(this.form.value).subscribe({
-      next: (response) => this.handleAuthResponse(response),
-      error: (err) => {
+
+    this.recaptchaV3Service.execute('register').subscribe({
+      next: (recaptchaToken) => {
+        const registerData = { ...this.form.value, recaptchaToken };
+        this.authService.register(registerData).subscribe({
+          next: (response) => this.handleAuthResponse(response),
+          error: (err) => {
+            this.loading = false;
+            this.notify.error(err.error?.message || 'Error al registrar');
+          }
+        });
+      },
+      error: () => {
         this.loading = false;
-        this.notify.error(err.error?.message || 'Error al registrar');
+        this.notify.error('Error al verificar reCAPTCHA. Intenta de nuevo.');
       }
     });
   }
@@ -77,8 +89,8 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.notify.success('Registro exitoso');
-    this.router.navigate(['/dashboard']);
+    this.notify.success('Registro exitoso. Inicia sesión para continuar.');
+    this.router.navigate(['/auth/login']);
   }
 }
 

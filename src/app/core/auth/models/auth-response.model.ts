@@ -1,6 +1,7 @@
 export interface LoginRequest {
   email: string;
   password: string;
+  recaptchaToken: string;
 }
 
 export interface RegisterRequest {
@@ -9,6 +10,7 @@ export interface RegisterRequest {
   email: string;
   password: string;
   phoneNumber: string;
+  recaptchaToken: string;
 }
 
 export interface AuthResponse {

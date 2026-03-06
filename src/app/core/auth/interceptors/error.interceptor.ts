@@ -8,6 +8,18 @@ import { TokenService } from '../services/token.service';
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
 
+  // Public auth endpoints where 401/403 should be handled by the component, not the interceptor
+  private readonly publicAuthPaths = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/verify-email',
+    '/auth/resend-email-code',
+    '/auth/verify-2fa',
+    '/auth/forgot-password',
+    '/auth/reset-password',
+    '/auth/google'
+  ];
+
   constructor(
     private router: Router,
     private tokenService: TokenService
@@ -16,9 +28,10 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
+        const isPublicAuth = this.publicAuthPaths.some(path => req.url.endsWith(path));
+        if ((error.status === 401 || error.status === 403) && !isPublicAuth) {
           this.tokenService.removeToken();
-          this.router.navigate(['/login']);
+          this.router.navigate(['/auth/login']);
         }
         return throwError(() => error);
       })

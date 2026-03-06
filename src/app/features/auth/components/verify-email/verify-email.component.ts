@@ -30,6 +30,12 @@ export class VerifyEmailComponent implements OnInit {
 
   ngOnInit(): void {
     this.email = this.route.snapshot.queryParams['email'] || '';
+    // Also listen for queryParam changes
+    this.route.queryParams.subscribe(params => {
+      if (params['email']) {
+        this.email = params['email'];
+      }
+    });
     if (!this.email) {
       this.notify.warning('No se encontró el correo electrónico. Inicia sesión de nuevo.');
       this.router.navigate(['/auth/login']);
@@ -39,14 +45,22 @@ export class VerifyEmailComponent implements OnInit {
   onSubmit(): void {
     if (this.form.invalid || !this.email) return;
     this.loading = true;
-    this.authService.verifyEmail({ email: this.email, code: this.form.value.code }).subscribe({
-      next: () => {
+    const code = this.form.value.code.trim();
+    console.log('[VerifyEmail] Enviando verificación:', { email: this.email, code });
+    this.authService.verifyEmail({ email: this.email, code }).subscribe({
+      next: (res) => {
+        console.log('[VerifyEmail] Respuesta exitosa:', res);
+        this.loading = false;
         this.notify.success('Correo verificado exitosamente. Ahora puedes iniciar sesión.');
         this.router.navigate(['/auth/login']);
       },
       error: (err) => {
+        console.error('[VerifyEmail] Error completo:', err);
+        console.error('[VerifyEmail] Status:', err.status);
+        console.error('[VerifyEmail] Body:', err.error);
         this.loading = false;
-        this.notify.error(err.error?.message || 'Código inválido o expirado');
+        const msg = err.error?.message || err.error?.content || err.message || 'Código inválido o expirado';
+        this.notify.error(msg);
       }
     });
   }
@@ -61,7 +75,8 @@ export class VerifyEmailComponent implements OnInit {
       },
       error: (err) => {
         this.resending = false;
-        this.notify.error(err.error?.message || 'Error al reenviar el código');
+        const msg = err.error?.message || err.error?.content || err.message || 'Error al reenviar el código';
+        this.notify.error(msg);
       }
     });
   }

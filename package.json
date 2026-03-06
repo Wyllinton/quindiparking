@@ -28,6 +28,7 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "ng-recaptcha": "^13.2.1",
     "ngx-onsenui": "^7.1.0",
     "onsenui": "^2.12.8",
     "rxjs": "~7.8.0",
