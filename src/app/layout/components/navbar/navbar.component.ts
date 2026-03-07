@@ -12,6 +12,7 @@ import { UserDTO } from '../../../core/auth/models/user.model';
 })
 export class NavbarComponent implements OnInit {
   user: UserDTO | null = null;
+  dropdownOpen = false;
 
   constructor(
     private authService: AuthService,
@@ -26,8 +27,21 @@ export class NavbarComponent implements OnInit {
     });
   }
 
+  toggleDropdown(): void {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  closeDropdown(): void {
+    this.dropdownOpen = false;
+  }
+
+  goToAccount(): void {
+    this.dropdownOpen = false;
+    this.router.navigate(['/dashboard/account']);
+  }
 
   logout(): void {
+    this.dropdownOpen = false;
     this.authService.logout().subscribe({
       next: () => {
         this.notify.info('Sesión cerrada');

@@ -12,7 +12,8 @@ const routes: Routes = [
       { path: 'detailing', loadChildren: () => import('../features/detailing/detailing.module').then(m => m.DetailingModule) },
       { path: 'clients', loadChildren: () => import('../features/clients/clients.module').then(m => m.ClientsModule) },
       { path: 'memberships', loadChildren: () => import('../features/membership/membership.module').then(m => m.MembershipModule) },
-      { path: 'reports', loadChildren: () => import('../features/reports/reports.module').then(m => m.ReportsModule) }
+      { path: 'reports', loadChildren: () => import('../features/reports/reports.module').then(m => m.ReportsModule) },
+      { path: 'account', loadChildren: () => import('../features/account/account.module').then(m => m.AccountModule) }
     ]
   }
 ];

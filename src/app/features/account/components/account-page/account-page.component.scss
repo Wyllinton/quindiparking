@@ -1,0 +1,150 @@
+.account-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+.account-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1A237E;
+  margin-bottom: 28px;
+}
+
+// ═══ Card ═══
+
+.account-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(#E0E6E3, 0.5);
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2C3E50;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #E0E6E3;
+}
+
+// ═══ Form ═══
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  &--single {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #2C3E50;
+  }
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #E0E6E3;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #2C3E50;
+  background: #F9FAFB;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #1A237E;
+    box-shadow: 0 0 0 3px rgba(#1A237E, 0.1);
+    background: #fff;
+  }
+
+  &.input-error {
+    border-color: #E74C3C;
+    box-shadow: 0 0 0 3px rgba(#E74C3C, 0.1);
+  }
+}
+
+.error-text {
+  font-size: 0.75rem;
+  color: #E74C3C;
+}
+
+.form-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+// ═══ 2FA ═══
+
+.twofa-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.twofa-info {
+  flex: 1;
+}
+
+.twofa-description {
+  font-size: 0.875rem;
+  color: #7F8C8D;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.twofa-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &--active {
+    background: rgba(#2ECC71, 0.12);
+    color: #27AE60;
+  }
+
+  &--inactive {
+    background: rgba(#7F8C8D, 0.15);
+    color: #7F8C8D;
+  }
+}
+

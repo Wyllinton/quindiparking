@@ -1,0 +1,134 @@
+<div class="account-page">
+  <h1 class="account-title">Mi Cuenta</h1>
+
+  @if (loading) {
+    <qp-loading></qp-loading>
+  } @else {
+
+    <!-- ═══ Profile Section ═══ -->
+    <section class="account-card">
+      <h2 class="card-title">Datos Personales</h2>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="firstName">Nombre</label>
+            <input id="firstName" type="text" formControlName="firstName" class="form-input"
+                   [class.input-error]="isInvalid(profileForm, 'firstName')">
+            @if (isInvalid(profileForm, 'firstName')) {
+              <span class="error-text">El nombre es obligatorio</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Apellido</label>
+            <input id="lastName" type="text" formControlName="lastName" class="form-input"
+                   [class.input-error]="isInvalid(profileForm, 'lastName')">
+            @if (isInvalid(profileForm, 'lastName')) {
+              <span class="error-text">El apellido es obligatorio</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo electrónico</label>
+            <input id="email" type="email" formControlName="email" class="form-input"
+                   [class.input-error]="isInvalid(profileForm, 'email')">
+            @if (isInvalid(profileForm, 'email')) {
+              <span class="error-text">Ingrese un correo válido</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="phoneNumber">Teléfono</label>
+            <input id="phoneNumber" type="text" formControlName="phoneNumber" class="form-input"
+                   [class.input-error]="isInvalid(profileForm, 'phoneNumber')">
+            @if (isInvalid(profileForm, 'phoneNumber')) {
+              <span class="error-text">Ingrese un número válido (7-15 dígitos)</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary" [disabled]="savingProfile">
+            {{ savingProfile ? 'Guardando...' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ═══ Change Password Section ═══ -->
+    <section class="account-card">
+      <h2 class="card-title">Cambiar Contraseña</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+        <div class="form-grid form-grid--single">
+          <div class="form-group">
+            <label for="currentPassword">Contraseña actual</label>
+            <input id="currentPassword" type="password" formControlName="currentPassword" class="form-input"
+                   [class.input-error]="isInvalid(passwordForm, 'currentPassword')">
+            @if (isInvalid(passwordForm, 'currentPassword')) {
+              <span class="error-text">La contraseña actual es obligatoria</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">Nueva contraseña</label>
+            <input id="newPassword" type="password" formControlName="newPassword" class="form-input"
+                   [class.input-error]="isInvalid(passwordForm, 'newPassword')">
+            @if (isInvalid(passwordForm, 'newPassword')) {
+              <span class="error-text">Mínimo 8 caracteres</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar nueva contraseña</label>
+            <input id="confirmPassword" type="password" formControlName="confirmPassword" class="form-input"
+                   [class.input-error]="isInvalid(passwordForm, 'confirmPassword') || passwordsMismatch">
+            @if (passwordsMismatch) {
+              <span class="error-text">Las contraseñas no coinciden</span>
+            }
+            @if (isInvalid(passwordForm, 'confirmPassword') && !passwordsMismatch) {
+              <span class="error-text">Confirme la contraseña</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn--primary" [disabled]="savingPassword">
+            {{ savingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ═══ 2FA Section ═══ -->
+    <section class="account-card">
+      <h2 class="card-title">Autenticación en Dos Pasos</h2>
+      <div class="twofa-section">
+        <div class="twofa-info">
+          <p class="twofa-description">
+            La autenticación en dos pasos agrega una capa adicional de seguridad a tu cuenta.
+            Cuando esté activada, se te pedirá un código de verificación al iniciar sesión.
+          </p>
+          <div class="twofa-status">
+            <span class="status-badge" [class.status-badge--active]="twoFactorEnabled"
+                  [class.status-badge--inactive]="!twoFactorEnabled">
+              {{ twoFactorEnabled ? 'Activada' : 'Desactivada' }}
+            </span>
+          </div>
+        </div>
+
+        <button class="btn" [class.btn--success]="!twoFactorEnabled" [class.btn--danger]="twoFactorEnabled"
+                (click)="toggle2FA()" [disabled]="toggling2FA">
+          @if (toggling2FA) {
+            Procesando...
+          } @else if (twoFactorEnabled) {
+            Desactivar 2FA
+          } @else {
+            Activar 2FA
+          }
+        </button>
+      </div>
+    </section>
+  }
+</div>
+
+

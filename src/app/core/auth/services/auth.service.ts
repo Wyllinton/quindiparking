@@ -14,7 +14,7 @@ import {
   TwoFactorVerifyRequest,
   GoogleAuthRequest
 } from '../models/auth-response.model';
-import { UserDTO } from '../models/user.model';
+import { UserDTO, TwoFactorStatusDTO } from '../models/user.model';
 import { ResponseDTO } from '../../../shared/models/api-response.model';
 
 @Injectable({
@@ -109,6 +109,19 @@ export class AuthService {
         }
       })
     );
+  }
+
+  // --- Two-Factor Authentication Toggle ---
+  toggle2FA(enable: boolean): Observable<ResponseDTO<TwoFactorStatusDTO>> {
+    return this.http.put<ResponseDTO<TwoFactorStatusDTO>>(
+      `${this.apiUrl}/auth/2fa/toggle`,
+      null,
+      { params: { enable: enable.toString() } }
+    );
+  }
+
+  get2FAStatus(): Observable<ResponseDTO<TwoFactorStatusDTO>> {
+    return this.http.get<ResponseDTO<TwoFactorStatusDTO>>(`${this.apiUrl}/auth/2fa/status`);
   }
 }
 

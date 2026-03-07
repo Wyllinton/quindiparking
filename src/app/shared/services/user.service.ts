@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
-import { UserDTO, CreateUserDTO, PasswordChangeRequest, UpdateUserActiveStatusDTO } from '../../core/auth/models/user.model';
+import { UserDTO, CreateUserDTO, PasswordChangeRequest, UpdateUserActiveStatusDTO, UpdateProfileDTO } from '../../core/auth/models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -34,6 +34,10 @@ export class UserService extends ApiService {
 
   getMyProfile(): Observable<UserDTO> {
     return this.get<UserDTO>('/users/me/profile');
+  }
+
+  updateProfile(dto: UpdateProfileDTO): Observable<UserDTO> {
+    return this.put<UserDTO>('/users/me/profile', dto);
   }
 
   // ──── Password ────

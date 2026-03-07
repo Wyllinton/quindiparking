@@ -27,3 +27,14 @@ export interface UpdateUserActiveStatusDTO {
   isActive: boolean;
 }
 
+export interface UpdateProfileDTO {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}
+
+export interface TwoFactorStatusDTO {
+  twoFactorAuthEnabled: boolean;
+}
+

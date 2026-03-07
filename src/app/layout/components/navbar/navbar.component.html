@@ -5,13 +5,38 @@
   </div>
 
   <div class="navbar-actions">
-    @if (user) {
-      <span class="navbar-user">{{ user.firstName }} {{ user.lastName }}</span>
-    }
+    <div class="navbar-user-menu" (qpClickOutside)="closeDropdown()">
+      <button class="navbar-avatar-btn" (click)="toggleDropdown()" aria-label="Menú de usuario">
+        <span class="navbar-avatar-icon">
+          @if (user) {
+            {{ user.firstName.charAt(0) }}{{ user.lastName.charAt(0) }}
+          } @else {
+            👤
+          }
+        </span>
+        <span class="navbar-chevron" [class.open]="dropdownOpen">▾</span>
+      </button>
 
-    <button class="btn btn--outline btn--sm" (click)="logout()" aria-label="Cerrar sesión">
-      Salir
-    </button>
+      @if (dropdownOpen) {
+        <div class="navbar-dropdown">
+          @if (user) {
+            <div class="navbar-dropdown-header">
+              <span class="dropdown-user-name">{{ user.firstName }} {{ user.lastName }}</span>
+              <span class="dropdown-user-email">{{ user.email }}</span>
+            </div>
+            <div class="navbar-dropdown-divider"></div>
+          }
+          <button class="navbar-dropdown-item" (click)="goToAccount()">
+            <span class="dropdown-icon">⚙️</span>
+            Mi Cuenta
+          </button>
+          <button class="navbar-dropdown-item navbar-dropdown-item--danger" (click)="logout()">
+            <span class="dropdown-icon">🚪</span>
+            Cerrar Sesión
+          </button>
+        </div>
+      }
+    </div>
   </div>
 </nav>
 
