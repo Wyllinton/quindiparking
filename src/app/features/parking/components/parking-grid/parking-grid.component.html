@@ -11,35 +11,222 @@
 @if (loading) {
   <qp-loading size="lg"></qp-loading>
 } @else {
-  <div class="parking-grid fade-in" role="grid" aria-label="Mapa de espacios de parqueadero">
-    @for (space of spaces; track space.id) {
-      <button
-        class="slot {{ getStatusClass(space.status.toString()) }}"
-        (click)="onSlotClick(space)"
-        [attr.aria-label]="'Espacio ' + space.spaceNumber + ' - ' + space.status"
-        [title]="space.spaceNumber + ' (' + space.status + ')'">
-        <span class="slot-number">{{ space.spaceNumber }}</span>
-        <span class="slot-icon" aria-hidden="true">
-          @switch (space.status.toString()) {
-            @case ('AVAILABLE') { 🅿️ }
-            @case ('OCCUPIED') { 🚗 }
-            @case ('RESERVED') { 🔒 }
-            @case ('OUT_OF_SERVICE') { ⚠️ }
-          }
-        </span>
-      </button>
+
+  <!-- ══════ Occupancy Stats ══════ -->
+  <div class="stats-row fade-in">
+    @if (getStatsFor('CAR'); as carStats) {
+      <div class="stat-card">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-info">
+          <h3>Carros</h3>
+          <div class="stat-bar-container">
+            <div class="stat-bar stat-bar--car" [style.width.%]="carStats.occupancyPercentage"></div>
+          </div>
+          <p class="stat-detail">
+            {{ carStats.occupiedSpaces }}/{{ carStats.totalSpaces }} ocupados
+            <strong>({{ carStats.occupancyPercentage | number:'1.0-1' }}%)</strong>
+          </p>
+          <p class="stat-available">{{ carStats.availableSpaces }} disponibles</p>
+        </div>
+      </div>
     }
+    @if (getStatsFor('MOTORCYCLE'); as motoStats) {
+      <div class="stat-card">
+        <div class="stat-icon">🏍️</div>
+        <div class="stat-info">
+          <h3>Motos</h3>
+          <div class="stat-bar-container">
+            <div class="stat-bar stat-bar--moto" [style.width.%]="motoStats.occupancyPercentage"></div>
+          </div>
+          <p class="stat-detail">
+            {{ motoStats.occupiedSpaces }}/{{ motoStats.totalSpaces }} ocupados
+            <strong>({{ motoStats.occupancyPercentage | number:'1.0-1' }}%)</strong>
+          </p>
+          <p class="stat-available">{{ motoStats.availableSpaces }} disponibles</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ══════ PARKING LOT LAYOUT ══════ -->
+  <div class="parking-lot fade-in">
+
+    <!-- ── Cars Section ── -->
+    <div class="parking-section">
+      <div class="section-header">
+        <span class="section-label">🚗 Zona de Carros</span>
+        <span class="section-count">50 espacios</span>
+      </div>
+
+      <div class="parking-area">
+        <!-- Left aisle (C-01 to C-25) -->
+        <div class="aisle-group">
+          <div class="aisle-row">
+            <div class="slot-row top-row">
+              @for (slot of carSlots.slice(0, 13); track slot.spaceNumber) {
+                <button
+                  class="slot {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+            <div class="road">
+              <span class="road-arrow">→</span>
+              <span class="road-label">CARRIL A</span>
+              <span class="road-arrow">→</span>
+            </div>
+            <div class="slot-row bottom-row">
+              @for (slot of carSlots.slice(13, 25); track slot.spaceNumber) {
+                <button
+                  class="slot {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right aisle (C-26 to C-50) -->
+        <div class="aisle-group">
+          <div class="aisle-row">
+            <div class="slot-row top-row">
+              @for (slot of carSlots.slice(25, 38); track slot.spaceNumber) {
+                <button
+                  class="slot {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+            <div class="road">
+              <span class="road-arrow">←</span>
+              <span class="road-label">CARRIL B</span>
+              <span class="road-arrow">←</span>
+            </div>
+            <div class="slot-row bottom-row">
+              @for (slot of carSlots.slice(38, 50); track slot.spaceNumber) {
+                <button
+                  class="slot {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Divider ── -->
+    <div class="lot-divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">ENTRADA / SALIDA</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <!-- ── Motorcycles Section ── -->
+    <div class="parking-section">
+      <div class="section-header">
+        <span class="section-label">🏍️ Zona de Motos</span>
+        <span class="section-count">50 espacios</span>
+      </div>
+
+      <div class="parking-area">
+        <!-- Left aisle (M-01 to M-25) -->
+        <div class="aisle-group">
+          <div class="aisle-row">
+            <div class="slot-row top-row">
+              @for (slot of motoSlots.slice(0, 13); track slot.spaceNumber) {
+                <button
+                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+            <div class="road">
+              <span class="road-arrow">→</span>
+              <span class="road-label">CARRIL C</span>
+              <span class="road-arrow">→</span>
+            </div>
+            <div class="slot-row bottom-row">
+              @for (slot of motoSlots.slice(13, 25); track slot.spaceNumber) {
+                <button
+                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Right aisle (M-26 to M-50) -->
+        <div class="aisle-group">
+          <div class="aisle-row">
+            <div class="slot-row top-row">
+              @for (slot of motoSlots.slice(25, 38); track slot.spaceNumber) {
+                <button
+                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+            <div class="road">
+              <span class="road-arrow">←</span>
+              <span class="road-label">CARRIL D</span>
+              <span class="road-arrow">←</span>
+            </div>
+            <div class="slot-row bottom-row">
+              @for (slot of motoSlots.slice(38, 50); track slot.spaceNumber) {
+                <button
+                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  (click)="onSlotClick(slot)"
+                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
+                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
+                  <span class="slot-number">{{ slot.spaceNumber }}</span>
+                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 }
 
-<!-- Modal -->
-<qp-modal [visible]="showModal" [title]="'Espacio ' + (selectedSpace?.spaceNumber || '')" (closed)="closeModal()">
+<!-- ══════ Modal ══════ -->
+<qp-modal [visible]="showModal" [title]="'Espacio ' + (selectedSlot?.spaceNumber || '')" (closed)="closeModal()">
   @switch (modalMode) {
-    <!-- AVAILABLE: Check-in form -->
     @case ('available') {
       <div class="modal-section">
         <p class="modal-status"><span class="badge badge--success">Disponible</span></p>
-        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+        <p class="modal-detail">Tipo: {{ selectedSlot?.type === 'CAR' ? 'Carro' : 'Moto' }}</p>
 
         <div class="form-group" style="margin-top: 16px;">
           <label for="plate">Buscar vehículo por placa</label>
@@ -65,7 +252,6 @@
       </div>
     }
 
-    <!-- OCCUPIED: Session details + checkout -->
     @case ('occupied') {
       <div class="modal-section">
         <p class="modal-status"><span class="badge badge--gray">Ocupado</span></p>
@@ -86,20 +272,18 @@
       </div>
     }
 
-    <!-- RESERVED -->
     @case ('reserved') {
       <div class="modal-section">
         <p class="modal-status"><span class="badge badge--warning">Reservado</span></p>
-        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+        <p class="modal-detail">Tipo: {{ selectedSlot?.type === 'CAR' ? 'Carro' : 'Moto' }}</p>
         <p style="margin-top: 12px; color: #7F8C8D;">Este espacio se encuentra reservado.</p>
       </div>
     }
 
-    <!-- OUT OF SERVICE -->
     @case ('oos') {
       <div class="modal-section">
         <p class="modal-status"><span class="badge badge--danger">Fuera de servicio</span></p>
-        <p class="modal-detail">{{ selectedSpace?.locationDescription }}</p>
+        <p class="modal-detail">Tipo: {{ selectedSlot?.type === 'CAR' ? 'Carro' : 'Moto' }}</p>
         <p style="margin-top: 12px; color: #7F8C8D;">Espacio en mantenimiento.</p>
       </div>
     }

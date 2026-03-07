@@ -28,7 +28,7 @@
     }
     <div class="form-group">
       <label for="cPhone">Teléfono</label>
-      <input id="cPhone" formControlName="phoneNumber" placeholder="+57 300 123 4567" aria-required="true">
+      <input id="cPhone" formControlName="phoneNumber" placeholder="+57 300 123 4567" [attr.aria-required]="!editing">
     </div>
     <div class="form-group">
       <label for="cRole">Rol</label>
@@ -38,6 +38,20 @@
         <option value="ADMIN">Administrador</option>
       </select>
     </div>
+    @if (editing) {
+      <div class="form-group toggle-group">
+        <label for="cActive">Estado</label>
+        <div class="toggle-wrapper">
+          <label class="toggle-switch">
+            <input id="cActive" type="checkbox" formControlName="isActive">
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label" [class.active]="form.get('isActive')?.value">
+            {{ form.get('isActive')?.value ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </div>
+    }
     <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
       <button type="button" class="btn btn--outline" (click)="closeForm()" aria-label="Cancelar formulario">Cancelar</button>
       <button type="submit" class="btn btn--primary" [disabled]="form.invalid || submitting" aria-label="Guardar cliente">
@@ -47,6 +61,18 @@
   </form>
 </qp-modal>
 
+<!-- Search bar -->
+<div class="search-bar">
+  <input
+    type="text"
+    placeholder="Buscar por ID..."
+    [(ngModel)]="searchId"
+    (ngModelChange)="onSearchId()"
+    aria-label="Buscar cliente por ID"
+    class="search-input"
+  >
+</div>
+
 <!-- Users table -->
 @if (loading) {
   <qp-loading size="lg"></qp-loading>
@@ -55,17 +81,17 @@
     <table aria-label="Tabla de clientes">
       <thead>
         <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nombre</th>
-          <th scope="col">Correo</th>
-          <th scope="col">Teléfono</th>
-          <th scope="col">Rol</th>
-          <th scope="col">Estado</th>
+          <th scope="col" class="sortable" (click)="toggleSort('id')">ID <span class="sort-icon">{{ getSortIcon('id') }}</span></th>
+          <th scope="col" class="sortable" (click)="toggleSort('firstName')">Nombre <span class="sort-icon">{{ getSortIcon('firstName') }}</span></th>
+          <th scope="col" class="sortable" (click)="toggleSort('email')">Correo <span class="sort-icon">{{ getSortIcon('email') }}</span></th>
+          <th scope="col" class="sortable" (click)="toggleSort('phoneNumber')">Teléfono <span class="sort-icon">{{ getSortIcon('phoneNumber') }}</span></th>
+          <th scope="col" class="sortable" (click)="toggleSort('role')">Rol <span class="sort-icon">{{ getSortIcon('role') }}</span></th>
+          <th scope="col" class="sortable" (click)="toggleSort('isActive')">Estado <span class="sort-icon">{{ getSortIcon('isActive') }}</span></th>
           <th scope="col">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        @for (user of users; track user.id) {
+        @for (user of filteredUsers; track user.id) {
           <tr>
             <td>{{ user.id }}</td>
             <td>{{ user.firstName }} {{ user.lastName }}</td>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { ParkingSpaceDTO, UpdateParkingSpaceStatusDTO } from '../models/parking-space.model';
+import { ParkingSpaceDTO, UpdateParkingSpaceStatusDTO, NonAvailableSpaceDTO, OccupancyStatsDTO } from '../models/parking-space.model';
 import { ParkingSessionDTO, CheckInRequestDTO } from '../models/ticket.model';
 import { ParkingSpaceStatus, SessionStatus, VehicleType } from '../../../shared/models/enums.model';
 import { CountDTO } from '../../../shared/models/api-response.model';
@@ -58,6 +58,14 @@ export class ParkingService extends ApiService {
 
   countOccupiedSpaces(): Observable<CountDTO> {
     return this.get<CountDTO>('/parking-spaces/stats/occupied');
+  }
+
+  getNonAvailableSpaces(): Observable<NonAvailableSpaceDTO[]> {
+    return this.get<NonAvailableSpaceDTO[]>('/parking-spaces/non-available');
+  }
+
+  getOccupancyStats(): Observable<OccupancyStatsDTO[]> {
+    return this.get<OccupancyStatsDTO[]>('/parking-spaces/stats/occupancy');
   }
 
   // ════════════════════════════════════════════

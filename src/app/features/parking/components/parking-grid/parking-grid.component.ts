@@ -1,11 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { ParkingService } from '../../services/parking.service';
 import { VehicleService } from '../../services/vehicle.service';
-import { ParkingSpaceDTO } from '../../models/parking-space.model';
+import { NonAvailableSpaceDTO, OccupancyStatsDTO } from '../../models/parking-space.model';
 import { ParkingSessionDTO, CheckInRequestDTO } from '../../models/ticket.model';
 import { VehicleDTO } from '../../models/vehicle.model';
-import { ParkingSpaceStatus } from '../../../../shared/models/enums.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+
+export interface SlotView {
+  spaceNumber: string;
+  type: 'CAR' | 'MOTORCYCLE';
+  status: 'AVAILABLE' | 'OCCUPIED' | 'RESERVED' | 'OUT_OF_SERVICE';
+}
 
 @Component({
   selector: 'qp-parking-grid',
@@ -14,12 +20,14 @@ import { NotificationService } from '../../../../core/services/notification.serv
   styleUrl: './parking-grid.component.scss'
 })
 export class ParkingGridComponent implements OnInit, OnDestroy {
-  spaces: ParkingSpaceDTO[] = [];
+  carSlots: SlotView[] = [];
+  motoSlots: SlotView[] = [];
+  occupancyStats: OccupancyStatsDTO[] = [];
   loading = true;
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
   // Modal state
-  selectedSpace: ParkingSpaceDTO | null = null;
+  selectedSlot: SlotView | null = null;
   showModal = false;
   modalMode: 'available' | 'occupied' | 'reserved' | 'oos' = 'available';
 
@@ -34,6 +42,9 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   loadingSession = false;
   checkingOut = false;
 
+  // For check-in we need real space id
+  private allSpaces: { id: number; spaceNumber: string }[] = [];
+
   constructor(
     private parkingService: ParkingService,
     private vehicleService: VehicleService,
@@ -41,19 +52,59 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.loadSpaces();
-    this.intervalId = setInterval(() => this.loadSpaces(), 15000);
+    this.buildSlots();
+    this.loadData();
+    this.intervalId = setInterval(() => this.loadData(), 15000);
   }
 
   ngOnDestroy(): void {
     if (this.intervalId) clearInterval(this.intervalId);
   }
 
-  loadSpaces(): void {
-    this.parkingService.getAllParkingSpaces().subscribe({
-      next: (data) => { this.spaces = data; this.loading = false; },
+  private buildSlots(): void {
+    this.carSlots = [];
+    this.motoSlots = [];
+    for (let i = 1; i <= 50; i++) {
+      const num = i.toString().padStart(2, '0');
+      this.carSlots.push({ spaceNumber: `C-${num}`, type: 'CAR', status: 'AVAILABLE' });
+      this.motoSlots.push({ spaceNumber: `M-${num}`, type: 'MOTORCYCLE', status: 'AVAILABLE' });
+    }
+  }
+
+  loadData(): void {
+    forkJoin({
+      nonAvailable: this.parkingService.getNonAvailableSpaces(),
+      stats: this.parkingService.getOccupancyStats(),
+      allSpaces: this.parkingService.getAllParkingSpaces()
+    }).subscribe({
+      next: ({ nonAvailable, stats, allSpaces }) => {
+        this.allSpaces = allSpaces.map(s => ({ id: s.id, spaceNumber: s.spaceNumber }));
+        this.occupancyStats = stats;
+        this.applyStatuses(nonAvailable);
+        this.loading = false;
+      },
       error: () => { this.loading = false; }
     });
+  }
+
+  private applyStatuses(nonAvailable: NonAvailableSpaceDTO[]): void {
+    // Reset all to available
+    this.carSlots.forEach(s => s.status = 'AVAILABLE');
+    this.motoSlots.forEach(s => s.status = 'AVAILABLE');
+
+    const statusMap = new Map<string, string>();
+    nonAvailable.forEach(na => statusMap.set(na.spaceNumber, na.status));
+
+    for (const slot of [...this.carSlots, ...this.motoSlots]) {
+      const st = statusMap.get(slot.spaceNumber);
+      if (st) {
+        slot.status = st as SlotView['status'];
+      }
+    }
+  }
+
+  getStatsFor(type: string): OccupancyStatsDTO | undefined {
+    return this.occupancyStats.find(s => s.vehicleType === type);
   }
 
   getStatusClass(status: string): string {
@@ -66,21 +117,25 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSlotClick(space: ParkingSpaceDTO): void {
-    this.selectedSpace = space;
+  getSlotIcon(status: string, type: string): string {
+    if (status === 'OUT_OF_SERVICE') return '⚠️';
+    if (status === 'RESERVED') return '🔒';
+    if (status === 'OCCUPIED') return type === 'CAR' ? '🚗' : '🏍️';
+    return type === 'CAR' ? '🅿️' : '🅿️';
+  }
+
+  onSlotClick(slot: SlotView): void {
+    this.selectedSlot = slot;
     this.resetModalState();
 
-    switch (space.status) {
-      case ParkingSpaceStatus.AVAILABLE:
+    switch (slot.status) {
       case 'AVAILABLE':
         this.modalMode = 'available';
         break;
-      case ParkingSpaceStatus.OCCUPIED:
       case 'OCCUPIED':
         this.modalMode = 'occupied';
-        this.loadActiveSession(space.id);
+        this.loadActiveSession(slot.spaceNumber);
         break;
-      case ParkingSpaceStatus.RESERVED:
       case 'RESERVED':
         this.modalMode = 'reserved';
         break;
@@ -92,7 +147,7 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
 
   closeModal(): void {
     this.showModal = false;
-    this.selectedSpace = null;
+    this.selectedSlot = null;
     this.resetModalState();
   }
 
@@ -108,18 +163,23 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   }
 
   performCheckIn(): void {
-    if (!this.foundVehicle || !this.selectedSpace) return;
-    if (this.selectedSpace.status !== 'AVAILABLE' && this.selectedSpace.status !== ParkingSpaceStatus.AVAILABLE) {
+    if (!this.foundVehicle || !this.selectedSlot) return;
+    if (this.selectedSlot.status !== 'AVAILABLE') {
       this.notify.error('Este espacio no está disponible');
       return;
     }
+    const spaceInfo = this.allSpaces.find(s => s.spaceNumber === this.selectedSlot!.spaceNumber);
+    if (!spaceInfo) {
+      this.notify.error('No se encontró el espacio en el sistema');
+      return;
+    }
     this.checkingIn = true;
-    const req: CheckInRequestDTO = { vehicleId: this.foundVehicle.id, parkingSpaceId: this.selectedSpace.id };
+    const req: CheckInRequestDTO = { vehicleId: this.foundVehicle.id, parkingSpaceId: spaceInfo.id };
     this.parkingService.checkIn(req).subscribe({
       next: () => {
         this.notify.success('Check-in registrado exitosamente');
         this.closeModal();
-        this.loadSpaces();
+        this.loadData();
       },
       error: (err) => {
         this.checkingIn = false;
@@ -129,9 +189,11 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   }
 
   // ── Check-out flow ──
-  loadActiveSession(spaceId: number): void {
+  loadActiveSession(spaceNumber: string): void {
+    const spaceInfo = this.allSpaces.find(s => s.spaceNumber === spaceNumber);
+    if (!spaceInfo) return;
     this.loadingSession = true;
-    this.parkingService.getActiveSessionByParkingSpaceId(spaceId).subscribe({
+    this.parkingService.getActiveSessionByParkingSpaceId(spaceInfo.id).subscribe({
       next: (s) => { this.activeSession = s; this.loadingSession = false; },
       error: () => { this.loadingSession = false; }
     });
@@ -144,7 +206,7 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
       next: (session) => {
         this.notify.success(`Check-out exitoso. Total: $${session.finalAmount.toLocaleString()}`);
         this.closeModal();
-        this.loadSpaces();
+        this.loadData();
       },
       error: (err) => {
         this.checkingOut = false;
