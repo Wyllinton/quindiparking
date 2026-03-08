@@ -1,11 +1,12 @@
 <div class="page-header">
   <h1>Dashboard</h1>
-  <button class="btn btn--outline btn--sm" (click)="loadSummary()" [disabled]="loading" aria-label="Actualizar datos del dashboard">↻ Actualizar</button>
+  <button class="btn btn--outline btn--sm" (click)="loadDashboard()" [disabled]="loading" aria-label="Actualizar datos del dashboard">↻ Actualizar</button>
 </div>
 
 @if (loading) {
   <qp-loading size="lg"></qp-loading>
-} @else if (summary) {
+} @else if (isAdmin && summary) {
+  <!-- ══════ ADMIN VIEW ══════ -->
   <div class="dashboard-grid fade-in" role="region" aria-label="Resumen del parqueadero">
     <div class="card stat-card">
       <div class="stat-icon stat-icon--occupied" role="img" aria-label="Vehículos">🚗</div>
@@ -42,6 +43,47 @@
 
   <div class="dashboard-timestamp">
     Última actualización: {{ summary.timestamp | date:'medium' }}
+  </div>
+} @else if (!isAdmin && occupancyStats.length > 0) {
+  <!-- ══════ OPERATOR VIEW ══════ -->
+  <div class="dashboard-grid fade-in" role="region" aria-label="Resumen de ocupación">
+    <div class="card stat-card">
+      <div class="stat-icon stat-icon--occupied" role="img" aria-label="Vehículos">🚗</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalOccupied }}</span>
+        <span class="stat-label">Vehículos estacionados</span>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon stat-icon--available" role="img" aria-label="Parqueadero">🅿️</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalAvailable }}</span>
+        <span class="stat-label">Espacios disponibles</span>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-icon stat-icon--rate" role="img" aria-label="Estadística">📊</div>
+      <div class="stat-info">
+        <span class="stat-value">{{ overallOccupancy | number:'1.1-1' }}%</span>
+        <span class="stat-label">Tasa de ocupación</span>
+      </div>
+    </div>
+
+    @for (stat of occupancyStats; track stat.vehicleType) {
+      @if (stat.vehicleType === 'CAR' || stat.vehicleType === 'MOTORCYCLE') {
+        <div class="card stat-card">
+          <div class="stat-icon stat-icon--type" role="img" [attr.aria-label]="stat.vehicleType">
+            {{ stat.vehicleType === 'CAR' ? '🚙' : '🏍️' }}
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ stat.occupiedSpaces }}/{{ stat.totalSpaces }}</span>
+            <span class="stat-label">{{ stat.vehicleType === 'CAR' ? 'Carros' : 'Motos' }} ({{ stat.occupancyPercentage | number:'1.0-1' }}%)</span>
+          </div>
+        </div>
+      }
+    }
   </div>
 } @else {
   <div class="card">

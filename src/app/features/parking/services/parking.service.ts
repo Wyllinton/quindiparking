@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { ParkingSpaceDTO, UpdateParkingSpaceStatusDTO, NonAvailableSpaceDTO, OccupancyStatsDTO } from '../models/parking-space.model';
-import { ParkingSessionDTO, CheckInRequestDTO } from '../models/ticket.model';
+import { ParkingSessionDTO, CheckInRequestDTO, CheckInByPlateRequestDTO, CheckOutRequestDTO, CheckOutResponseDTO } from '../models/ticket.model';
 import { ParkingSpaceStatus, SessionStatus, VehicleType } from '../../../shared/models/enums.model';
 import { CountDTO } from '../../../shared/models/api-response.model';
 
@@ -88,8 +88,12 @@ export class ParkingService extends ApiService {
     return this.post<ParkingSessionDTO>('/parking-sessions/checkin', request);
   }
 
-  checkOut(sessionId: number): Observable<ParkingSessionDTO> {
-    return this.post<ParkingSessionDTO>(`/parking-sessions/checkout/${sessionId}`);
+  checkInByPlate(request: CheckInByPlateRequestDTO): Observable<ParkingSessionDTO> {
+    return this.post<ParkingSessionDTO>('/parking-sessions/checkin', request);
+  }
+
+  checkOut(sessionId: number, request: CheckOutRequestDTO): Observable<CheckOutResponseDTO> {
+    return this.post<CheckOutResponseDTO>(`/parking-sessions/checkout/${sessionId}`, request);
   }
 
   getParkingSessionById(id: number): Observable<ParkingSessionDTO> {

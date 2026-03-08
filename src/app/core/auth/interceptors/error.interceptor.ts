@@ -29,7 +29,8 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         const isPublicAuth = this.publicAuthPaths.some(path => req.url.endsWith(path));
-        if ((error.status === 401 || error.status === 403) && !isPublicAuth) {
+        // Only force logout on 401 (invalid/expired token), NOT 403 (forbidden by role)
+        if (error.status === 401 && !isPublicAuth) {
           this.tokenService.removeToken();
           this.router.navigate(['/auth/login']);
         }

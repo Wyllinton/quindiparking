@@ -1,0 +1,325 @@
+<div class="page-header">
+  <h1>Operaciones</h1>
+</div>
+
+<div class="operations-grid fade-in">
+
+  <!-- ══════ CHECK-IN CARD ══════ -->
+  <div class="op-card">
+    <div class="op-card-header op-card-header--entry">
+      <span class="op-card-icon">🟢</span>
+      <h2>Registro de Entrada</h2>
+    </div>
+
+    <div class="op-card-body">
+      <p class="op-hint">Ingrese la placa del vehículo para registrar su entrada. Se asignará un espacio automáticamente.</p>
+
+      <div class="plate-input-group">
+        <div class="plate-field">
+          <label for="checkinPlate">Placa del vehículo</label>
+          <input
+            id="checkinPlate"
+            type="text"
+            [(ngModel)]="checkInPlate"
+            placeholder="ABC123"
+            (keyup.enter)="performCheckIn()"
+            [disabled]="checkingIn"
+            class="plate-input"
+            maxlength="10"
+            aria-label="Placa del vehículo para entrada"
+          >
+        </div>
+        <div class="plate-actions">
+          <button
+            class="btn btn--success"
+            (click)="performCheckIn()"
+            [disabled]="checkingIn || !checkInPlate.trim()"
+            aria-label="Registrar entrada">
+            @if (checkingIn) {
+              <span class="spinner-sm"></span> Registrando...
+            } @else {
+              ✓ Registrar Entrada
+            }
+          </button>
+          @if (checkInPlate || checkInResult) {
+            <button class="btn btn--outline btn--sm" (click)="clearCheckIn()" aria-label="Limpiar entrada">Limpiar</button>
+          }
+        </div>
+      </div>
+
+      <!-- Check-in result -->
+      @if (checkInResult) {
+        <div class="result-card result-card--success">
+          <div class="result-header">✅ Entrada registrada exitosamente</div>
+          <div class="result-body">
+            <div class="result-row">
+              <span class="result-label">Sesión ID</span>
+              <span class="result-value">#{{ checkInResult.id }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Espacio</span>
+              <span class="result-value">{{ checkInResult.parkingSpaceId }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Hora de entrada</span>
+              <span class="result-value">{{ checkInResult.checkInTime | date:'medium' }}</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Vehicle registration form (when vehicle not found) -->
+      @if (showRegisterForm) {
+        <div class="register-card">
+          <div class="register-header">
+            <span class="register-icon">⚠️</span>
+            <div>
+              <h3>Vehículo no registrado</h3>
+              <p>La placa <strong>{{ checkInPlate.toUpperCase() }}</strong> no se encuentra en el sistema. Complete los datos para registrarlo y realizar la entrada.</p>
+            </div>
+          </div>
+
+          <div class="register-form">
+            <div class="form-group">
+              <label>Tipo de vehículo <span class="required">*</span></label>
+              <div class="vehicle-type-selector">
+                <button
+                  class="vtype-btn"
+                  [class.vtype-btn--selected]="registerVehicleType === VEHICLE_CAR"
+                  (click)="registerVehicleType = VEHICLE_CAR"
+                  type="button"
+                  aria-label="Seleccionar carro">
+                  <span class="vtype-icon">🚗</span>
+                  <span class="vtype-label">Carro</span>
+                </button>
+                <button
+                  class="vtype-btn"
+                  [class.vtype-btn--selected]="registerVehicleType === VEHICLE_MOTO"
+                  (click)="registerVehicleType = VEHICLE_MOTO"
+                  type="button"
+                  aria-label="Seleccionar moto">
+                  <span class="vtype-icon">🏍️</span>
+                  <span class="vtype-label">Moto</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="register-row">
+              <div class="form-group">
+                <label for="regBrand">Marca <span class="optional">(opcional)</span></label>
+                <input
+                  id="regBrand"
+                  type="text"
+                  [(ngModel)]="registerBrand"
+                  placeholder="Ej: Chevrolet, Yamaha..."
+                  [disabled]="registering"
+                >
+              </div>
+              <div class="form-group">
+                <label for="regColor">Color <span class="optional">(opcional)</span></label>
+                <input
+                  id="regColor"
+                  type="text"
+                  [(ngModel)]="registerColor"
+                  placeholder="Ej: Blanco, Negro..."
+                  [disabled]="registering"
+                >
+              </div>
+            </div>
+
+            <div class="register-actions">
+              <button
+                class="btn btn--outline"
+                (click)="cancelRegister()"
+                [disabled]="registering"
+                type="button"
+                aria-label="Cancelar registro">
+                Cancelar
+              </button>
+              <button
+                class="btn btn--success"
+                (click)="registerAndCheckIn()"
+                [disabled]="registering"
+                type="button"
+                aria-label="Registrar vehículo y entrada">
+                @if (registering) {
+                  <span class="spinner-sm"></span> Registrando...
+                } @else {
+                  ✓ Registrar vehículo y entrada
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══════ CHECK-OUT CARD ══════ -->
+  <div class="op-card">
+    <div class="op-card-header op-card-header--exit">
+      <span class="op-card-icon">🔴</span>
+      <h2>Registro de Salida</h2>
+    </div>
+
+    <div class="op-card-body">
+      <p class="op-hint">Ingrese la placa del vehículo para buscar su sesión activa y registrar la salida.</p>
+
+      <div class="plate-input-group">
+        <div class="plate-field">
+          <label for="checkoutPlate">Placa del vehículo</label>
+          <input
+            id="checkoutPlate"
+            type="text"
+            [(ngModel)]="checkOutPlate"
+            placeholder="ABC123"
+            (keyup.enter)="searchActiveSession()"
+            [disabled]="searchingSession"
+            class="plate-input"
+            maxlength="10"
+            aria-label="Placa del vehículo para salida"
+          >
+        </div>
+        <div class="plate-actions">
+          <button
+            class="btn btn--primary"
+            (click)="searchActiveSession()"
+            [disabled]="searchingSession || !checkOutPlate.trim()"
+            aria-label="Buscar sesión activa">
+            @if (searchingSession) {
+              <span class="spinner-sm"></span> Buscando...
+            } @else {
+              🔍 Buscar Sesión
+            }
+          </button>
+          @if (checkOutPlate || activeSession || checkOutResult) {
+            <button class="btn btn--outline btn--sm" (click)="clearCheckOut()" aria-label="Limpiar salida">Limpiar</button>
+          }
+        </div>
+      </div>
+
+      <!-- Active session found -->
+      @if (activeSession) {
+        <div class="session-detail-card">
+          <h3>📋 Sesión activa encontrada</h3>
+          <div class="session-grid">
+            <div class="session-item">
+              <span class="session-label">Sesión</span>
+              <span class="session-value">#{{ activeSession.id }}</span>
+            </div>
+            <div class="session-item">
+              <span class="session-label">Espacio</span>
+              <span class="session-value">{{ activeSession.parkingSpaceId }}</span>
+            </div>
+            <div class="session-item">
+              <span class="session-label">Entrada</span>
+              <span class="session-value">{{ activeSession.checkInTime | date:'medium' }}</span>
+            </div>
+            <div class="session-item">
+              <span class="session-label">Tiempo</span>
+              <span class="session-value time-value">{{ activeSession.checkInTime | timeElapsed }}</span>
+            </div>
+            @if (foundVehicle) {
+              <div class="session-item">
+                <span class="session-label">Placa</span>
+                <span class="session-value">{{ foundVehicle.licensePlate }}</span>
+              </div>
+              <div class="session-item">
+                <span class="session-label">Tipo</span>
+                <span class="session-value">{{ foundVehicle.vehicleType }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Payment methods -->
+          <div class="payment-section">
+            <h4>Seleccione método de pago</h4>
+            <div class="payment-grid">
+              @for (pm of paymentMethods; track pm.value) {
+                <button
+                  class="payment-btn"
+                  [class.payment-btn--selected]="selectedPaymentMethod === pm.value"
+                  (click)="selectPayment(pm.value)"
+                  [attr.aria-label]="'Pagar con ' + pm.label">
+                  <span class="payment-icon">{{ pm.icon }}</span>
+                  <span class="payment-label">{{ pm.label }}</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Checkout button -->
+          <button
+            class="btn btn--danger btn--lg checkout-btn"
+            (click)="performCheckOut()"
+            [disabled]="!selectedPaymentMethod || checkingOut"
+            aria-label="Registrar salida del vehículo">
+            @if (checkingOut) {
+              <span class="spinner-sm"></span> Procesando salida...
+            } @else {
+              🚗 Registrar Salida
+            }
+          </button>
+        </div>
+      }
+
+      <!-- Check-out result -->
+      @if (checkOutResult) {
+        <div class="result-card result-card--info">
+          <div class="result-header">🏁 Salida registrada exitosamente</div>
+          <div class="result-body">
+            <div class="result-row">
+              <span class="result-label">Sesión ID</span>
+              <span class="result-value">#{{ checkOutResult.sessionId }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Placa</span>
+              <span class="result-value">{{ checkOutResult.licensePlate }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Espacio</span>
+              <span class="result-value">{{ checkOutResult.parkingSpaceNumber }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Entrada</span>
+              <span class="result-value">{{ checkOutResult.checkInTime | date:'medium' }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Salida</span>
+              <span class="result-value">{{ checkOutResult.checkOutTime | date:'medium' }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Tiempo total</span>
+              <span class="result-value">{{ checkOutResult.totalMinutes }} min</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Base</span>
+              <span class="result-value">${{ checkOutResult.baseAmount | number:'1.0-0' }}</span>
+            </div>
+            @if (checkOutResult.discountAmount > 0) {
+              <div class="result-row">
+                <span class="result-label">Descuento</span>
+                <span class="result-value result-value--discount">-${{ checkOutResult.discountAmount | number:'1.0-0' }}</span>
+              </div>
+            }
+            <div class="result-row result-row--total">
+              <span class="result-label">Total</span>
+              <span class="result-value result-value--total">${{ checkOutResult.finalAmount | number:'1.0-0' }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Estado sesión</span>
+              <span class="result-value">{{ checkOutResult.sessionStatus }}</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Estado factura</span>
+              <span class="result-value">{{ checkOutResult.invoiceStatus }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+
+

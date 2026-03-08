@@ -1,4 +1,4 @@
-import { SessionStatus } from '../../../shared/models/enums.model';
+import { PaymentMethod, SessionStatus } from '../../../shared/models/enums.model';
 
 export interface ParkingSessionDTO {
   id: number;
@@ -16,5 +16,29 @@ export interface ParkingSessionDTO {
 export interface CheckInRequestDTO {
   vehicleId: number;
   parkingSpaceId: number;
+}
+
+export interface CheckInByPlateRequestDTO {
+  licensePlate: string;
+}
+
+export interface CheckOutRequestDTO {
+  paymentMethod: PaymentMethod;
+  externalReference?: string;
+}
+
+export interface CheckOutResponseDTO {
+  sessionId: number;
+  licensePlate: string;
+  parkingSpaceNumber: string;
+  checkInTime: string;
+  checkOutTime: string;
+  totalMinutes: number;
+  baseAmount: number;
+  discountAmount: number;
+  finalAmount: number;
+  sessionStatus: string;
+  invoiceId: number;
+  invoiceStatus: string;
 }
 

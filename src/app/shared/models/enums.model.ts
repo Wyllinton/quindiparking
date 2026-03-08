@@ -17,6 +17,7 @@ export enum ParkingSpaceStatus {
 export enum SessionStatus {
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
   CANCELLED = 'CANCELLED'
 }
 
@@ -41,6 +42,7 @@ export enum InvoiceStatus {
 export enum PaymentMethod {
   CASH = 'CASH',
   CARD = 'CARD',
+  TRANSFER = 'TRANSFER',
   MERCADO_PAGO = 'MERCADO_PAGO'
 }
 

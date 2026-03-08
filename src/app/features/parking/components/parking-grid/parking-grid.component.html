@@ -55,15 +55,14 @@
     <div class="parking-section">
       <div class="section-header">
         <span class="section-label">🚗 Zona de Carros</span>
-        <span class="section-count">50 espacios</span>
+        <span class="section-count">{{ carSlots.length }} espacios</span>
       </div>
 
       <div class="parking-area">
-        <!-- Left aisle (C-01 to C-25) -->
         <div class="aisle-group">
           <div class="aisle-row">
             <div class="slot-row top-row">
-              @for (slot of carSlots.slice(0, 13); track slot.spaceNumber) {
+              @for (slot of carSlots.slice(0, carHalf); track slot.spaceNumber) {
                 <button
                   class="slot {{ getStatusClass(slot.status) }}"
                   (click)="onSlotClick(slot)"
@@ -76,46 +75,11 @@
             </div>
             <div class="road">
               <span class="road-arrow">→</span>
-              <span class="road-label">CARRIL A</span>
+              <span class="road-label">CARRIL</span>
               <span class="road-arrow">→</span>
             </div>
             <div class="slot-row bottom-row">
-              @for (slot of carSlots.slice(13, 25); track slot.spaceNumber) {
-                <button
-                  class="slot {{ getStatusClass(slot.status) }}"
-                  (click)="onSlotClick(slot)"
-                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
-                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
-                  <span class="slot-number">{{ slot.spaceNumber }}</span>
-                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Right aisle (C-26 to C-50) -->
-        <div class="aisle-group">
-          <div class="aisle-row">
-            <div class="slot-row top-row">
-              @for (slot of carSlots.slice(25, 38); track slot.spaceNumber) {
-                <button
-                  class="slot {{ getStatusClass(slot.status) }}"
-                  (click)="onSlotClick(slot)"
-                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
-                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
-                  <span class="slot-number">{{ slot.spaceNumber }}</span>
-                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
-                </button>
-              }
-            </div>
-            <div class="road">
-              <span class="road-arrow">←</span>
-              <span class="road-label">CARRIL B</span>
-              <span class="road-arrow">←</span>
-            </div>
-            <div class="slot-row bottom-row">
-              @for (slot of carSlots.slice(38, 50); track slot.spaceNumber) {
+              @for (slot of carSlots.slice(carHalf); track slot.spaceNumber) {
                 <button
                   class="slot {{ getStatusClass(slot.status) }}"
                   (click)="onSlotClick(slot)"
@@ -142,15 +106,14 @@
     <div class="parking-section">
       <div class="section-header">
         <span class="section-label">🏍️ Zona de Motos</span>
-        <span class="section-count">50 espacios</span>
+        <span class="section-count">{{ motoSlots.length }} espacios</span>
       </div>
 
       <div class="parking-area">
-        <!-- Left aisle (M-01 to M-25) -->
         <div class="aisle-group">
           <div class="aisle-row">
             <div class="slot-row top-row">
-              @for (slot of motoSlots.slice(0, 13); track slot.spaceNumber) {
+              @for (slot of motoSlots.slice(0, motoHalf); track slot.spaceNumber) {
                 <button
                   class="slot slot--moto {{ getStatusClass(slot.status) }}"
                   (click)="onSlotClick(slot)"
@@ -163,46 +126,11 @@
             </div>
             <div class="road">
               <span class="road-arrow">→</span>
-              <span class="road-label">CARRIL C</span>
+              <span class="road-label">CARRIL</span>
               <span class="road-arrow">→</span>
             </div>
             <div class="slot-row bottom-row">
-              @for (slot of motoSlots.slice(13, 25); track slot.spaceNumber) {
-                <button
-                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
-                  (click)="onSlotClick(slot)"
-                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
-                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
-                  <span class="slot-number">{{ slot.spaceNumber }}</span>
-                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <!-- Right aisle (M-26 to M-50) -->
-        <div class="aisle-group">
-          <div class="aisle-row">
-            <div class="slot-row top-row">
-              @for (slot of motoSlots.slice(25, 38); track slot.spaceNumber) {
-                <button
-                  class="slot slot--moto {{ getStatusClass(slot.status) }}"
-                  (click)="onSlotClick(slot)"
-                  [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
-                  [title]="slot.spaceNumber + ' (' + slot.status + ')'">
-                  <span class="slot-number">{{ slot.spaceNumber }}</span>
-                  <span class="slot-icon" aria-hidden="true">{{ getSlotIcon(slot.status, slot.type) }}</span>
-                </button>
-              }
-            </div>
-            <div class="road">
-              <span class="road-arrow">←</span>
-              <span class="road-label">CARRIL D</span>
-              <span class="road-arrow">←</span>
-            </div>
-            <div class="slot-row bottom-row">
-              @for (slot of motoSlots.slice(38, 50); track slot.spaceNumber) {
+              @for (slot of motoSlots.slice(motoHalf); track slot.spaceNumber) {
                 <button
                   class="slot slot--moto {{ getStatusClass(slot.status) }}"
                   (click)="onSlotClick(slot)"

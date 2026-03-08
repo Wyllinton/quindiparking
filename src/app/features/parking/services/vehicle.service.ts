@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { VehicleDTO } from '../models/vehicle.model';
+import { VehicleDTO, CreateVehicleWithoutUserDTO } from '../models/vehicle.model';
 import { VehicleType } from '../../../shared/models/enums.model';
 import { ExistsDTO } from '../../../shared/models/api-response.model';
 
@@ -15,6 +15,10 @@ export class VehicleService extends ApiService {
 
   createVehicle(vehicle: VehicleDTO): Observable<VehicleDTO> {
     return this.post<VehicleDTO>('/vehicles', vehicle);
+  }
+
+  createVehicleWithoutUser(dto: CreateVehicleWithoutUserDTO): Observable<VehicleDTO> {
+    return this.post<VehicleDTO>('/vehicles/without-user', dto);
   }
 
   getAllVehicles(): Observable<VehicleDTO[]> {

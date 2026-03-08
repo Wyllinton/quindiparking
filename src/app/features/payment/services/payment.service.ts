@@ -3,7 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { InvoiceDTO, UpdateInvoiceStatusDTO } from '../models/invoice.model';
-import { PaymentDTO, ProcessPaymentRequestDTO, ProcessMultiplePaymentsRequestDTO, UpdatePaymentStatusDTO } from '../models/payment.model';
+import { PaymentDTO, ProcessPaymentRequestDTO, ProcessMultiplePaymentsRequestDTO, UpdatePaymentStatusDTO, CreateMercadoPagoPreferenceDTO, MercadoPagoPreferenceResponseDTO } from '../models/payment.model';
 import { InvoiceStatus, PaymentStatus, PaymentMethod } from '../../../shared/models/enums.model';
 import { AmountDTO } from '../../../shared/models/api-response.model';
 
@@ -123,6 +123,14 @@ export class PaymentService extends ApiService {
 
   updatePaymentStatus(id: number, dto: UpdatePaymentStatusDTO): Observable<PaymentDTO> {
     return this.patch<PaymentDTO>(`/payments/${id}/status`, dto);
+  }
+
+  // ════════════════════════════════════════════
+  //  MERCADO PAGO
+  // ════════════════════════════════════════════
+
+  createMercadoPagoPreference(request: CreateMercadoPagoPreferenceDTO): Observable<MercadoPagoPreferenceResponseDTO> {
+    return this.post<MercadoPagoPreferenceResponseDTO>('/payments/mercadopago/create-preference', request);
   }
 }
 
