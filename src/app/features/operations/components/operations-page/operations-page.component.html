@@ -315,6 +315,23 @@
               <span class="result-value">{{ checkOutResult.invoiceStatus }}</span>
             </div>
           </div>
+
+          <!-- Download PDF button (only when invoice is not pending) -->
+          @if (checkOutResult.invoiceStatus !== 'PENDING') {
+            <div class="result-actions">
+              <button
+                class="btn btn--primary btn--download"
+                (click)="downloadInvoicePdf()"
+                [disabled]="downloadingPdf"
+                aria-label="Descargar factura en PDF">
+                @if (downloadingPdf) {
+                  <span class="spinner-sm"></span> Generando PDF...
+                } @else {
+                  📄 Descargar Factura PDF
+                }
+              </button>
+            </div>
+          }
         </div>
       }
     </div>

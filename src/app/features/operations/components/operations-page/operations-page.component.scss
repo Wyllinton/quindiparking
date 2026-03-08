@@ -279,6 +279,26 @@
   font-size: 1rem;
 }
 
+// ══════ Result Actions (PDF download) ══════
+.result-actions {
+  padding: 16px;
+  border-top: 1px solid var(--border-color, #eee);
+  display: flex;
+  justify-content: center;
+}
+
+.btn--download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  width: 100%;
+  justify-content: center;
+}
+
 // ══════ Spinner ══════
 .spinner-sm {
   display: inline-block;
@@ -579,6 +599,10 @@
   }
 
   .vtype-label { color: #fff; }
+
+  .result-actions {
+    border-color: #444 !important;
+  }
 }
 
 

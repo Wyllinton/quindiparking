@@ -1,0 +1,48 @@
+<div class="page-header">
+  <h1>💲 Precios por hora</h1>
+  <p class="page-subtitle">Configure las tarifas de estacionamiento por tipo de vehículo</p>
+</div>
+
+@if (loading) {
+  <qp-loading size="lg"></qp-loading>
+} @else {
+  <div class="pricing-grid fade-in">
+    @for (rate of rates; track rate.vehicleType) {
+      <div class="pricing-card card">
+        <div class="pricing-icon">{{ rate.icon }}</div>
+        <h2 class="pricing-title">{{ rate.label }}</h2>
+
+        <div class="pricing-input-group">
+          <label [for]="'rate-' + rate.vehicleType" class="pricing-label">Tarifa por hora</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input
+              [id]="'rate-' + rate.vehicleType"
+              type="number"
+              [(ngModel)]="rate.hourlyRate"
+              min="0"
+              step="100"
+              placeholder="Ej: 5000"
+              class="pricing-input"
+              [disabled]="rate.saving"
+              (keydown.enter)="saveRate(rate)"
+              [attr.aria-label]="'Tarifa por hora para ' + rate.label"
+            >
+          </div>
+        </div>
+
+        <button
+          class="btn btn--primary btn--save"
+          (click)="saveRate(rate)"
+          [disabled]="rate.saving || rate.hourlyRate == null">
+          @if (rate.saving) {
+            <span class="spinner-sm"></span> Guardando...
+          } @else {
+            💾 Guardar tarifa
+          }
+        </button>
+      </div>
+    }
+  </div>
+}
+

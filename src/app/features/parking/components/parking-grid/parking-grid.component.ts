@@ -7,6 +7,9 @@ import { ParkingSessionDTO, CheckInRequestDTO, CheckOutRequestDTO } from '../../
 import { VehicleDTO } from '../../models/vehicle.model';
 import { PaymentMethod } from '../../../../shared/models/enums.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { TokenService } from '../../../../core/auth/services/token.service';
+import { PaymentService } from '../../../payment/services/payment.service';
+import { PendingPaymentInfoDTO } from '../../models/pending-payment.model';
 
 export interface SlotView {
   id: number;
@@ -44,13 +47,32 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   loadingSession = false;
   checkingOut = false;
 
+  // Role
+  userRole = '';
+  isStaff = false; // true for ADMIN or OPERATOR
+
+  // Reservation message (USER only)
+  showReservationMsg = false;
+
+  // Pending payment (USER only)
+  pendingPlate = '';
+  searchingPending = false;
+  pendingPayment: PendingPaymentInfoDTO | null = null;
+  pendingNotFound = false;
+  creatingPreference = false;
+  mpUnavailable = false;
+
   constructor(
     private parkingService: ParkingService,
     private vehicleService: VehicleService,
-    private notify: NotificationService
+    private paymentService: PaymentService,
+    private notify: NotificationService,
+    private tokenService: TokenService
   ) {}
 
   ngOnInit(): void {
+    this.userRole = this.extractRole();
+    this.isStaff = this.userRole === 'ADMIN' || this.userRole === 'OPERATOR';
     this.loadData();
     this.intervalId = setInterval(() => this.loadData(), 15000);
   }
@@ -132,6 +154,7 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   }
 
   onSlotClick(slot: SlotView): void {
+    if (!this.isStaff) return; // Users can only view the map
     this.selectedSlot = slot;
     this.resetModalState();
 
@@ -224,6 +247,89 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
     this.activeSession = null;
     this.loadingSession = false;
     this.checkingOut = false;
+  }
+
+  // ── Reservation (USER only) ──
+  onReserveClick(): void {
+    this.showReservationMsg = true;
+  }
+
+  dismissReservationMsg(): void {
+    this.showReservationMsg = false;
+  }
+
+  // ── Pending payment (USER only) ──
+  searchPendingPayment(): void {
+    const plate = this.pendingPlate.trim().toUpperCase();
+    if (!plate) return;
+    this.searchingPending = true;
+    this.pendingPayment = null;
+    this.pendingNotFound = false;
+
+    this.parkingService.getPendingPaymentByPlate(plate).subscribe({
+      next: (info) => {
+        this.pendingPayment = info;
+        this.searchingPending = false;
+      },
+      error: (err) => {
+        this.searchingPending = false;
+        if (err.status === 404) {
+          this.pendingNotFound = true;
+        } else {
+          this.notify.error(err.error?.message || 'Error al consultar pagos pendientes');
+        }
+      }
+    });
+  }
+
+  payWithMercadoPago(): void {
+    if (!this.pendingPayment) return;
+    this.creatingPreference = true;
+    this.mpUnavailable = false;
+
+    this.paymentService.createMercadoPagoPreference({ invoiceId: this.pendingPayment.invoiceId }).subscribe({
+      next: (pref) => {
+        this.creatingPreference = false;
+        if (pref?.initPoint) {
+          window.location.href = pref.initPoint;
+        } else {
+          // Backend still not integrated with MP API — show inline message
+          this.mpUnavailable = true;
+        }
+      },
+      error: () => {
+        this.creatingPreference = false;
+        this.mpUnavailable = true;
+      }
+    });
+  }
+
+  clearPendingSearch(): void {
+    this.pendingPlate = '';
+    this.pendingPayment = null;
+    this.pendingNotFound = false;
+    this.mpUnavailable = false;
+  }
+
+  translateVehicleType(type: string): string {
+    const map: Record<string, string> = { CAR: 'Carro', MOTORCYCLE: 'Moto', ELECTRIC: 'Eléctrico' };
+    return map[type] || type || '—';
+  }
+
+  formatCurrency(amount: number): string {
+    if (amount == null) return '$0';
+    return '$' + amount.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  private extractRole(): string {
+    const token = this.tokenService.getToken();
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role || payload.roles || '';
+    } catch {
+      return '';
+    }
   }
 }
 

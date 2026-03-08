@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { ParkingSpaceDTO, UpdateParkingSpaceStatusDTO, NonAvailableSpaceDTO, OccupancyStatsDTO } from '../models/parking-space.model';
 import { ParkingSessionDTO, CheckInRequestDTO, CheckInByPlateRequestDTO, CheckOutRequestDTO, CheckOutResponseDTO } from '../models/ticket.model';
+import { PendingPaymentInfoDTO } from '../models/pending-payment.model';
 import { ParkingSpaceStatus, SessionStatus, VehicleType } from '../../../shared/models/enums.model';
 import { CountDTO } from '../../../shared/models/api-response.model';
 
@@ -121,6 +122,10 @@ export class ParkingService extends ApiService {
       .set('startDate', startDate)
       .set('endDate', endDate);
     return this.get<ParkingSessionDTO[]>('/parking-sessions/date-range', params);
+  }
+
+  getPendingPaymentByPlate(licensePlate: string): Observable<PendingPaymentInfoDTO> {
+    return this.get<PendingPaymentInfoDTO>(`/parking-sessions/pending/${licensePlate}`);
   }
 }
 

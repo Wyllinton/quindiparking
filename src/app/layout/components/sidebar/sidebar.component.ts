@@ -20,13 +20,15 @@ export class SidebarComponent implements OnInit {
   filteredNavItems: NavItem[] = [];
 
   private allNavItems: NavItem[] = [
-    { label: 'Dashboard', icon: '📊', route: '/dashboard' },
+    { label: 'Dashboard', icon: '📊', route: '/dashboard', roles: ['ADMIN'] },
     { label: 'Parqueadero', icon: '🚗', route: '/dashboard/parking' },
     { label: 'Operaciones', icon: '🎫', route: '/dashboard/operations', roles: ['OPERATOR', 'ADMIN'] },
     { label: 'Car Wash', icon: '🧽', route: '/dashboard/detailing', roles: ['ADMIN'] },
     { label: 'Clientes', icon: '👥', route: '/dashboard/clients', roles: ['ADMIN'] },
+    { label: 'Facturas', icon: '📋', route: '/dashboard/invoices', roles: ['OPERATOR', 'ADMIN'] },
     { label: 'Membresías', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN'] },
-    { label: 'Reportes', icon: '📈', route: '/dashboard/reports', roles: ['ADMIN'] }
+    { label: 'Reportes', icon: '📈', route: '/dashboard/reports', roles: ['ADMIN'] },
+    { label: 'Precios', icon: '💲', route: '/dashboard/pricing', roles: ['ADMIN'] }
   ];
 
   private userRole = '';

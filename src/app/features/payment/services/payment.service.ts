@@ -3,6 +3,7 @@ import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { InvoiceDTO, UpdateInvoiceStatusDTO } from '../models/invoice.model';
+import { InvoicePrintDTO } from '../models/invoice-print.model';
 import { PaymentDTO, ProcessPaymentRequestDTO, ProcessMultiplePaymentsRequestDTO, UpdatePaymentStatusDTO, CreateMercadoPagoPreferenceDTO, MercadoPagoPreferenceResponseDTO } from '../models/payment.model';
 import { InvoiceStatus, PaymentStatus, PaymentMethod } from '../../../shared/models/enums.model';
 import { AmountDTO } from '../../../shared/models/api-response.model';
@@ -65,6 +66,18 @@ export class PaymentService extends ApiService {
 
   getTotalRevenueByUser(userId: number): Observable<AmountDTO> {
     return this.get<AmountDTO>(`/invoices/revenue/${userId}`);
+  }
+
+  getInvoicePrint(invoiceId: number): Observable<InvoicePrintDTO> {
+    return this.get<InvoicePrintDTO>(`/invoices/${invoiceId}/print`);
+  }
+
+  getAllInvoicesForPrint(status?: InvoiceStatus): Observable<InvoicePrintDTO[]> {
+    let params = new HttpParams();
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.get<InvoicePrintDTO[]>('/invoices/print', params);
   }
 
   // ════════════════════════════════════════════

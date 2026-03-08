@@ -7,6 +7,7 @@ import { CheckOutRequestDTO, CheckOutResponseDTO } from '../../../parking/models
 import { VehicleDTO, CreateVehicleWithoutUserDTO } from '../../../parking/models/vehicle.model';
 import { VehicleType, PaymentMethod } from '../../../../shared/models/enums.model';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { InvoicePdfService } from '../../services/invoice-pdf.service';
 import { switchMap } from 'rxjs';
 
 @Component({
@@ -41,6 +42,7 @@ export class OperationsPageComponent {
   selectedPaymentMethod: PaymentMethod | null = null;
   checkingOut = false;
   checkOutResult: CheckOutResponseDTO | null = null;
+  downloadingPdf = false;
 
   paymentMethods = [
     { value: PaymentMethod.CASH, label: 'Efectivo', icon: '💵' },
@@ -53,6 +55,7 @@ export class OperationsPageComponent {
     private parkingService: ParkingService,
     private vehicleService: VehicleService,
     private paymentService: PaymentService,
+    private invoicePdfService: InvoicePdfService,
     private notify: NotificationService
   ) {}
 
@@ -171,16 +174,17 @@ export class OperationsPageComponent {
 
     this.parkingService.checkOut(this.activeSession.id, request).subscribe({
       next: (response) => {
-        if (this.selectedPaymentMethod === PaymentMethod.MERCADO_PAGO) {
-          // Mercado Pago flow: session is PENDING_PAYMENT, create preference and redirect
-          this.handleMercadoPagoPayment(response);
-        } else {
-          // Direct payment (cash, card, transfer): payment processed immediately
-          this.checkOutResult = response;
-          this.checkingOut = false;
-          this.activeSession = null;
-          this.foundVehicle = null;
+        this.checkOutResult = response;
+        this.checkingOut = false;
+        this.activeSession = null;
+        this.foundVehicle = null;
+
+        if (response.sessionStatus === 'COMPLETED') {
           this.notify.success(`Salida registrada — Total: $${response.finalAmount.toLocaleString()}`);
+        } else if (response.sessionStatus === 'PENDING_PAYMENT') {
+          this.notify.warning(`Salida registrada — Pago pendiente. Total: $${response.finalAmount.toLocaleString()}`);
+        } else {
+          this.notify.info(`Salida registrada — Estado: ${response.sessionStatus}`);
         }
       },
       error: (err) => {
@@ -190,18 +194,20 @@ export class OperationsPageComponent {
     });
   }
 
-  private handleMercadoPagoPayment(response: CheckOutResponseDTO): void {
-    // The backend already generated the invoice during checkout; use invoiceId to create preference
-    this.paymentService.createMercadoPagoPreference({ invoiceId: response.invoiceId }).subscribe({
-      next: (preferenceResponse) => {
-        this.checkingOut = false;
-        // Redirect to Mercado Pago checkout
-        window.location.href = preferenceResponse.initPoint;
+
+  downloadInvoicePdf(): void {
+    if (!this.checkOutResult?.invoiceId) return;
+    this.downloadingPdf = true;
+
+    this.paymentService.getInvoicePrint(this.checkOutResult.invoiceId).subscribe({
+      next: (printData) => {
+        this.invoicePdfService.generate(printData);
+        this.downloadingPdf = false;
+        this.notify.success('Factura descargada exitosamente');
       },
       error: (err) => {
-        this.checkingOut = false;
-        this.checkOutResult = response;
-        this.notify.error(err.error?.message || 'Error al crear pasarela de pago. La salida fue registrada.');
+        this.downloadingPdf = false;
+        this.notify.error(err.error?.message || 'Error al descargar la factura');
       }
     });
   }

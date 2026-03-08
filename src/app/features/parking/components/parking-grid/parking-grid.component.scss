@@ -290,6 +290,302 @@
   font-size: 1rem;
 }
 
+// ══════ Readonly slots (USER role) ══════
+.slot--readonly {
+  cursor: default;
+  pointer-events: none;
+
+  &:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// ══════ Reservation section (USER only) ══════
+.reserve-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.reserve-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 36px;
+  font-size: 1rem;
+  border-radius: 14px;
+}
+
+.reserve-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: rgba(#3498DB, 0.06);
+  border: 1px solid rgba(#3498DB, 0.25);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+}
+
+.reserve-message-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reserve-message-body {
+  flex: 1;
+
+  h4 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-color, #2C3E50);
+  }
+
+  p {
+    margin: 0 0 6px;
+    font-size: 0.875rem;
+    color: #555;
+    line-height: 1.55;
+  }
+}
+
+.reserve-message-sub {
+  font-size: 0.8rem !important;
+  color: #7F8C8D !important;
+  margin-top: 8px !important;
+}
+
+// ══════ Pending payment section (USER only) ══════
+.pending-section {
+  margin-top: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color, #E0E6E3);
+}
+
+.pending-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color, #2C3E50);
+  margin: 0 0 6px;
+}
+
+.pending-hint {
+  font-size: 0.8rem;
+  color: #7F8C8D;
+  margin: 0 0 14px;
+}
+
+.pending-search-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pending-input {
+  width: 180px;
+  padding: 10px 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  border: 2px solid var(--border-color, #ddd);
+  border-radius: 10px;
+  background: var(--card-bg, #FAFBFC);
+  color: var(--text-color, #2C3E50);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus {
+    border-color: var(--primary-color, #3498DB);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  }
+
+  &::placeholder {
+    color: #BDC3C7;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+}
+
+.pending-result {
+  margin-top: 16px;
+  border-radius: 12px;
+  padding: 16px 20px;
+
+  &--ok {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(#2ECC71, 0.07);
+    border: 1px solid rgba(#2ECC71, 0.25);
+
+    p {
+      margin: 0;
+      font-size: 0.875rem;
+      color: #555;
+
+      strong { color: var(--text-color, #2C3E50); }
+    }
+  }
+
+  &--found {
+    background: rgba(#F39C12, 0.06);
+    border: 1px solid rgba(#F39C12, 0.25);
+  }
+}
+
+.pending-result-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.pending-result-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+
+  h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #E67E22;
+  }
+}
+
+.pending-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.pending-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pending-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #95A5A6;
+  font-weight: 600;
+}
+
+.pending-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-color, #2C3E50);
+
+  &--plate {
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+}
+
+.pending-amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(#E74C3C, 0.06);
+  border: 1px solid rgba(#E74C3C, 0.2);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.pending-amount-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #7F8C8D;
+}
+
+.pending-amount-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #E74C3C;
+}
+
+.btn--mercadopago {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #009EE3, #0077B6);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.2s, transform 0.1s;
+
+  &:hover:not(:disabled) {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.mp-unavailable {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: rgba(#7F8C8D, 0.08);
+  border: 1px solid rgba(#7F8C8D, 0.25);
+  border-radius: 10px;
+
+  .mp-unavailable-icon {
+    font-size: 1.6rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0 0 4px;
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.5;
+
+    &:last-child { margin-bottom: 0; }
+
+    strong { color: var(--text-color, #2C3E50); }
+  }
+}
+
+// ══════ Spinner ══════
+.spinner-sm {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 // ══════ Modal ══════
 .modal-section { min-height: 80px; }
 .modal-status { margin-bottom: 8px; }
@@ -456,5 +752,67 @@
 
   // Modal
   .modal-detail { color: #ccc !important; }
+
+  // Reservation
+  .reserve-message {
+    background: rgba(#5DADE2, 0.1) !important;
+    border-color: #5DADE2 !important;
+  }
+
+  .reserve-message-body {
+    h4 { color: #fff !important; }
+    p { color: #ccc !important; }
+  }
+
+  // Pending payment
+  .pending-section { border-color: #444 !important; }
+  .pending-title { color: #fff !important; }
+  .pending-hint { color: #aaa; }
+
+  .pending-input {
+    background: #1a1a1a !important;
+    border-color: #555 !important;
+    color: #fff !important;
+
+    &:focus {
+      border-color: #FFD700 !important;
+      box-shadow: 0 0 0 3px rgba(#FFD700, 0.2) !important;
+    }
+  }
+
+  .pending-result {
+    &--ok {
+      background: rgba(#00FF7F, 0.08) !important;
+      border-color: #00FF7F !important;
+
+      p { color: #ccc !important; strong { color: #fff !important; } }
+    }
+
+    &--found {
+      background: rgba(#F39C12, 0.1) !important;
+      border-color: #F39C12 !important;
+    }
+  }
+
+  .pending-result-header h4 { color: #F39C12 !important; }
+  .pending-label { color: #888 !important; }
+  .pending-value { color: #fff !important; }
+
+  .pending-amount-row {
+    background: rgba(#FF4444, 0.1) !important;
+    border-color: #FF4444 !important;
+  }
+  .pending-amount-value { color: #FF4444 !important; }
+
+  .btn--mercadopago {
+    background: linear-gradient(135deg, #5DADE2, #2980B9) !important;
+  }
+
+  .mp-unavailable {
+    background: rgba(#aaa, 0.1) !important;
+    border-color: #555 !important;
+
+    p { color: #ccc !important; strong { color: #fff !important; } }
+  }
 }
 

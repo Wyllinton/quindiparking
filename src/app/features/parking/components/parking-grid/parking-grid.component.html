@@ -51,6 +51,137 @@
   <!-- ══════ PARKING LOT LAYOUT ══════ -->
   <div class="parking-lot fade-in">
 
+    <!-- ── Reserve button (USER only) ── -->
+    @if (!isStaff) {
+      <div class="reserve-section">
+        <button class="btn btn--primary btn--lg reserve-btn" (click)="onReserveClick()" aria-label="Reservar espacio">
+          🅿️ Reservar espacio
+        </button>
+      </div>
+
+      @if (showReservationMsg) {
+        <div class="reserve-message fade-in">
+          <div class="reserve-message-icon">ℹ️</div>
+          <div class="reserve-message-body">
+            <h4>Reserva de espacio</h4>
+            <p>
+              Para asignarle un espacio de estacionamiento, por favor acérquese directamente al parqueadero.
+              Un operador verificará la disponibilidad y le asignará un lugar de manera presencial.
+            </p>
+            <p class="reserve-message-sub">
+              Horario de atención: Lunes a Sábado, 6:00 a.m. – 10:00 p.m.
+            </p>
+          </div>
+          <button class="btn btn--outline btn--sm" (click)="dismissReservationMsg()" aria-label="Cerrar mensaje">Entendido</button>
+        </div>
+      }
+
+      <!-- ── Pending payment section ── -->
+      <div class="pending-section">
+        <h3 class="pending-title">💳 Consultar pagos pendientes</h3>
+        <p class="pending-hint">Ingrese la placa de su vehículo para verificar si tiene un pago pendiente.</p>
+
+        <div class="pending-search-row">
+          <input
+            type="text"
+            [(ngModel)]="pendingPlate"
+            placeholder="ABC123"
+            (keyup.enter)="searchPendingPayment()"
+            [disabled]="searchingPending"
+            class="pending-input"
+            maxlength="10"
+            aria-label="Placa del vehículo para consultar pago pendiente"
+          >
+          <button
+            class="btn btn--primary"
+            (click)="searchPendingPayment()"
+            [disabled]="searchingPending || !pendingPlate.trim()"
+            aria-label="Consultar pago pendiente">
+            @if (searchingPending) {
+              <span class="spinner-sm"></span> Consultando...
+            } @else {
+              🔍 Consultar
+            }
+          </button>
+          @if (pendingPlate || pendingPayment || pendingNotFound) {
+            <button class="btn btn--outline btn--sm" (click)="clearPendingSearch()" aria-label="Limpiar consulta">Limpiar</button>
+          }
+        </div>
+
+        <!-- No pending payment found -->
+        @if (pendingNotFound) {
+          <div class="pending-result pending-result--ok fade-in">
+            <span class="pending-result-icon">✅</span>
+            <p>No se encontraron pagos pendientes para la placa <strong>{{ pendingPlate.toUpperCase() }}</strong>.</p>
+          </div>
+        }
+
+        <!-- Pending payment found -->
+        @if (pendingPayment) {
+          <div class="pending-result pending-result--found fade-in">
+            <div class="pending-result-header">
+              <span class="pending-result-icon">⚠️</span>
+              <h4>Pago pendiente encontrado</h4>
+            </div>
+
+            <div class="pending-detail-grid">
+              <div class="pending-detail">
+                <span class="pending-label">Placa</span>
+                <span class="pending-value pending-value--plate">{{ pendingPayment.licensePlate }}</span>
+              </div>
+              <div class="pending-detail">
+                <span class="pending-label">Tipo</span>
+                <span class="pending-value">{{ translateVehicleType(pendingPayment.vehicleType) }}</span>
+              </div>
+              <div class="pending-detail">
+                <span class="pending-label">Entrada</span>
+                <span class="pending-value">{{ pendingPayment.checkInTime | date:'short' }}</span>
+              </div>
+              <div class="pending-detail">
+                <span class="pending-label">Salida</span>
+                <span class="pending-value">{{ pendingPayment.checkOutTime | date:'short' }}</span>
+              </div>
+              <div class="pending-detail">
+                <span class="pending-label">Duración</span>
+                <span class="pending-value">{{ pendingPayment.totalMinutes }} min</span>
+              </div>
+              <div class="pending-detail">
+                <span class="pending-label">Total factura</span>
+                <span class="pending-value">{{ formatCurrency(pendingPayment.totalAmount) }}</span>
+              </div>
+            </div>
+
+            <div class="pending-amount-row">
+              <span class="pending-amount-label">Monto pendiente</span>
+              <span class="pending-amount-value">{{ formatCurrency(pendingPayment.pendingAmount) }}</span>
+            </div>
+
+            <button
+              class="btn btn--mercadopago"
+              (click)="payWithMercadoPago()"
+              [disabled]="creatingPreference || mpUnavailable"
+              aria-label="Pagar con Mercado Pago">
+              @if (creatingPreference) {
+                <span class="spinner-sm"></span> Verificando pasarela...
+              } @else {
+                🌐 Pagar con Mercado Pago
+              }
+            </button>
+
+            @if (mpUnavailable) {
+              <div class="mp-unavailable fade-in">
+                <span class="mp-unavailable-icon">🏧</span>
+                <div>
+                  <p><strong>Pago en línea no disponible en este momento.</strong></p>
+                  <p>Por favor acérquese a la caja del parqueadero para cancelar su saldo pendiente de <strong>{{ formatCurrency(pendingPayment!.pendingAmount) }}</strong>.</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
     <!-- ── Cars Section ── -->
     <div class="parking-section">
       <div class="section-header">
@@ -65,6 +196,7 @@
               @for (slot of carSlots.slice(0, carHalf); track slot.spaceNumber) {
                 <button
                   class="slot {{ getStatusClass(slot.status) }}"
+                  [class.slot--readonly]="!isStaff"
                   (click)="onSlotClick(slot)"
                   [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
                   [title]="slot.spaceNumber + ' (' + slot.status + ')'">
@@ -82,6 +214,7 @@
               @for (slot of carSlots.slice(carHalf); track slot.spaceNumber) {
                 <button
                   class="slot {{ getStatusClass(slot.status) }}"
+                  [class.slot--readonly]="!isStaff"
                   (click)="onSlotClick(slot)"
                   [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
                   [title]="slot.spaceNumber + ' (' + slot.status + ')'">
@@ -116,6 +249,7 @@
               @for (slot of motoSlots.slice(0, motoHalf); track slot.spaceNumber) {
                 <button
                   class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  [class.slot--readonly]="!isStaff"
                   (click)="onSlotClick(slot)"
                   [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
                   [title]="slot.spaceNumber + ' (' + slot.status + ')'">
@@ -133,6 +267,7 @@
               @for (slot of motoSlots.slice(motoHalf); track slot.spaceNumber) {
                 <button
                   class="slot slot--moto {{ getStatusClass(slot.status) }}"
+                  [class.slot--readonly]="!isStaff"
                   (click)="onSlotClick(slot)"
                   [attr.aria-label]="'Espacio ' + slot.spaceNumber + ' - ' + slot.status"
                   [title]="slot.spaceNumber + ' (' + slot.status + ')'">
@@ -148,7 +283,8 @@
   </div>
 }
 
-<!-- ══════ Modal ══════ -->
+<!-- ══════ Modal (staff only) ══════ -->
+@if (isStaff) {
 <qp-modal [visible]="showModal" [title]="'Espacio ' + (selectedSlot?.spaceNumber || '')" (closed)="closeModal()">
   @switch (modalMode) {
     @case ('available') {
@@ -217,4 +353,5 @@
     }
   }
 </qp-modal>
+}
 

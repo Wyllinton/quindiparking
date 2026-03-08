@@ -1,0 +1,102 @@
+Política de Privacidad
+1. Introducción
+
+La presente Política de Privacidad establece los términos en que Kindi Parking recopila, utiliza, almacena y protege la información personal de los usuarios que acceden o utilizan esta plataforma digital.
+
+El uso de este sitio web implica la aceptación de esta política de tratamiento de datos personales.
+
+Esta plataforma ha sido desarrollada con fines exclusivamente académicos y educativos, por lo cual su funcionamiento y tratamiento de datos se realizan únicamente dentro de dicho contexto.
+
+2. Marco legal aplicable
+
+El tratamiento de datos personales realizado a través de esta plataforma se rige por la legislación vigente en la República de Colombia, especialmente por:
+
+Ley 1581 de 2012 – Protección de Datos Personales.
+
+Decreto 1377 de 2013 – Reglamentación parcial de la Ley 1581.
+
+Demás normas complementarias que regulan el Habeas Data y la protección de datos personales.
+
+Kindi Parking actuará como responsable del tratamiento de los datos, garantizando el cumplimiento de los principios de legalidad, finalidad, libertad, veracidad, transparencia, acceso y seguridad establecidos por la legislación colombiana.
+
+3. Información que se recopila
+
+La plataforma podrá recopilar información personal suministrada voluntariamente por los usuarios, incluyendo pero no limitada a:
+
+Nombre y apellidos
+
+Dirección de correo electrónico
+
+Información de contacto
+
+Información relacionada con el uso del sistema
+
+Datos asociados a simulaciones de pago o registro dentro de la plataforma
+
+Estos datos serán utilizados exclusivamente para el funcionamiento académico de la plataforma y para pruebas del sistema.
+
+4. Finalidad del tratamiento de datos
+
+La información recopilada podrá ser utilizada para:
+
+Permitir el acceso y funcionamiento de la plataforma.
+
+Realizar pruebas académicas del sistema.
+
+Analizar el uso del sistema con fines educativos.
+
+Mejorar el desarrollo tecnológico del proyecto.
+
+Cumplir con requisitos técnicos del sistema.
+
+En ningún caso la información será utilizada con fines comerciales reales ni será vendida a terceros.
+
+5. Almacenamiento y procesamiento de la información
+
+La información recopilada podrá ser almacenada y procesada en servicios de computación en la nube, específicamente mediante Amazon Web Services (AWS).
+
+El almacenamiento y tratamiento de estos datos se realizará cumpliendo con estándares de seguridad de la información y con las disposiciones legales aplicables en Colombia en materia de protección de datos personales.
+
+Amazon Web Services implementa mecanismos de seguridad, disponibilidad y protección de datos que permiten garantizar la confidencialidad e integridad de la información almacenada.
+
+6. Derechos de los titulares de los datos
+
+De acuerdo con la legislación colombiana, los titulares de los datos personales tienen derecho a:
+
+Conocer, actualizar y rectificar sus datos personales.
+
+Solicitar prueba de la autorización otorgada para el tratamiento de datos.
+
+Ser informados sobre el uso que se ha dado a sus datos.
+
+Presentar quejas ante la Superintendencia de Industria y Comercio (SIC) por infracciones a la ley.
+
+Revocar la autorización y solicitar la eliminación de sus datos cuando sea procedente.
+
+7. Seguridad de la información
+
+Kindi Parking adopta medidas técnicas, administrativas y organizativas razonables para proteger la información personal de accesos no autorizados, pérdida, alteración o divulgación.
+
+Sin embargo, debido a la naturaleza de internet, no se puede garantizar seguridad absoluta en la transmisión de información digital.
+
+8. Limitación de responsabilidad
+
+Esta plataforma ha sido desarrollada únicamente con fines académicos.
+
+Kindi Parking no garantiza la disponibilidad permanente del servicio ni se responsabiliza por:
+
+interrupciones del sistema,
+
+pérdida de información derivada de fallos técnicos,
+
+errores en el funcionamiento del sistema,
+
+o cualquier daño derivado del uso de la plataforma.
+
+El uso del sistema se realiza bajo responsabilidad del usuario dentro del contexto académico del proyecto.
+
+9. Cambios a la política de privacidad
+
+Kindi Parking se reserva el derecho de modificar esta Política de Privacidad en cualquier momento para adaptarla a cambios legales, técnicos o académicos.
+
+Las modificaciones serán publicadas en esta misma página.
