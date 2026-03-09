@@ -6,10 +6,14 @@ import { VerifyEmailComponent } from './components/verify-email/verify-email.com
 import { Verify2faComponent } from './components/verify-2fa/verify-2fa.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
+import { PrivacyPolicyComponent } from './components/privacy-policy/privacy-policy.component';
+import { TermsAndConditionsComponent } from './components/terms-and-conditions/terms-and-conditions.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'privacy-policy', component: PrivacyPolicyComponent },
+  { path: 'terms-and-conditions', component: TermsAndConditionsComponent },
   { path: 'verify-email', component: VerifyEmailComponent },
   { path: 'verify-2fa', component: Verify2faComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },

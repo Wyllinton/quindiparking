@@ -1,7 +1,7 @@
 Política de Privacidad
 1. Introducción
 
-La presente Política de Privacidad establece los términos en que Kindi Parking recopila, utiliza, almacena y protege la información personal de los usuarios que acceden o utilizan esta plataforma digital.
+La presente Política de Privacidad establece los términos en que Quindi Parking recopila, utiliza, almacena y protege la información personal de los usuarios que acceden o utilizan esta plataforma digital.
 
 El uso de este sitio web implica la aceptación de esta política de tratamiento de datos personales.
 
@@ -17,7 +17,7 @@ Decreto 1377 de 2013 – Reglamentación parcial de la Ley 1581.
 
 Demás normas complementarias que regulan el Habeas Data y la protección de datos personales.
 
-Kindi Parking actuará como responsable del tratamiento de los datos, garantizando el cumplimiento de los principios de legalidad, finalidad, libertad, veracidad, transparencia, acceso y seguridad establecidos por la legislación colombiana.
+Quindi Parking actuará como responsable del tratamiento de los datos, garantizando el cumplimiento de los principios de legalidad, finalidad, libertad, veracidad, transparencia, acceso y seguridad establecidos por la legislación colombiana.
 
 3. Información que se recopila
 
@@ -75,7 +75,7 @@ Revocar la autorización y solicitar la eliminación de sus datos cuando sea pro
 
 7. Seguridad de la información
 
-Kindi Parking adopta medidas técnicas, administrativas y organizativas razonables para proteger la información personal de accesos no autorizados, pérdida, alteración o divulgación.
+Quindi Parking adopta medidas técnicas, administrativas y organizativas razonables para proteger la información personal de accesos no autorizados, pérdida, alteración o divulgación.
 
 Sin embargo, debido a la naturaleza de internet, no se puede garantizar seguridad absoluta en la transmisión de información digital.
 
@@ -83,7 +83,7 @@ Sin embargo, debido a la naturaleza de internet, no se puede garantizar segurida
 
 Esta plataforma ha sido desarrollada únicamente con fines académicos.
 
-Kindi Parking no garantiza la disponibilidad permanente del servicio ni se responsabiliza por:
+Quindi Parking no garantiza la disponibilidad permanente del servicio ni se responsabiliza por:
 
 interrupciones del sistema,
 
@@ -97,6 +97,6 @@ El uso del sistema se realiza bajo responsabilidad del usuario dentro del contex
 
 9. Cambios a la política de privacidad
 
-Kindi Parking se reserva el derecho de modificar esta Política de Privacidad en cualquier momento para adaptarla a cambios legales, técnicos o académicos.
+Quindi Parking se reserva el derecho de modificar esta Política de Privacidad en cualquier momento para adaptarla a cambios legales, técnicos o académicos.
 
 Las modificaciones serán publicadas en esta misma página.
