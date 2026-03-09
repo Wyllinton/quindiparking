@@ -4,3 +4,104 @@
   gap: 12px;
 }
 
+// ──── Search bar ────
+.search-bar {
+  margin: 16px 0;
+}
+
+.search-input {
+  width: 260px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+
+  &:focus {
+    border-color: var(--primary-color, #3498db);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+  }
+}
+
+// ──── Sortable columns ────
+.sortable {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.sort-icon {
+  font-size: 0.75rem;
+  margin-left: 4px;
+  opacity: 0.6;
+}
+
+// ──── Toggle switch ────
+.toggle-group {
+  margin-top: 8px;
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: 0.3s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--success-color, #27ae60);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #e74c3c;
+
+  &.active {
+    color: var(--success-color, #27ae60);
+  }
+}
+

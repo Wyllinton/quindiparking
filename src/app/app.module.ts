@@ -5,6 +5,7 @@ import { RecaptchaV3Module, RECAPTCHA_V3_SITE_KEY } from 'ng-recaptcha';
 import { AppRoutingModule } from './app-routing.module';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
+import { PaymentModule } from './features/payment/payment.module';
 import { App } from './app';
 import { environment } from '../environments/environment';
 
@@ -17,6 +18,7 @@ import { environment } from '../environments/environment';
     AppRoutingModule,
     CoreModule,
     SharedModule,
+    PaymentModule,
     RecaptchaV3Module
   ],
   providers: [

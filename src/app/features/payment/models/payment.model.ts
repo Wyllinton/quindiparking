@@ -26,3 +26,12 @@ export interface UpdatePaymentStatusDTO {
   status: PaymentStatus;
 }
 
+export interface CreateMercadoPagoPreferenceDTO {
+  invoiceId: number;
+}
+
+export interface MercadoPagoPreferenceResponseDTO {
+  initPoint: string;
+  invoiceId: number;
+}
+

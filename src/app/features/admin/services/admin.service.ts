@@ -12,6 +12,7 @@ import {
   RevenueReportDTO,
   SystemHealthDTO
 } from '../models/dashboard.model';
+import { HourlyRateDTO, UpdateHourlyRateDTO } from '../models/pricing.model';
 
 @Injectable({
   providedIn: 'root'
@@ -47,6 +48,16 @@ export class AdminService extends ApiService {
 
   getHealthStatus(): Observable<ResponseDTO<SystemHealthDTO>> {
     return this.get<ResponseDTO<SystemHealthDTO>>('/admin/dashboard/health');
+  }
+
+  // ── Pricing / Hourly Rates ──
+
+  getCurrentHourlyRates(): Observable<HourlyRateDTO[]> {
+    return this.get<HourlyRateDTO[]>('/parking-spaces/rates');
+  }
+
+  updateHourlyRate(dto: UpdateHourlyRateDTO): Observable<ResponseDTO<string>> {
+    return this.patch<ResponseDTO<string>>('/parking-spaces/rate', dto);
   }
 }
 

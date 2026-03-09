@@ -9,3 +9,10 @@ export interface VehicleDTO {
   color: string;
 }
 
+export interface CreateVehicleWithoutUserDTO {
+  licensePlate: string;
+  vehicleType: VehicleType;
+  brand?: string;
+  color?: string;
+}
+

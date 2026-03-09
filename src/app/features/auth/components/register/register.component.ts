@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewInit } fr
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 import { ReCaptchaV3Service } from 'ng-recaptcha';
 import { AuthService } from '../../../../core/auth/services/auth.service';
 import { GoogleAuthService } from '../../../../core/auth/services/google-auth.service';
@@ -18,6 +17,9 @@ import { NotificationService } from '../../../../core/services/notification.serv
 export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
   form: FormGroup;
   loading = false;
+  showTermsModal = false;
+  showPrivacyModal = false;
+  private pendingGoogleToken: string | null = null;
 
   @ViewChild('googleBtn') googleBtnRef!: ElementRef;
   private googleSub?: Subscription;
@@ -35,16 +37,30 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\- ]{7,15}$/)]]
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\- ]{7,15}$/)]],
+      acceptTerms: [false, Validators.requiredTrue]
     });
   }
 
   ngOnInit(): void {
-    this.googleSub = this.googleAuthService.getIdToken().pipe(
-      switchMap(idToken => this.authService.googleLogin({ idToken }))
-    ).subscribe({
-      next: (response) => this.handleAuthResponse(response),
+    this.googleSub = this.googleAuthService.getIdToken().subscribe({
+      next: (idToken) => {
+        if (!this.form.get('acceptTerms')?.value) {
+          this.pendingGoogleToken = idToken;
+          this.form.get('acceptTerms')?.markAsTouched();
+          this.notify.warning('Debes aceptar los Términos y Condiciones y la Política de Privacidad antes de registrarte con Google');
+          return;
+        }
+        this.processGoogleLogin(idToken);
+      },
       error: (err) => this.notify.error(err.error?.message || 'Error al registrarse con Google')
+    });
+
+    this.form.get('acceptTerms')?.valueChanges.subscribe(accepted => {
+      if (accepted && this.pendingGoogleToken) {
+        this.processGoogleLogin(this.pendingGoogleToken);
+        this.pendingGoogleToken = null;
+      }
     });
   }
 
@@ -64,7 +80,8 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.recaptchaV3Service.execute('register').subscribe({
       next: (recaptchaToken) => {
-        const registerData = { ...this.form.value, recaptchaToken };
+        const { acceptTerms, ...formData } = this.form.value;
+        const registerData = { ...formData, recaptchaToken };
         this.authService.register(registerData).subscribe({
           next: (response) => this.handleAuthResponse(response),
           error: (err) => {
@@ -76,6 +93,35 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
       error: () => {
         this.loading = false;
         this.notify.error('Error al verificar reCAPTCHA. Intenta de nuevo.');
+      }
+    });
+  }
+
+  openTermsModal(event: Event): void {
+    event.preventDefault();
+    this.showTermsModal = true;
+  }
+
+  closeTermsModal(): void {
+    this.showTermsModal = false;
+  }
+
+  openPrivacyModal(event: Event): void {
+    event.preventDefault();
+    this.showPrivacyModal = true;
+  }
+
+  closePrivacyModal(): void {
+    this.showPrivacyModal = false;
+  }
+
+  private processGoogleLogin(idToken: string): void {
+    this.loading = true;
+    this.authService.googleLogin({ idToken }).subscribe({
+      next: (response) => this.handleAuthResponse(response),
+      error: (err) => {
+        this.loading = false;
+        this.notify.error(err.error?.message || 'Error al registrarse con Google');
       }
     });
   }

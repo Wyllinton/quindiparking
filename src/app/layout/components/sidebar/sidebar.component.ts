@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TokenService } from '../../../core/auth/services/token.service';
 
 interface NavItem {
   label: string;
   icon: string;
   route: string;
+  roles?: string[];  // if undefined, visible to all
 }
 
 @Component({
@@ -13,19 +15,35 @@ interface NavItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   collapsed = false;
+  filteredNavItems: NavItem[] = [];
 
-  navItems: NavItem[] = [
-    { label: 'Dashboard', icon: '📊', route: '/dashboard' },
+  private allNavItems: NavItem[] = [
+    { label: 'Dashboard', icon: '📊', route: '/dashboard', roles: ['ADMIN'] },
     { label: 'Parqueadero', icon: '🚗', route: '/dashboard/parking' },
-    { label: 'Car Wash', icon: '🧽', route: '/dashboard/detailing' },
-    { label: 'Clientes', icon: '👥', route: '/dashboard/clients' },
-    { label: 'Membresías', icon: '💳', route: '/dashboard/memberships' },
-    { label: 'Reportes', icon: '📈', route: '/dashboard/reports' }
+    { label: 'Operaciones', icon: '🎫', route: '/dashboard/operations', roles: ['OPERATOR', 'ADMIN'] },
+    { label: 'Car Wash', icon: '🧽', route: '/dashboard/detailing', roles: ['ADMIN'] },
+    { label: 'Clientes', icon: '👥', route: '/dashboard/clients', roles: ['ADMIN'] },
+    { label: 'Facturas', icon: '📋', route: '/dashboard/invoices', roles: ['OPERATOR', 'ADMIN'] },
+    { label: 'Membresías', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN'] },
+    { label: 'Reportes', icon: '📈', route: '/dashboard/reports', roles: ['ADMIN'] }
   ];
 
-  constructor(public router: Router) {}
+  private userRole = '';
+
+  constructor(
+    public router: Router,
+    private tokenService: TokenService
+  ) {}
+
+  ngOnInit(): void {
+    this.userRole = this.extractRole();
+    this.filteredNavItems = this.allNavItems.filter(item => {
+      if (!item.roles) return true;
+      return item.roles.includes(this.userRole);
+    });
+  }
 
   toggle(): void {
     this.collapsed = !this.collapsed;
@@ -33,6 +51,17 @@ export class SidebarComponent {
 
   isActive(route: string): boolean {
     return this.router.url.startsWith(route);
+  }
+
+  private extractRole(): string {
+    const token = this.tokenService.getToken();
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.role || payload.roles || '';
+    } catch {
+      return '';
+    }
   }
 }
 

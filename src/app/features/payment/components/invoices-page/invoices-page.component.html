@@ -1,0 +1,102 @@
+<div class="page-header">
+  <h1>📋 Facturas</h1>
+</div>
+
+<!-- Filters bar -->
+<div class="filters-bar">
+  <input
+    type="text"
+    placeholder="Buscar por placa..."
+    [(ngModel)]="searchPlate"
+    (ngModelChange)="onSearchPlate()"
+    aria-label="Buscar factura por placa"
+    class="search-input"
+  >
+  <select
+    [(ngModel)]="statusFilter"
+    (ngModelChange)="onFilterChange()"
+    aria-label="Filtrar por estado"
+    class="status-select"
+  >
+    @for (opt of statusOptions; track opt.value) {
+      <option [ngValue]="opt.value">{{ opt.label }}</option>
+    }
+  </select>
+</div>
+
+<!-- Table -->
+@if (loading) {
+  <qp-loading size="lg"></qp-loading>
+} @else {
+  <div class="table-container card fade-in" style="padding: 0;">
+    <table aria-label="Tabla de facturas">
+      <thead>
+        <tr>
+          <th scope="col" class="sortable" (click)="toggleSort('issueDate')">
+            Fecha <span class="sort-icon">{{ getSortIcon('issueDate') }}</span>
+          </th>
+          <th scope="col" class="sortable" (click)="toggleSort('licensePlate')">
+            Placa <span class="sort-icon">{{ getSortIcon('licensePlate') }}</span>
+          </th>
+          <th scope="col">Tipo</th>
+          <th scope="col" class="sortable" (click)="toggleSort('parkingSpaceNumber')">
+            Espacio <span class="sort-icon">{{ getSortIcon('parkingSpaceNumber') }}</span>
+          </th>
+          <th scope="col" class="sortable" (click)="toggleSort('totalMinutes')">
+            Tiempo <span class="sort-icon">{{ getSortIcon('totalMinutes') }}</span>
+          </th>
+          <th scope="col" class="sortable" (click)="toggleSort('totalAmount')">
+            Total <span class="sort-icon">{{ getSortIcon('totalAmount') }}</span>
+          </th>
+          <th scope="col" class="sortable" (click)="toggleSort('invoiceStatus')">
+            Estado <span class="sort-icon">{{ getSortIcon('invoiceStatus') }}</span>
+          </th>
+          <th scope="col">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (inv of filteredInvoices; track $index) {
+          <tr>
+            <td>{{ inv.issueDate | date:'short' }}</td>
+            <td class="plate-cell">{{ inv.licensePlate }}</td>
+            <td>{{ translateVehicleType(inv.vehicleType) }}</td>
+            <td>{{ inv.parkingSpaceNumber }}</td>
+            <td>{{ inv.totalMinutes }} min</td>
+            <td class="amount-cell">{{ formatCurrency(inv.totalAmount) }}</td>
+            <td>
+              <span class="badge" [ngClass]="statusBadgeClass(inv.invoiceStatus)">
+                {{ translateStatus(inv.invoiceStatus) }}
+              </span>
+            </td>
+            <td>
+              @if (inv.invoiceStatus !== 'PENDING') {
+                <button
+                  class="btn btn--outline btn--sm btn--print"
+                  (click)="downloadPdf(inv, $index)"
+                  [disabled]="downloadingIndex === $index"
+                  [attr.aria-label]="'Descargar factura de ' + inv.licensePlate">
+                  @if (downloadingIndex === $index) {
+                    ⏳
+                  } @else {
+                    📄 PDF
+                  }
+                </button>
+              } @else {
+                <span class="text-muted">—</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="8" class="empty-row">No hay facturas registradas</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-footer">
+    <span class="record-count">{{ filteredInvoices.length }} factura(s)</span>
+  </div>
+}
+

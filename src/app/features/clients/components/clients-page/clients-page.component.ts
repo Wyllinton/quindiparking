@@ -12,12 +12,20 @@ import { NotificationService } from '../../../../core/services/notification.serv
 })
 export class ClientsPageComponent implements OnInit {
   users: UserDTO[] = [];
+  filteredUsers: UserDTO[] = [];
   loading = true;
   showForm = false;
   editing = false;
   editId: number | null = null;
   submitting = false;
   form: FormGroup;
+
+  // Search
+  searchId = '';
+
+  // Sorting
+  sortColumn: keyof UserDTO = 'id';
+  sortDirection: 'asc' | 'desc' = 'asc';
 
   constructor(
     private userService: UserService,
@@ -30,7 +38,8 @@ export class ClientsPageComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       phoneNumber: ['', Validators.required],
-      role: ['USER', Validators.required]
+      role: ['USER', Validators.required],
+      isActive: [true]
     });
   }
 
@@ -41,17 +50,73 @@ export class ClientsPageComponent implements OnInit {
   loadUsers(): void {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
-      next: (data) => { this.users = data; this.loading = false; },
+      next: (data) => {
+        this.users = data;
+        this.applyFilterAndSort();
+        this.loading = false;
+      },
       error: () => { this.loading = false; }
     });
   }
 
+  // ──── Search & Sort ────
+
+  onSearchId(): void {
+    this.applyFilterAndSort();
+  }
+
+  toggleSort(column: keyof UserDTO): void {
+    if (this.sortColumn === column) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortColumn = column;
+      this.sortDirection = 'asc';
+    }
+    this.applyFilterAndSort();
+  }
+
+  getSortIcon(column: keyof UserDTO): string {
+    if (this.sortColumn !== column) return '↕';
+    return this.sortDirection === 'asc' ? '▲' : '▼';
+  }
+
+  private applyFilterAndSort(): void {
+    let result = [...this.users];
+
+    // Filter by ID
+    if (this.searchId.trim()) {
+      const term = this.searchId.trim();
+      result = result.filter(u => u.id.toString().includes(term));
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      const valA = a[this.sortColumn];
+      const valB = b[this.sortColumn];
+      let cmp: number;
+      if (typeof valA === 'number' && typeof valB === 'number') {
+        cmp = valA - valB;
+      } else if (typeof valA === 'boolean' && typeof valB === 'boolean') {
+        cmp = (valA === valB) ? 0 : valA ? -1 : 1;
+      } else {
+        cmp = String(valA ?? '').localeCompare(String(valB ?? ''));
+      }
+      return this.sortDirection === 'asc' ? cmp : -cmp;
+    });
+
+    this.filteredUsers = result;
+  }
+
+  // ──── Form ────
+
   openCreate(): void {
     this.editing = false;
     this.editId = null;
-    this.form.reset({ role: 'USER' });
+    this.form.reset({ role: 'USER', isActive: true });
     this.form.get('password')?.setValidators(Validators.required);
     this.form.get('password')?.updateValueAndValidity();
+    this.form.get('phoneNumber')?.setValidators(Validators.required);
+    this.form.get('phoneNumber')?.updateValueAndValidity();
     this.showForm = true;
   }
 
@@ -61,6 +126,9 @@ export class ClientsPageComponent implements OnInit {
     this.form.patchValue(user);
     this.form.get('password')?.clearValidators();
     this.form.get('password')?.updateValueAndValidity();
+    // Phone is optional when editing
+    this.form.get('phoneNumber')?.clearValidators();
+    this.form.get('phoneNumber')?.updateValueAndValidity();
     this.showForm = true;
   }
 
@@ -69,7 +137,12 @@ export class ClientsPageComponent implements OnInit {
     this.submitting = true;
 
     if (this.editing && this.editId) {
-      this.userService.updateUser(this.editId, { ...this.form.value, id: this.editId } as UserDTO).subscribe({
+      const payload: UserDTO = {
+        ...this.form.value,
+        id: this.editId,
+        phoneNumber: this.form.value.phoneNumber || ''
+      };
+      this.userService.updateUser(this.editId, payload).subscribe({
         next: () => {
           this.notify.success('Cliente actualizado');
           this.closeForm();
@@ -98,7 +171,7 @@ export class ClientsPageComponent implements OnInit {
   closeForm(): void {
     this.showForm = false;
     this.submitting = false;
-    this.form.reset({ role: 'USER' });
+    this.form.reset({ role: 'USER', isActive: true });
   }
 }
 
