@@ -41,13 +41,17 @@ export class AccountPageComponent implements OnInit {
     this.profileForm = this.fb.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\- ]{7,15}$/)]]
     });
 
     this.passwordForm = this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(100),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!#%*?&]).+$/)
+      ]],
       confirmPassword: ['', [Validators.required]]
     });
   }
@@ -60,7 +64,6 @@ export class AccountPageComponent implements OnInit {
         this.profileForm.patchValue({
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email,
           phoneNumber: user.phoneNumber
         });
         this.loading = false;
@@ -87,17 +90,19 @@ export class AccountPageComponent implements OnInit {
       return;
     }
 
+    if (!this.user) return;
+
     this.savingProfile = true;
     const dto = this.profileForm.value;
 
-    this.userService.updateProfile(dto).subscribe({
+    this.userService.updateProfile(this.user.id, dto).subscribe({
       next: (updatedUser) => {
         this.user = updatedUser;
         this.notify.success('Perfil actualizado correctamente');
         this.savingProfile = false;
       },
-      error: () => {
-        this.notify.error('Error al actualizar el perfil');
+      error: (err) => {
+        this.notify.error(err.error?.message || 'Error al actualizar el perfil');
         this.savingProfile = false;
       }
     });
@@ -122,8 +127,8 @@ export class AccountPageComponent implements OnInit {
         this.passwordForm.reset();
         this.savingPassword = false;
       },
-      error: () => {
-        this.notify.error('Error al cambiar la contraseña');
+      error: (err) => {
+        this.notify.error(err.error?.message || 'Error al cambiar la contraseña');
         this.savingPassword = false;
       }
     });
@@ -160,5 +165,15 @@ export class AccountPageComponent implements OnInit {
     const { newPassword, confirmPassword } = this.passwordForm.value;
     return confirmPassword && newPassword !== confirmPassword;
   }
+
+  get newPasswordValue(): string {
+    return this.passwordForm.get('newPassword')?.value || '';
+  }
+
+  get pwHasMinLength(): boolean { return this.newPasswordValue.length >= 8; }
+  get pwHasUppercase(): boolean { return /[A-Z]/.test(this.newPasswordValue); }
+  get pwHasLowercase(): boolean { return /[a-z]/.test(this.newPasswordValue); }
+  get pwHasNumber(): boolean { return /\d/.test(this.newPasswordValue); }
+  get pwHasSpecial(): boolean { return /[@$!#%*?&]/.test(this.newPasswordValue); }
 }
 

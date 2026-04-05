@@ -36,8 +36,8 @@ export class UserService extends ApiService {
     return this.get<UserDTO>('/users/me/profile');
   }
 
-  updateProfile(dto: UpdateProfileDTO): Observable<UserDTO> {
-    return this.put<UserDTO>('/users/me/profile', dto);
+  updateProfile(id: number, dto: UpdateProfileDTO): Observable<UserDTO> {
+    return this.put<UserDTO>(`/users/${id}`, dto);
   }
 
   // ──── Password ────
