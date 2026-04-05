@@ -1,0 +1,55 @@
+<div class="chatbot-overlay" (click)="closed.emit()"></div>
+<div class="chatbot-panel slide-up" role="dialog" aria-label="Asistente Quindi Parking">
+  <div class="chatbot-header">
+    <div class="chatbot-header-info">
+      <img src="support_agent.png" alt="Asistente" width="32" height="32" class="chatbot-avatar">
+      <div>
+        <span class="chatbot-title">Asistente Quindi Parking</span>
+        <span class="chatbot-status">En línea</span>
+      </div>
+    </div>
+    <button class="chatbot-close" (click)="closed.emit()" aria-label="Cerrar chat">✕</button>
+  </div>
+
+  <div class="chatbot-messages">
+    @for (msg of messages; track $index) {
+      <div class="chatbot-msg" [class.chatbot-msg--user]="msg.role === 'user'" [class.chatbot-msg--bot]="msg.role === 'bot'">
+        @if (msg.role === 'bot') {
+          <img src="support_agent.png" alt="Bot" width="24" height="24" class="chatbot-msg-avatar">
+        }
+        <div class="chatbot-bubble">
+          <p>{{ msg.text }}</p>
+          <span class="chatbot-time">{{ msg.timestamp | date:'HH:mm' }}</span>
+        </div>
+      </div>
+    }
+    @if (loading) {
+      <div class="chatbot-msg chatbot-msg--bot">
+        <img src="support_agent.png" alt="Bot" width="24" height="24" class="chatbot-msg-avatar">
+        <div class="chatbot-bubble chatbot-bubble--typing">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    }
+    <div #messagesEnd></div>
+  </div>
+
+  <div class="chatbot-input-area">
+    <textarea
+      [(ngModel)]="inputText"
+      (keydown)="onKeydown($event)"
+      placeholder="Escribe tu mensaje..."
+      rows="1"
+      class="chatbot-input"
+      [disabled]="loading"
+      aria-label="Mensaje">
+    </textarea>
+    <button class="chatbot-send" (click)="sendMessage()" [disabled]="!inputText.trim() || loading" aria-label="Enviar">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+
