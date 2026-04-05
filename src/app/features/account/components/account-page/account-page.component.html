@@ -29,12 +29,9 @@
           </div>
 
           <div class="form-group">
-            <label for="email">Correo electrónico</label>
-            <input id="email" type="email" formControlName="email" class="form-input"
-                   [class.input-error]="isInvalid(profileForm, 'email')">
-            @if (isInvalid(profileForm, 'email')) {
-              <span class="error-text">Ingrese un correo válido</span>
-            }
+            <label>Correo electrónico</label>
+            <div class="email-readonly">{{ user?.email }}</div>
+            <span class="hint-text">El correo electrónico no se puede modificar.</span>
           </div>
 
           <div class="form-group">
@@ -73,8 +70,24 @@
             <label for="newPassword">Nueva contraseña</label>
             <input id="newPassword" type="password" formControlName="newPassword" class="form-input"
                    [class.input-error]="isInvalid(passwordForm, 'newPassword')">
-            @if (isInvalid(passwordForm, 'newPassword')) {
-              <span class="error-text">Mínimo 8 caracteres</span>
+            @if (passwordForm.get('newPassword')?.dirty || passwordForm.get('newPassword')?.touched) {
+              <ul class="password-requirements">
+                <li [class.req-ok]="pwHasMinLength" [class.req-fail]="!pwHasMinLength">
+                  {{ pwHasMinLength ? '✓' : '✗' }} Mínimo 8 caracteres
+                </li>
+                <li [class.req-ok]="pwHasUppercase" [class.req-fail]="!pwHasUppercase">
+                  {{ pwHasUppercase ? '✓' : '✗' }} Al menos una letra mayúscula
+                </li>
+                <li [class.req-ok]="pwHasLowercase" [class.req-fail]="!pwHasLowercase">
+                  {{ pwHasLowercase ? '✓' : '✗' }} Al menos una letra minúscula
+                </li>
+                <li [class.req-ok]="pwHasNumber" [class.req-fail]="!pwHasNumber">
+                  {{ pwHasNumber ? '✓' : '✗' }} Al menos un número
+                </li>
+                <li [class.req-ok]="pwHasSpecial" [class.req-fail]="!pwHasSpecial">
+                  {{ pwHasSpecial ? '✓' : '✗' }} Al menos un carácter especial (@$!#%*?&)
+                </li>
+              </ul>
             }
           </div>
 

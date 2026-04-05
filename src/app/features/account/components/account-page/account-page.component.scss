@@ -90,6 +90,46 @@
   color: #E74C3C;
 }
 
+.hint-text {
+  font-size: 0.75rem;
+  color: #7F8C8D;
+  font-style: italic;
+}
+
+.email-readonly {
+  padding: 10px 14px;
+  border: 1.5px solid #E0E6E3;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #7F8C8D;
+  background: #F0F2F5;
+  box-sizing: border-box;
+  cursor: not-allowed;
+}
+
+.password-requirements {
+  list-style: none;
+  padding: 8px 0 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  li {
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .req-ok {
+    color: #27AE60;
+  }
+
+  .req-fail {
+    color: #E74C3C;
+  }
+}
+
 .form-actions {
   margin-top: 20px;
   display: flex;

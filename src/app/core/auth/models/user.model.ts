@@ -30,7 +30,6 @@ export interface UpdateUserActiveStatusDTO {
 export interface UpdateProfileDTO {
   firstName: string;
   lastName: string;
-  email: string;
   phoneNumber: string;
 }
 
