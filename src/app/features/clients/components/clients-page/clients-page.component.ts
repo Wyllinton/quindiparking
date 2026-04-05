@@ -113,6 +113,8 @@ export class ClientsPageComponent implements OnInit {
     this.editing = false;
     this.editId = null;
     this.form.reset({ role: 'USER', isActive: true });
+    this.form.get('email')?.setValidators([Validators.required, Validators.email]);
+    this.form.get('email')?.updateValueAndValidity();
     this.form.get('password')?.setValidators(Validators.required);
     this.form.get('password')?.updateValueAndValidity();
     this.form.get('phoneNumber')?.setValidators(Validators.required);
@@ -124,6 +126,8 @@ export class ClientsPageComponent implements OnInit {
     this.editing = true;
     this.editId = user.id;
     this.form.patchValue(user);
+    this.form.get('email')?.clearValidators();
+    this.form.get('email')?.updateValueAndValidity();
     this.form.get('password')?.clearValidators();
     this.form.get('password')?.updateValueAndValidity();
     // Phone is optional when editing
@@ -137,9 +141,11 @@ export class ClientsPageComponent implements OnInit {
     this.submitting = true;
 
     if (this.editing && this.editId) {
+      const { email, ...rest } = this.form.value;
       const payload: UserDTO = {
-        ...this.form.value,
+        ...rest,
         id: this.editId,
+        email: '',
         phoneNumber: this.form.value.phoneNumber || ''
       };
       this.userService.updateUser(this.editId, payload).subscribe({

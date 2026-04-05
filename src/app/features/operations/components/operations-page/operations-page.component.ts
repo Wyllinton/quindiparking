@@ -7,7 +7,7 @@ import { CheckOutRequestDTO, CheckOutResponseDTO } from '../../../parking/models
 import { VehicleDTO, CreateVehicleWithoutUserDTO } from '../../../parking/models/vehicle.model';
 import { VehicleType, PaymentMethod } from '../../../../shared/models/enums.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { InvoicePdfService } from '../../services/invoice-pdf.service';
+import { InvoicePdfService, EntryTicketData } from '../../services/invoice-pdf.service';
 import { switchMap } from 'rxjs';
 
 @Component({
@@ -22,6 +22,8 @@ export class OperationsPageComponent {
   checkInPlate = '';
   checkingIn = false;
   checkInResult: ParkingSessionDTO | null = null;
+  downloadingTicket = false;
+  checkInVehicleData: { vehicleType?: string; brand?: string; color?: string } = {};
 
   // ── Vehicle registration (when not found) ──
   showRegisterForm = false;
@@ -72,6 +74,7 @@ export class OperationsPageComponent {
     this.parkingService.checkInByPlate({ licensePlate: plate }).subscribe({
       next: (session) => {
         this.checkInResult = session;
+        this.checkInVehicleData = {};
         this.checkingIn = false;
         this.notify.success('Entrada registrada — Espacio asignado automáticamente');
       },
@@ -109,6 +112,11 @@ export class OperationsPageComponent {
     ).subscribe({
       next: (session) => {
         this.checkInResult = session;
+        this.checkInVehicleData = {
+          vehicleType: this.registerVehicleType,
+          brand: this.registerBrand.trim() || undefined,
+          color: this.registerColor.trim() || undefined
+        };
         this.showRegisterForm = false;
         this.registering = false;
         this.notify.success('Vehículo registrado y entrada registrada exitosamente');
@@ -128,6 +136,8 @@ export class OperationsPageComponent {
     this.checkInPlate = '';
     this.checkInResult = null;
     this.showRegisterForm = false;
+    this.checkInVehicleData = {};
+    this.downloadingTicket = false;
   }
 
   // ════════════════════════════════════════
@@ -210,6 +220,30 @@ export class OperationsPageComponent {
         this.notify.error(err.error?.message || 'Error al descargar la factura');
       }
     });
+  }
+
+  downloadEntryTicket(): void {
+    if (!this.checkInResult) return;
+    this.downloadingTicket = true;
+
+    const ticketData: EntryTicketData = {
+      sessionId: this.checkInResult.id,
+      licensePlate: this.checkInPlate.trim().toUpperCase(),
+      parkingSpaceId: this.checkInResult.parkingSpaceId,
+      checkInTime: this.checkInResult.checkInTime,
+      vehicleType: this.checkInVehicleData.vehicleType,
+      brand: this.checkInVehicleData.brand,
+      color: this.checkInVehicleData.color
+    };
+
+    try {
+      this.invoicePdfService.generateEntryTicket(ticketData);
+      this.notify.success('Ticket de entrada descargado');
+    } catch {
+      this.notify.error('Error al generar el ticket');
+    }
+
+    this.downloadingTicket = false;
   }
 
   clearCheckOut(): void {

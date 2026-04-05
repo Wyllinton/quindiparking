@@ -18,7 +18,12 @@
     </div>
     <div class="form-group">
       <label for="cEmail">Correo</label>
-      <input id="cEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com" aria-required="true">
+      @if (editing) {
+        <div class="email-readonly">{{ form.get('email')?.value }}</div>
+        <span class="hint-text">El correo electrónico no se puede modificar.</span>
+      } @else {
+        <input id="cEmail" type="email" formControlName="email" placeholder="juan@ejemplo.com" aria-required="true">
+      }
     </div>
     @if (!editing) {
       <div class="form-group">

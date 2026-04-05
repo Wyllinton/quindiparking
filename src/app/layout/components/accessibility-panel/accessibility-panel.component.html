@@ -1,7 +1,12 @@
 <div class="a11y-overlay" (click)="closed.emit()"></div>
 <div class="a11y-panel slide-up" role="dialog" aria-label="Panel de accesibilidad" (qpClickOutside)="closed.emit()">
   <div class="a11y-header">
-    <h3>♿ Accesibilidad</h3>
+    <h3>
+      <span class="a11y-title-icon">
+        <img src="access_icon.png" alt="" width="22" height="22" aria-hidden="true">
+      </span>
+      Accesibilidad
+    </h3>
     <button class="a11y-close" (click)="closed.emit()" aria-label="Cerrar panel">✕</button>
   </div>
 

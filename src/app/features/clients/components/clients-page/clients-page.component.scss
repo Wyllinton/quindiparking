@@ -4,6 +4,24 @@
   gap: 12px;
 }
 
+.email-readonly {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-color, #E0E6E3);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #7F8C8D;
+  background: #F0F2F5;
+  cursor: not-allowed;
+}
+
+.hint-text {
+  font-size: 0.75rem;
+  color: #7F8C8D;
+  font-style: italic;
+  margin-top: 4px;
+  display: block;
+}
+
 // ──── Search bar ────
 .search-bar {
   margin: 16px 0;
