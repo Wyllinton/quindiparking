@@ -1,4 +1,7 @@
 export interface InvoicePrintDTO {
+  // Invoice id
+  id: number;
+
   // Vehicle info
   licensePlate: string;
   vehicleType: string;
@@ -26,4 +29,3 @@ export interface InvoicePrintDTO {
   invoiceStatus: string;
   sessionStatus: string;
 }
-
