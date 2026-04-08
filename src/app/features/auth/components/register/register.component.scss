@@ -68,6 +68,48 @@
   margin-bottom: 8px;
 }
 
+.password-requirements {
+  display: none;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  font-size: 0.8rem;
+
+  &.show {
+    display: block;
+  }
+
+  .req-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+  }
+
+  .req-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      color: #7f8c8d;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      &.valid {
+        color: #27ae60;
+      }
+
+      .req-icon {
+        font-weight: bold;
+        display: inline-block;
+        width: 12px;
+      }
+    }
+  }
+}
 
 .btn-spinner {
   display: inline-block;
