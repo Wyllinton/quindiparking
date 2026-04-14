@@ -1,9 +1,15 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MembershipPageComponent } from './components/membership-page/membership-page.component';
+import { RoleGuard } from '../../core/auth/guards/role.guard';
 
 const routes: Routes = [
-  { path: '', component: MembershipPageComponent }
+  {
+    path: '',
+    component: MembershipPageComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ADMIN'] }
+  }
 ];
 
 @NgModule({
@@ -11,4 +17,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class MembershipRoutingModule {}
-

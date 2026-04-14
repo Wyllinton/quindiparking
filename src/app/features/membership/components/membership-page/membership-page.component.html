@@ -48,25 +48,113 @@
 }
 
 <!-- Plans catalog -->
-<section style="margin-bottom: 32px;" role="region" aria-label="Planes disponibles">
-  <h2 class="section-title">Planes disponibles</h2>
+<section style="margin-bottom: 32px;" role="region" aria-label="Gestion de planes de membresia">
+  <div class="section-header">
+    <h2 class="section-title" style="margin: 0;">Gestion de planes</h2>
+    <button class="btn btn--primary btn--sm" (click)="togglePlanForm()" aria-label="Alternar formulario de plan">
+      @if (showPlanForm) {
+        @if (editingPlanId !== null) { Cancelar edicion } @else { Cerrar }
+      } @else {
+        + Nuevo plan
+      }
+    </button>
+  </div>
+
+  @if (showPlanForm) {
+    <div class="card form-card fade-in" style="margin-bottom: 16px;">
+      <h3 style="margin-bottom: 16px; font-size: 1rem;">
+        @if (editingPlanId !== null) { Editar plan } @else { Crear plan de membresia }
+      </h3>
+      <form [formGroup]="planForm" (ngSubmit)="savePlan()" aria-label="Formulario de plan de membresia">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="planName">Nombre</label>
+            <input id="planName" type="text" formControlName="name" placeholder="Plan Gold">
+          </div>
+          <div class="form-group">
+            <label for="planMonthlyFee">Cuota mensual</label>
+            <input id="planMonthlyFee" type="number" min="1" step="0.01" formControlName="monthlyFee" placeholder="90000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="planDescription">Descripcion</label>
+          <textarea id="planDescription" rows="3" formControlName="description" placeholder="Beneficios del plan"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="planDiscount">Descuento (%)</label>
+            <input id="planDiscount" type="number" min="0" max="100" step="0.01" formControlName="discountPercentage">
+          </div>
+          <div class="form-group">
+            <label for="planDuration">Duracion (dias)</label>
+            <input id="planDuration" type="number" min="1" formControlName="durationInDays">
+          </div>
+        </div>
+
+        <div class="form-group" style="max-width: 300px;">
+          <label for="planStatus">Estado</label>
+          <select id="planStatus" formControlName="status">
+            <option [value]="RecordStatus.ACTIVE">ACTIVE</option>
+            <option [value]="RecordStatus.INACTIVE">INACTIVE</option>
+          </select>
+        </div>
+
+        <div class="inline-actions" style="margin-top: 16px;">
+          <button type="submit" class="btn btn--success" [disabled]="planForm.invalid || submittingPlan">
+            @if (submittingPlan) { Guardando... } @else {
+              @if (editingPlanId !== null) { Guardar cambios } @else { Crear plan }
+            }
+          </button>
+          @if (editingPlanId !== null) {
+            <button type="button" class="btn btn--outline" (click)="cancelPlanEdit()">Cancelar</button>
+          }
+        </div>
+      </form>
+    </div>
+  }
+
   @if (loadingPlans) {
     <qp-loading></qp-loading>
   } @else {
-    <div class="plans-grid">
-      @for (plan of plans; track plan.id) {
-        <div class="card plan-card">
-          <h4>{{ plan.name }}</h4>
-          <p class="plan-desc">{{ plan.description }}</p>
-          <div class="plan-meta">
-            <span class="plan-price">{{ plan.monthlyFee | currencyFormat }}<small>/mes</small></span>
-            <span class="plan-discount">{{ plan.discountPercentage }}% dto.</span>
-          </div>
-          <p class="plan-duration">Duración: {{ plan.durationInDays }} días</p>
-        </div>
-      } @empty {
-        <p style="color: #7F8C8D;">No hay planes registrados.</p>
-      }
+    <div class="table-container card" style="padding: 0;">
+      <table aria-label="Tabla de planes de membresia">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Descripcion</th>
+            <th scope="col">Mensualidad</th>
+            <th scope="col">Descuento</th>
+            <th scope="col">Duracion</th>
+            <th scope="col">Estado</th>
+            <th scope="col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (plan of plans; track plan.id) {
+            <tr>
+              <td>{{ plan.id }}</td>
+              <td>{{ plan.name }}</td>
+              <td>{{ plan.description }}</td>
+              <td>{{ plan.monthlyFee | currencyFormat }}</td>
+              <td>{{ plan.discountPercentage }}%</td>
+              <td>{{ plan.durationInDays }} dias</td>
+              <td><span class="badge {{ getPlanStatusBadge(plan.status.toString()) }}">{{ plan.status }}</span></td>
+              <td class="actions-cell">
+                <button class="btn btn--outline btn--sm" (click)="editPlan(plan)">Editar</button>
+                <button class="btn btn--danger btn--sm" (click)="deletePlan(plan.id)">Eliminar</button>
+                <button class="btn btn--sm" [class.btn--success]="plan.status !== RecordStatus.ACTIVE" [class.btn--outline]="plan.status === RecordStatus.ACTIVE" (click)="togglePlanStatus(plan)">
+                  {{ plan.status === RecordStatus.ACTIVE ? 'Inactivar' : 'Activar' }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="8" style="text-align: center; color: #7F8C8D;">No hay planes registrados.</td></tr>
+          }
+        </tbody>
+      </table>
     </div>
   }
 </section>
@@ -119,4 +207,3 @@
     </div>
   }
 </section>
-
