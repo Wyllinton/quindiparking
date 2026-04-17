@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MembershipService } from '../../services/membership.service';
-import { MembershipDTO } from '../../models/membership.model';
+import { MembershipDTO, AdminCreateMembershipDTO } from '../../models/membership.model';
 import { MembershipPlanDTO } from '../../models/membership-plan.model';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { RecordStatus } from '../../../../shared/models/enums.model';
+import { RecordStatus, PaymentMethod } from '../../../../shared/models/enums.model';
+import { UserService } from '../../../../shared/services/user.service';
+import { UserDTO } from '../../../../core/auth/models/user.model';
+import { TokenService } from '../../../../core/auth/services/token.service';
 
 @Component({
   selector: 'qp-membership-page',
@@ -15,8 +18,13 @@ import { RecordStatus } from '../../../../shared/models/enums.model';
 export class MembershipPageComponent implements OnInit {
   plans: MembershipPlanDTO[] = [];
   memberships: MembershipDTO[] = [];
+  users: UserDTO[] = [];
+  filteredUsers: UserDTO[] = [];
+  userSearchTerm: string = '';
+
   loadingPlans = true;
   loadingMemberships = true;
+  loadingUsers = false;
 
   showForm = false;
   submitting = false;
@@ -27,18 +35,23 @@ export class MembershipPageComponent implements OnInit {
   editingPlanId: number | null = null;
   planForm: FormGroup;
 
+  isAdmin = false;
+  showUserSearch = false;
+  readonly paymentMethods = [PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.TRANSFER];
+
   protected readonly RecordStatus = RecordStatus;
 
   constructor(
     private membershipService: MembershipService,
+    private userService: UserService,
+    private tokenService: TokenService,
     private fb: FormBuilder,
     private notify: NotificationService
   ) {
     this.form = this.fb.group({
       userId: [null, Validators.required],
       membershipPlanId: [null, Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
+      paymentMethod: [PaymentMethod.CARD, Validators.required],
       autoRenew: [false]
     });
 
@@ -53,8 +66,59 @@ export class MembershipPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.checkRole();
     this.loadPlans();
     this.loadMemberships();
+
+    if (this.isAdmin) {
+      this.loadUsers();
+    }
+  }
+
+  checkRole(): void {
+    const token = this.tokenService.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const roleClaim = payload.role || payload.roles || payload.authority || payload.authorities || '';
+        const role = Array.isArray(roleClaim) ? roleClaim[0] : roleClaim;
+        const cleanRole = typeof role === 'string' ? role.replace(/^ROLE_/, '') : '';
+        this.isAdmin = cleanRole === 'ADMIN';
+      } catch (e) {}
+    }
+  }
+
+  loadUsers(): void {
+    this.loadingUsers = true;
+    this.userService.getAllUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+        this.filteredUsers = data;
+        this.loadingUsers = false;
+      },
+      error: () => {
+        this.loadingUsers = false;
+      }
+    });
+  }
+
+  filterUsers(): void {
+    if (!this.userSearchTerm || !this.userSearchTerm.trim()) {
+      this.filteredUsers = this.users;
+      return;
+    }
+
+    const term = this.userSearchTerm.toLowerCase().trim();
+    this.filteredUsers = this.users.filter(user =>
+      (user.email && user.email.toLowerCase().includes(term)) ||
+      (user.firstName && user.firstName.toLowerCase().includes(term)) ||
+      (user.lastName && user.lastName.toLowerCase().includes(term))
+    );
+  }
+
+  selectUser(id: number): void {
+    this.form.patchValue({ userId: id });
+    this.showUserSearch = false;
   }
 
   loadPlans(): void {
@@ -87,21 +151,20 @@ export class MembershipPageComponent implements OnInit {
     if (this.form.invalid) return;
     this.submitting = true;
     const val = this.form.value;
-    const dto: MembershipDTO = {
-      id: 0,
-      userId: val.userId,
-      membershipPlanId: val.membershipPlanId,
-      startDate: new Date(val.startDate).toISOString(),
-      endDate: new Date(val.endDate).toISOString(),
-      status: 'ACTIVE',
+
+    const dto: AdminCreateMembershipDTO = {
+      userId: Number(val.userId),
+      membershipPlanId: Number(val.membershipPlanId),
+      paymentMethod: val.paymentMethod,
       autoRenew: val.autoRenew
     };
-    this.membershipService.createMembership(dto).subscribe({
+
+    this.membershipService.createMembershipAdmin(dto).subscribe({
       next: () => {
         this.notify.success('Membresia creada exitosamente');
         this.showForm = false;
         this.submitting = false;
-        this.form.reset({ autoRenew: false });
+        this.form.reset({ paymentMethod: PaymentMethod.CARD, autoRenew: false });
         this.loadMemberships();
       },
       error: (err) => {

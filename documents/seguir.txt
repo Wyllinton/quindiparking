@@ -1,0 +1,1 @@
+en la vista de admin, para registrar a un usuario en una membresía, pide nada más fecha la fecha de inicio, si el dto pide fecha final pues cuenta

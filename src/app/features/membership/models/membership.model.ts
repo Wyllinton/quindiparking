@@ -1,4 +1,4 @@
-import { MembershipStatus } from '../../../shared/models/enums.model';
+import { MembershipStatus, PaymentMethod } from '../../../shared/models/enums.model';
 
 export interface MembershipDTO {
   id: number;
@@ -21,3 +21,9 @@ export interface DiscountDTO {
   discountPercentage: number;
 }
 
+export interface AdminCreateMembershipDTO {
+  userId: number;
+  membershipPlanId: number;
+  paymentMethod: PaymentMethod | string;
+  autoRenew: boolean;
+}

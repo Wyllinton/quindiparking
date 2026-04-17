@@ -9,14 +9,21 @@
 @if (showForm) {
   <div class="card form-card fade-in" style="margin-bottom: 24px;">
     <h3 style="margin-bottom: 16px; font-size: 1rem;">Crear membresía</h3>
-    <form [formGroup]="form" (ngSubmit)="createMembership()" aria-label="Formulario de creación de membresía">
+    <form [formGroup]="form" (ngSubmit)="createMembership()" aria-label="Formulario de creacin de membresa">
       <div class="form-row">
         <div class="form-group">
-          <label for="mUserId">ID Usuario</label>
-          <input id="mUserId" type="number" formControlName="userId" placeholder="5" aria-required="true">
+          <label for="mUserId">ID Usuario *</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input id="mUserId" type="number" formControlName="userId" placeholder="5" aria-required="true" style="flex: 1;">
+            @if (isAdmin) {
+              <button type="button" class="btn btn--outline btn--sm" (click)="showUserSearch = !showUserSearch" style="padding: 8px 12px; font-size: 1.1rem; height: 100%; border-radius: 6px;" aria-label="Buscar usuario">
+                🔍
+              </button>
+            }
+          </div>
         </div>
         <div class="form-group">
-          <label for="mPlan">Plan</label>
+          <label for="mPlan">Plan *</label>
           <select id="mPlan" formControlName="membershipPlanId" aria-required="true">
             <option [ngValue]="null" disabled>Seleccionar plan</option>
             @for (plan of plans; track plan.id) {
@@ -27,23 +34,75 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label for="mStart">Fecha inicio</label>
-          <input id="mStart" type="date" formControlName="startDate" aria-required="true">
-        </div>
-        <div class="form-group">
-          <label for="mEnd">Fecha fin</label>
-          <input id="mEnd" type="date" formControlName="endDate" aria-required="true">
+          <label for="mPayment">Metodo de Pago *</label>
+          <select id="mPayment" formControlName="paymentMethod" aria-required="true">
+            @for (pm of paymentMethods; track pm) {
+              <option [value]="pm">{{ pm }}</option>
+            }
+          </select>
         </div>
       </div>
       <label class="checkbox-label">
-        <input type="checkbox" formControlName="autoRenew" aria-label="Activar renovación automática"> Renovación automática
+        <input type="checkbox" formControlName="autoRenew" aria-label="Activar renovacin automtica"> Renovacin automtica
       </label>
       <div style="margin-top: 16px;">
-        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting" aria-label="Crear membresía">
+        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting" aria-label="Crear membresa">
           @if (submitting) { Creando... } @else { Crear membresía }
         </button>
       </div>
     </form>
+
+    @if (isAdmin && showUserSearch) {
+      <div class="admin-users" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color, #eaeaea)">
+        <h3 style="margin-bottom: 12px; font-size: 1rem;">Buscar Cliente</h3>
+
+        <div style="margin-bottom: 16px;">
+          <input
+            type="text"
+            [(ngModel)]="userSearchTerm"
+            [ngModelOptions]="{standalone: true}"
+            (ngModelChange)="filterUsers()"
+            placeholder="Buscar por nombre, apellido o correo..."
+            style="width: 100%; padding: 8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;"
+            aria-label="Filtro de clientes"
+          />
+        </div>
+
+        @if (loadingUsers) {
+          <p>Cargando usuarios...</p>
+        } @else {
+          <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Correo</th>
+                  <th>Seleccionar</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (user of filteredUsers; track user.id) {
+                  <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.firstName }} {{ user.lastName }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <button
+                        class="btn btn--outline btn--sm"
+                        type="button"
+                        (click)="selectUser(user.id)">
+                        Seleccionar
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    }
   </div>
 }
 
