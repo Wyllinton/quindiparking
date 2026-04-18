@@ -27,7 +27,7 @@ export class SidebarComponent implements OnInit {
     { label: 'Car Wash', icon: '🧽', route: '/dashboard/detailing', roles: ['ADMIN'] },
     { label: 'Clientes', icon: '👥', route: '/dashboard/clients', roles: ['ADMIN'] },
     { label: 'Facturas', icon: '📋', route: '/dashboard/invoices', roles: ['OPERATOR', 'ADMIN'] },
-    { label: 'Membresias', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN'] },
+    { label: 'Membresias', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN', 'USER', 'ROLE_USER'] },
     { label: 'Reportes', icon: '📈', route: '/dashboard/reports', roles: ['ADMIN'] }
   ];
 

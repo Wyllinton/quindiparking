@@ -20,6 +20,13 @@ export class ClientsPageComponent implements OnInit {
   submitting = false;
   form: FormGroup;
 
+  // Deletion
+  showDeleteModal = false;
+  deleteIdInput = '';
+  confirmDeleteIdInput = '';
+  deleteWordInput = '';
+  deleting = false;
+
   // Search
   searchId = '';
 
@@ -179,5 +186,46 @@ export class ClientsPageComponent implements OnInit {
     this.submitting = false;
     this.form.reset({ role: 'USER', isActive: true });
   }
-}
 
+  // ──── Cascade Delete ────
+
+  openDeleteModal(): void {
+    this.showDeleteModal = true;
+    this.deleteIdInput = '';
+    this.confirmDeleteIdInput = '';
+    this.deleteWordInput = '';
+  }
+
+  closeDeleteModal(): void {
+    this.showDeleteModal = false;
+    this.deleteIdInput = '';
+    this.confirmDeleteIdInput = '';
+    this.deleteWordInput = '';
+    this.deleting = false;
+  }
+
+  get isDeleteValid(): boolean {
+    return !!this.deleteIdInput &&
+           this.deleteIdInput === this.confirmDeleteIdInput &&
+           this.deleteWordInput.toLowerCase() === 'eliminar';
+  }
+
+  onCascadeDelete(): void {
+    if (!this.isDeleteValid) return;
+
+    this.deleting = true;
+    const idToDelete = Number(this.deleteIdInput);
+
+    this.userService.cascadeDeleteUser(idToDelete).subscribe({
+      next: () => {
+        this.notify.success('Usuario eliminado exitosamente y sus datos asociados depurados.');
+        this.closeDeleteModal();
+        this.loadUsers();
+      },
+      error: (err) => {
+        this.deleting = false;
+        this.notify.error(err.error?.message || 'Error al eliminar el usuario.');
+      }
+    });
+  }
+}

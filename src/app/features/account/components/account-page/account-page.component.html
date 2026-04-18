@@ -141,7 +141,41 @@
         </button>
       </div>
     </section>
+
+    <!-- ═══ Account Deletion Section ═══ -->
+    <section class="account-card" style="border-top: 2px solid var(--danger, #E74C3C); margin-top: 32px;">
+      <h2 class="card-title" style="color: var(--danger, #E74C3C);">Zona de Peligro</h2>
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <p style="color: var(--text-light, #7F8C8D);">
+          Si decides darte de baja, perderás de forma permanente el acceso a tu cuenta, tus historiales y las membresías activas. Una vez procesada, esta acción no se puede deshacer.
+        </p>
+
+        @if (!showDeletionConfirm) {
+          <div>
+            <button class="btn btn--danger" (click)="requestAccountDeletion()" [disabled]="requestingDeletion">
+              Darme de baja
+            </button>
+          </div>
+        } @else {
+          <div style="background-color: var(--danger-light, #FADBD8); padding: 16px; border-radius: 8px; border: 1px solid var(--danger, #E74C3C);">
+            <p style="margin-bottom: 12px; font-weight: bold; color: var(--danger, #E74C3C);">
+              ¿Estás completamente seguro? Escribe la palabra "eliminar" para confirmar:
+            </p>
+            <div style="display: flex; gap: 8px; max-width: 400px; margin-bottom: 16px;">
+              <input type="text" [(ngModel)]="deletionConfirmWord" class="form-input" placeholder="eliminar">
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn--danger" (click)="confirmAccountDeletion()" [disabled]="deletionConfirmWord.toLowerCase() !== 'eliminar' || requestingDeletion">
+                @if (requestingDeletion) { Procesando... } @else { Confirmar Eliminación }
+              </button>
+              <button class="btn btn--outline" (click)="cancelAccountDeletion()" [disabled]="requestingDeletion">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
   }
 </div>
-
 

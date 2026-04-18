@@ -1,6 +1,9 @@
 <div class="page-header">
   <h1>Clientes</h1>
-  <button class="btn btn--primary" (click)="openCreate()" aria-label="Crear nuevo cliente">+ Nuevo cliente</button>
+  <div style="display: flex; gap: 12px;">
+    <button class="btn btn--danger" (click)="openDeleteModal()" aria-label="Eliminar cliente">Eliminar cliente</button>
+    <button class="btn btn--primary" (click)="openCreate()" aria-label="Crear nuevo cliente">+ Nuevo cliente</button>
+  </div>
 </div>
 
 <!-- Form modal -->
@@ -66,6 +69,44 @@
   </form>
 </qp-modal>
 
+<!-- Delete modal -->
+<qp-modal [visible]="showDeleteModal" title="Eliminar Cliente en Cascada" (closed)="closeDeleteModal()">
+  <div style="margin-bottom: 16px;">
+    <p style="color: var(--text-light, #7F8C8D); margin-bottom: 12px;">
+      Esta acción eliminará al usuario y toda su información asociada (membresías y vehículos no usados).
+      El historial financiero se mantendrá intacto. <strong>Esta acción es irreversible.</strong>
+    </p>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label for="dId">ID del usuario a eliminar</label>
+      <input id="dId" type="text" [(ngModel)]="deleteIdInput" placeholder="Ej. 15" aria-required="true">
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px;">
+      <label for="dConfirmId">Confirmar ID del usuario</label>
+      <input id="dConfirmId" type="text" [(ngModel)]="confirmDeleteIdInput" placeholder="Ej. 15" aria-required="true">
+      @if (deleteIdInput && confirmDeleteIdInput && deleteIdInput !== confirmDeleteIdInput) {
+        <span class="error-text" style="color: var(--danger, #E74C3C); font-size: 0.8rem; margin-top: 4px; display: block;">
+          Los ID no coinciden.
+        </span>
+      }
+    </div>
+
+    <div class="form-group" style="margin-bottom: 12px; background-color: var(--danger-light, #FADBD8); padding: 12px; border-radius: 6px; border: 1px solid var(--danger, #E74C3C);">
+      <label for="dWord" style="color: var(--danger, #E74C3C);">¿Seguro que quieres eliminar este usuario?</label>
+      <p style="font-size: 0.85rem; margin-bottom: 8px; color: var(--danger, #e74c3c);">Escribe <strong>eliminar</strong> para confirmar:</p>
+      <input id="dWord" type="text" [(ngModel)]="deleteWordInput" placeholder="eliminar" aria-required="true">
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 12px; justify-content: flex-end;">
+    <button type="button" class="btn btn--outline" (click)="closeDeleteModal()">Cancelar</button>
+    <button type="button" class="btn btn--danger" [disabled]="!isDeleteValid || deleting" (click)="onCascadeDelete()">
+      @if (deleting) { Eliminando... } @else { Confirmar Eliminación }
+    </button>
+  </div>
+</qp-modal>
+
 <!-- Search bar -->
 <div class="search-bar">
   <input
@@ -121,4 +162,3 @@
     </table>
   </div>
 }
-

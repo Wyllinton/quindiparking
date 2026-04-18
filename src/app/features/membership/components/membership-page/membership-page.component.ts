@@ -39,6 +39,9 @@ export class MembershipPageComponent implements OnInit {
   showUserSearch = false;
   readonly paymentMethods = [PaymentMethod.CASH, PaymentMethod.CARD, PaymentMethod.TRANSFER];
 
+  autoRenewSelection: { [planId: number]: boolean } = {};
+  checkoutLoading: number | null = null;
+
   protected readonly RecordStatus = RecordStatus;
 
   constructor(
@@ -68,10 +71,12 @@ export class MembershipPageComponent implements OnInit {
   ngOnInit(): void {
     this.checkRole();
     this.loadPlans();
-    this.loadMemberships();
 
     if (this.isAdmin) {
+      this.loadMemberships();
       this.loadUsers();
+    } else {
+      // Regular user logic
     }
   }
 
@@ -126,6 +131,12 @@ export class MembershipPageComponent implements OnInit {
     this.membershipService.getAllMembershipPlans().subscribe({
       next: (data) => {
         this.plans = data;
+        // Initialize auto renew selections
+        data.forEach(p => {
+          if (!(p.id in this.autoRenewSelection)) {
+            this.autoRenewSelection[p.id] = false;
+          }
+        });
         this.loadingPlans = false;
       },
       error: () => {
@@ -324,5 +335,28 @@ export class MembershipPageComponent implements OnInit {
       status: RecordStatus.ACTIVE
     });
     this.editingPlanId = null;
+  }
+
+  subscribeToPlan(planId: number): void {
+    const autoRenew = this.autoRenewSelection[planId] || false;
+    this.checkoutLoading = planId;
+
+    this.membershipService.checkoutMembership({
+      membershipPlanId: planId,
+      autoRenew: autoRenew
+    }).subscribe({
+      next: (response) => {
+        this.checkoutLoading = null;
+        if (response.initPoint) {
+          window.location.href = response.initPoint;
+        } else {
+          this.notify.error('No se pudo obtener el punto de pago');
+        }
+      },
+      error: (err) => {
+        this.checkoutLoading = null;
+        this.notify.error(err.error?.message || 'Error al procesar la suscripción');
+      }
+    });
   }
 }

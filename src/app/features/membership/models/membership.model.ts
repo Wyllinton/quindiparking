@@ -27,3 +27,13 @@ export interface AdminCreateMembershipDTO {
   paymentMethod: PaymentMethod | string;
   autoRenew: boolean;
 }
+
+export interface CheckoutMembershipDTO {
+  membershipPlanId: number;
+  autoRenew: boolean;
+}
+
+export interface MercadoPagoPreferenceResponseDTO {
+  initPoint: string;
+  invoiceId: number;
+}

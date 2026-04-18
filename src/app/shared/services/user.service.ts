@@ -30,6 +30,10 @@ export class UserService extends ApiService {
     return this.delete<void>(`/users/${id}`);
   }
 
+  cascadeDeleteUser(id: number): Observable<void> {
+    return this.delete<void>(`/users/${id}/cascade`);
+  }
+
   // ──── Profile ────
 
   getMyProfile(): Observable<UserDTO> {
@@ -38,6 +42,10 @@ export class UserService extends ApiService {
 
   updateProfile(id: number, dto: UpdateProfileDTO): Observable<UserDTO> {
     return this.put<UserDTO>(`/users/${id}`, dto);
+  }
+
+  requestAccountDeletion(): Observable<void> {
+    return this.post<void>('/users/me/request-deletion', {});
   }
 
   // ──── Password ────
@@ -52,4 +60,3 @@ export class UserService extends ApiService {
     return this.patch<UserDTO>(`/users/${id}/activate`, dto);
   }
 }
-
