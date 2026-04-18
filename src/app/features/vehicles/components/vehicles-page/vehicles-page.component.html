@@ -1,0 +1,181 @@
+<div class="page-header">
+  <h1>Gestion de Vehiculos</h1>
+  <p>Crear vehiculos, consultar por placa y asignar vehiculos a usuarios.</p>
+</div>
+
+<div class="vehicles-grid fade-in">
+  <section class="card">
+    <h2>Crear vehiculo</h2>
+    <form [formGroup]="createForm" (ngSubmit)="createVehicle()" class="form-grid">
+      <label>
+        Placa *
+        <input type="text" formControlName="licensePlate" placeholder="ABC123" maxlength="10" />
+      </label>
+
+      <label>
+        Tipo *
+        <select formControlName="vehicleType">
+          @for (type of vehicleTypeOptions; track type) {
+            <option [value]="type">{{ type === 'CAR' ? 'Carro' : 'Moto' }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Marca (opcional)
+        <input type="text" formControlName="brand" placeholder="Ej: Mazda" />
+      </label>
+
+      <label>
+        Color (opcional)
+        <input type="text" formControlName="color" placeholder="Ej: Gris" />
+      </label>
+
+      <button class="btn btn--success" type="submit" [disabled]="submittingCreate">
+        @if (submittingCreate) {
+          Creando...
+        } @else {
+          Crear vehiculo
+        }
+      </button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Buscar por placa</h2>
+    <div class="search-row">
+      <input
+        type="text"
+        [(ngModel)]="searchPlate"
+        placeholder="ABC123"
+        maxlength="10"
+        [disabled]="searchingPlate"
+        (keyup.enter)="searchByPlate()"
+      />
+      <button class="btn btn--primary" (click)="searchByPlate()" [disabled]="searchingPlate || !searchPlate.trim()">
+        @if (searchingPlate) {
+          Buscando...
+        } @else {
+          Buscar
+        }
+      </button>
+    </div>
+
+    @if (searchedVehicle) {
+      <div class="result">
+        <strong>#{{ searchedVehicle.id }}</strong>
+        <span>{{ searchedVehicle.licensePlate }}</span>
+        <span>{{ searchedVehicle.vehicleType }}</span>
+        <span>Usuario: {{ searchedVehicle.userId || 'Sin asignar' }}</span>
+      </div>
+    }
+  </section>
+</div>
+
+<section class="card fade-in">
+  <h2>Asignar vehiculo a usuario</h2>
+  <form [formGroup]="assignForm" (ngSubmit)="assignVehicleToUser()" class="assign-grid">
+    <label>
+      ID vehiculo *
+      <input type="number" formControlName="vehicleId" min="1" placeholder="Ej: 12" />
+    </label>
+
+    <label>
+      ID usuario *
+      <input type="number" formControlName="userId" min="1" placeholder="Ej: 8" />
+    </label>
+
+    <button class="btn btn--primary" type="submit" [disabled]="submittingAssign">
+      @if (submittingAssign) {
+        Asignando...
+      } @else {
+        Asignar
+      }
+    </button>
+  </form>
+
+  @if (isAdmin) {
+    <div class="admin-users">
+      <h3>Usuarios disponibles (solo admin)</h3>
+      @if (loadingUsers) {
+        <p>Cargando usuarios...</p>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Seleccionar</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users; track user.id) {
+                <tr>
+                  <td>{{ user.id }}</td>
+                  <td>{{ user.firstName }} {{ user.lastName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.role }}</td>
+                  <td>
+                    <button
+                      class="btn btn--outline btn--sm"
+                      type="button"
+                      (click)="assignForm.patchValue({ userId: user.id })">
+                      Usar ID
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+<section class="card fade-in">
+  <h2>Vehiculos registrados</h2>
+  @if (loadingVehicles) {
+    <p>Cargando vehiculos...</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Marca</th>
+            <th>Color</th>
+            <th>Usuario</th>
+            <th>Asignar</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vehicle of vehicles; track vehicle.id) {
+            <tr>
+              <td>{{ vehicle.id }}</td>
+              <td>{{ vehicle.licensePlate }}</td>
+              <td>{{ vehicle.vehicleType }}</td>
+              <td>{{ vehicle.brand || '-' }}</td>
+              <td>{{ vehicle.color || '-' }}</td>
+              <td>{{ vehicle.userId || 'Sin asignar' }}</td>
+              <td>
+                <button
+                  class="btn btn--outline btn--sm"
+                  type="button"
+                  (click)="prepareAssign(vehicle)">
+                  Usar en asignacion
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
+

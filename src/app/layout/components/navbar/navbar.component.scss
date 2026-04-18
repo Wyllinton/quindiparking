@@ -17,12 +17,22 @@
   gap: 10px;
 }
 
-.navbar-logo { font-size: 1.5rem; }
+.navbar-logo {
+  display: flex;
+  align-items: center;
+}
+
+
+.navbar-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
 
 .navbar-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1A237E;
+  color: #0D1642;
   letter-spacing: -0.3px;
 }
 

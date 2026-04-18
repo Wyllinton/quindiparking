@@ -36,7 +36,12 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(100),
+        Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!#%*?&]).+$/)
+      ]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\- ]{7,15}$/)]],
       acceptTerms: [false, Validators.requiredTrue]
     });
@@ -72,6 +77,30 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.googleSub?.unsubscribe();
+  }
+
+  get passwordValue(): string {
+    return this.form.get('password')?.value || '';
+  }
+
+  get hasMinLength(): boolean {
+    return this.passwordValue.length >= 8;
+  }
+
+  get hasUpperCase(): boolean {
+    return /[A-Z]/.test(this.passwordValue);
+  }
+
+  get hasLowerCase(): boolean {
+    return /[a-z]/.test(this.passwordValue);
+  }
+
+  get hasNumber(): boolean {
+    return /\d/.test(this.passwordValue);
+  }
+
+  get hasSpecialChar(): boolean {
+    return /[@$!#%*?&]/.test(this.passwordValue);
   }
 
   onSubmit(): void {
@@ -139,4 +168,3 @@ export class RegisterComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/auth/login']);
   }
 }
-

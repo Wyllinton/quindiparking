@@ -1,0 +1,90 @@
+.page-header {
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0.25rem 0 0;
+    opacity: 0.8;
+  }
+}
+
+.vehicles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: var(--surface-color, #fff);
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-grid,
+.assign-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+input,
+select {
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  background: transparent;
+}
+
+.search-row {
+  display: flex;
+  gap: 0.5rem;
+
+  input {
+    flex: 1;
+  }
+}
+
+.result {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--info-bg, rgba(40, 116, 240, 0.08));
+}
+
+.table-wrap {
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    border-bottom: 1px solid var(--border-color, #e2e2e2);
+    padding: 0.55rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+}
+
+.admin-users {
+  margin-top: 1rem;
+}
+

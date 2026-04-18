@@ -1,13 +1,26 @@
 <router-outlet></router-outlet>
 <qp-toast></qp-toast>
 
+<!-- Chatbot floating button — above the accessibility button -->
+<button
+  class="chatbot-fab"
+  (click)="showChatbot = !showChatbot"
+  aria-label="Abrir asistente de chat"
+  title="Asistente Quindi Parking">
+  <img src="support_agent.png" alt="Asistente" width="30" height="30" style="display:block;">
+</button>
+
+@if (showChatbot) {
+  <qp-chatbot (closed)="showChatbot = false"></qp-chatbot>
+}
+
 <!-- Floating accessibility button — visible on ALL pages -->
 <button
   class="a11y-fab"
   (click)="showAccessibilityPanel = !showAccessibilityPanel"
   aria-label="Abrir panel de accesibilidad"
   title="Accesibilidad">
-  ♿
+  <img src="access_icon.png" alt="Accesibilidad" width="32" height="32" style="display:block;">
 </button>
 
 @if (showAccessibilityPanel) {

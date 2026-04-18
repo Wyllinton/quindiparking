@@ -2,7 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { MembershipDTO, MembershipActiveCheckDTO, DiscountDTO } from '../models/membership.model';
+import {
+  MembershipDTO,
+  MembershipActiveCheckDTO,
+  DiscountDTO,
+  AdminCreateMembershipDTO,
+  CheckoutMembershipDTO,
+  MercadoPagoPreferenceResponseDTO
+} from '../models/membership.model';
 import { MembershipPlanDTO, UpdateRecordStatusDTO } from '../models/membership-plan.model';
 import { MembershipStatus } from '../../../shared/models/enums.model';
 import { CountDTO, ExistsDTO } from '../../../shared/models/api-response.model';
@@ -18,6 +25,14 @@ export class MembershipService extends ApiService {
 
   createMembership(membership: MembershipDTO): Observable<MembershipDTO> {
     return this.post<MembershipDTO>('/memberships', membership);
+  }
+
+  createMembershipAdmin(dto: AdminCreateMembershipDTO): Observable<MembershipDTO> {
+    return this.post<MembershipDTO>('/memberships/admin', dto);
+  }
+
+  checkoutMembership(dto: CheckoutMembershipDTO): Observable<MercadoPagoPreferenceResponseDTO> {
+    return this.post<MercadoPagoPreferenceResponseDTO>('/memberships/checkout', dto);
   }
 
   getAllMemberships(status?: MembershipStatus): Observable<MembershipDTO[]> {
@@ -117,4 +132,3 @@ export class MembershipService extends ApiService {
     return this.get<ExistsDTO>(`/membership-plans/check-name/${name}`);
   }
 }
-

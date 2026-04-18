@@ -65,6 +65,19 @@
               <span class="result-value">{{ checkInResult.checkInTime | date:'medium' }}</span>
             </div>
           </div>
+          <div class="result-actions">
+            <button
+              class="btn btn--primary btn--download"
+              (click)="downloadEntryTicket()"
+              [disabled]="downloadingTicket"
+              aria-label="Descargar ticket de entrada en PDF">
+              @if (downloadingTicket) {
+                <span class="spinner-sm"></span> Generando...
+              } @else {
+                🎫 Descargar Ticket de Entrada
+              }
+            </button>
+          </div>
         </div>
       }
 

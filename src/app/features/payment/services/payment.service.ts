@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { InvoiceDTO, UpdateInvoiceStatusDTO } from '../models/invoice.model';
 import { InvoicePrintDTO } from '../models/invoice-print.model';
-import { PaymentDTO, ProcessPaymentRequestDTO, ProcessMultiplePaymentsRequestDTO, UpdatePaymentStatusDTO, CreateMercadoPagoPreferenceDTO, MercadoPagoPreferenceResponseDTO } from '../models/payment.model';
+import { PaymentDTO, ProcessPaymentRequestDTO, ProcessMultiplePaymentsRequestDTO, UpdatePaymentStatusDTO, CreateMercadoPagoPreferenceDTO, MercadoPagoPreferenceResponseDTO, CompletePendingPaymentDTO } from '../models/payment.model';
 import { InvoiceStatus, PaymentStatus, PaymentMethod } from '../../../shared/models/enums.model';
 import { AmountDTO } from '../../../shared/models/api-response.model';
 
@@ -136,6 +136,10 @@ export class PaymentService extends ApiService {
 
   updatePaymentStatus(id: number, dto: UpdatePaymentStatusDTO): Observable<PaymentDTO> {
     return this.patch<PaymentDTO>(`/payments/${id}/status`, dto);
+  }
+
+  completePendingPayment(invoiceId: number, dto: CompletePendingPaymentDTO): Observable<PaymentDTO> {
+    return this.post<PaymentDTO>(`/payments/invoice/${invoiceId}/complete`, dto);
   }
 
   // ════════════════════════════════════════════

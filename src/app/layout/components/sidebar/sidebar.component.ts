@@ -23,10 +23,11 @@ export class SidebarComponent implements OnInit {
     { label: 'Dashboard', icon: '📊', route: '/dashboard', roles: ['ADMIN'] },
     { label: 'Parqueadero', icon: '🚗', route: '/dashboard/parking' },
     { label: 'Operaciones', icon: '🎫', route: '/dashboard/operations', roles: ['OPERATOR', 'ADMIN'] },
+    { label: 'Vehiculos', icon: '🚙', route: '/dashboard/vehicles', roles: ['OPERATOR', 'ADMIN'] },
     { label: 'Car Wash', icon: '🧽', route: '/dashboard/detailing', roles: ['ADMIN'] },
     { label: 'Clientes', icon: '👥', route: '/dashboard/clients', roles: ['ADMIN'] },
     { label: 'Facturas', icon: '📋', route: '/dashboard/invoices', roles: ['OPERATOR', 'ADMIN'] },
-    { label: 'Membresías', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN'] },
+    { label: 'Membresias', icon: '💳', route: '/dashboard/memberships', roles: ['ADMIN', 'USER', 'ROLE_USER'] },
     { label: 'Reportes', icon: '📈', route: '/dashboard/reports', roles: ['ADMIN'] }
   ];
 
@@ -58,10 +59,10 @@ export class SidebarComponent implements OnInit {
     if (!token) return '';
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.role || payload.roles || '';
+      const roleClaim = payload.role || payload.roles || '';
+      return Array.isArray(roleClaim) ? roleClaim[0] : roleClaim;
     } catch {
       return '';
     }
   }
 }
-

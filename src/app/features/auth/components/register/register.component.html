@@ -1,7 +1,9 @@
 <div class="auth-page" role="main">
   <div class="auth-card slide-up">
     <div class="auth-header">
-      <div class="auth-logo" role="img" aria-label="Logo de QuindiParking">🅿️</div>
+      <div class="auth-logo" role="img" aria-label="Logo de QuindiParking">
+        <img src="Quindiparking_Logo.png" alt="QuindiParking" class="auth-logo-img">
+      </div>
       <h1>Crear cuenta</h1>
       <p>Regístrate en QuindiParking</p>
     </div>
@@ -53,9 +55,16 @@
         <input id="regPassword" type="password" formControlName="password" placeholder="Mínimo 8 caracteres" autocomplete="new-password"
                aria-required="true" [attr.aria-invalid]="form.get('password')?.touched && form.get('password')?.invalid"
                [attr.aria-describedby]="form.get('password')?.touched && form.get('password')?.errors ? 'regPassword-error' : null">
-        @if (form.get('password')?.touched && form.get('password')?.errors?.['minlength']) {
-          <span class="form-error" id="regPassword-error" role="alert">Mínimo 8 caracteres</span>
-        }
+        <div class="password-requirements" [class.show]="form.get('password')?.touched || passwordValue.length > 0">
+          <p class="req-title">Tu contraseña debe contener:</p>
+          <ul class="req-list">
+            <li [class.valid]="hasMinLength"><span class="req-icon">{{ hasMinLength ? '✓' : '○' }}</span> Mínimo 8 caracteres</li>
+            <li [class.valid]="hasUpperCase"><span class="req-icon">{{ hasUpperCase ? '✓' : '○' }}</span> Al menos una mayúscula</li>
+            <li [class.valid]="hasLowerCase"><span class="req-icon">{{ hasLowerCase ? '✓' : '○' }}</span> Al menos una minúscula</li>
+            <li [class.valid]="hasNumber"><span class="req-icon">{{ hasNumber ? '✓' : '○' }}</span> Al menos un número</li>
+            <li [class.valid]="hasSpecialChar"><span class="req-icon">{{ hasSpecialChar ? '✓' : '○' }}</span> Un carácter especial (@$!#%*?&)</li>
+          </ul>
+        </div>
       </div>
 
       <div class="form-group terms-group">

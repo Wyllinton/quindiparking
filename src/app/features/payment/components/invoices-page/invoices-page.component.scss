@@ -109,21 +109,114 @@
 
 // ──── High Contrast ────
 :host-context(body.high-contrast) {
-  .search-input,
-  .status-select {
-    background: #1a1a1a !important;
-    border-color: #555 !important;
-    color: #fff !important;
+  // ...existing code...
+}
 
-    &:focus {
-      border-color: #FFD700 !important;
-      box-shadow: 0 0 0 2px rgba(#FFD700, 0.2) !important;
-    }
+// ──── Modal ────
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+}
+
+.modal-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #F5F7FF;
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0D1642;
+  }
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 8px;
+  border-radius: 4px;
+  &:hover { background: #eee; }
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-info {
+  font-size: 0.9rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.method-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 14px 10px;
+  border: 2px solid #C5CAE9;
+  border-radius: 10px;
+  background: #F5F7FF;
+  color: #1A237E;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  &:hover:not(:disabled) {
+    border-color: #1A237E;
+    background: #E8EAF6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(26, 35, 126, 0.15);
   }
 
-  .plate-cell { color: #fff; }
-  .amount-cell { color: #FFD700; }
-  .text-muted { color: #555; }
-  .record-count { color: #888; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+.processing-text {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.875rem;
+  color: #666;
 }
 

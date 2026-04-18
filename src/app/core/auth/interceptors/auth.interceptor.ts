@@ -15,7 +15,8 @@ export class AuthInterceptor implements HttpInterceptor {
     '/auth/verify-2fa',
     '/auth/forgot-password',
     '/auth/reset-password',
-    '/auth/google'
+    '/auth/google',
+    '/chatbot/message'
   ];
 
   constructor(private tokenService: TokenService) {}

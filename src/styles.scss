@@ -127,6 +127,12 @@ label {
     &:hover:not(:disabled) { background: #C0392B; }
   }
 
+  &--warning {
+    background: #E67E22;
+    color: #fff;
+    &:hover:not(:disabled) { background: #D35400; }
+  }
+
   &--outline {
     background: transparent;
     border: 1.5px solid $border;

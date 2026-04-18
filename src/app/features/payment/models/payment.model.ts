@@ -26,6 +26,10 @@ export interface UpdatePaymentStatusDTO {
   status: PaymentStatus;
 }
 
+export interface CompletePendingPaymentDTO {
+  paymentMethod: PaymentMethod;
+}
+
 export interface CreateMercadoPagoPreferenceDTO {
   invoiceId: number;
 }

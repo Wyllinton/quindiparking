@@ -1,122 +1,316 @@
-<div class="page-header">
-  <h1>Membresías</h1>
-  <button class="btn btn--primary" (click)="showForm = !showForm" aria-label="Alternar formulario de nueva membresía">
-    @if (showForm) { Cancelar } @else { + Nueva membresía }
-  </button>
-</div>
-
-<!-- Create form -->
-@if (showForm) {
-  <div class="card form-card fade-in" style="margin-bottom: 24px;">
-    <h3 style="margin-bottom: 16px; font-size: 1rem;">Crear membresía</h3>
-    <form [formGroup]="form" (ngSubmit)="createMembership()" aria-label="Formulario de creación de membresía">
-      <div class="form-row">
-        <div class="form-group">
-          <label for="mUserId">ID Usuario</label>
-          <input id="mUserId" type="number" formControlName="userId" placeholder="5" aria-required="true">
-        </div>
-        <div class="form-group">
-          <label for="mPlan">Plan</label>
-          <select id="mPlan" formControlName="membershipPlanId" aria-required="true">
-            <option [ngValue]="null" disabled>Seleccionar plan</option>
-            @for (plan of plans; track plan.id) {
-              <option [ngValue]="plan.id">{{ plan.name }} — {{ plan.monthlyFee | currencyFormat }}/mes</option>
-            }
-          </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="mStart">Fecha inicio</label>
-          <input id="mStart" type="date" formControlName="startDate" aria-required="true">
-        </div>
-        <div class="form-group">
-          <label for="mEnd">Fecha fin</label>
-          <input id="mEnd" type="date" formControlName="endDate" aria-required="true">
-        </div>
-      </div>
-      <label class="checkbox-label">
-        <input type="checkbox" formControlName="autoRenew" aria-label="Activar renovación automática"> Renovación automática
-      </label>
-      <div style="margin-top: 16px;">
-        <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting" aria-label="Crear membresía">
-          @if (submitting) { Creando... } @else { Crear membresía }
-        </button>
-      </div>
-    </form>
+@if (isAdmin) {
+  <div class="page-header">
+    <h1>Membresías</h1>
+    <button class="btn btn--primary" (click)="showForm = !showForm" aria-label="Alternar formulario de nueva membresía">
+      @if (showForm) { Cancelar } @else { + Nueva membresía }
+    </button>
   </div>
-}
 
-<!-- Plans catalog -->
-<section style="margin-bottom: 32px;" role="region" aria-label="Planes disponibles">
-  <h2 class="section-title">Planes disponibles</h2>
-  @if (loadingPlans) {
-    <qp-loading></qp-loading>
-  } @else {
-    <div class="plans-grid">
-      @for (plan of plans; track plan.id) {
-        <div class="card plan-card">
-          <h4>{{ plan.name }}</h4>
-          <p class="plan-desc">{{ plan.description }}</p>
-          <div class="plan-meta">
-            <span class="plan-price">{{ plan.monthlyFee | currencyFormat }}<small>/mes</small></span>
-            <span class="plan-discount">{{ plan.discountPercentage }}% dto.</span>
+  <!-- Create form -->
+  @if (showForm) {
+    <div class="card form-card fade-in" style="margin-bottom: 24px;">
+      <h3 style="margin-bottom: 16px; font-size: 1rem;">Crear membresía</h3>
+      <form [formGroup]="form" (ngSubmit)="createMembership()" aria-label="Formulario de creacin de membresa">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mUserId">ID Usuario *</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input id="mUserId" type="number" formControlName="userId" placeholder="5" aria-required="true" style="flex: 1;">
+              @if (isAdmin) {
+                <button type="button" class="btn btn--outline btn--sm" (click)="showUserSearch = !showUserSearch" style="padding: 8px 12px; font-size: 1.1rem; height: 100%; border-radius: 6px;" aria-label="Buscar usuario">
+                  🔍
+                </button>
+              }
+            </div>
           </div>
-          <p class="plan-duration">Duración: {{ plan.durationInDays }} días</p>
+          <div class="form-group">
+            <label for="mPlan">Plan *</label>
+            <select id="mPlan" formControlName="membershipPlanId" aria-required="true">
+              <option [ngValue]="null" disabled>Seleccionar plan</option>
+              @for (plan of plans; track plan.id) {
+                <option [ngValue]="plan.id">{{ plan.name }} — {{ plan.monthlyFee | currencyFormat }}/mes</option>
+              }
+            </select>
+          </div>
         </div>
-      } @empty {
-        <p style="color: #7F8C8D;">No hay planes registrados.</p>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="mPayment">Metodo de Pago *</label>
+            <select id="mPayment" formControlName="paymentMethod" aria-required="true">
+              @for (pm of paymentMethods; track pm) {
+                <option [value]="pm">{{ pm }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="autoRenew" aria-label="Activar renovacin automtica"> Renovacin automtica
+        </label>
+        <div style="margin-top: 16px;">
+          <button type="submit" class="btn btn--success" [disabled]="form.invalid || submitting" aria-label="Crear membresa">
+            @if (submitting) { Creando... } @else { Crear membresía }
+          </button>
+        </div>
+      </form>
+
+      @if (isAdmin && showUserSearch) {
+        <div class="admin-users" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color, #eaeaea)">
+          <h3 style="margin-bottom: 12px; font-size: 1rem;">Buscar Cliente</h3>
+
+          <div style="margin-bottom: 16px;">
+            <input
+              type="text"
+              [(ngModel)]="userSearchTerm"
+              [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="filterUsers()"
+              placeholder="Buscar por nombre, apellido o correo..."
+              style="width: 100%; padding: 8px; border: 1px solid var(--border-color, #ccc); border-radius: 4px;"
+              aria-label="Filtro de clientes"
+            />
+          </div>
+
+          @if (loadingUsers) {
+            <p>Cargando usuarios...</p>
+          } @else {
+            <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Seleccionar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (user of filteredUsers; track user.id) {
+                    <tr>
+                      <td>{{ user.id }}</td>
+                      <td>{{ user.firstName }} {{ user.lastName }}</td>
+                      <td>{{ user.email }}</td>
+                      <td>
+                        <button
+                          class="btn btn--outline btn--sm"
+                          type="button"
+                          (click)="selectUser(user.id)">
+                          Seleccionar
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
       }
     </div>
   }
-</section>
 
-<!-- Memberships table -->
-<section role="region" aria-label="Membresías registradas">
-  <h2 class="section-title">Membresías registradas</h2>
-  @if (loadingMemberships) {
+  <!-- Plans catalog -->
+  <section style="margin-bottom: 32px;" role="region" aria-label="Gestion de planes de membresia">
+    <div class="section-header">
+      <h2 class="section-title" style="margin: 0;">Gestion de planes</h2>
+      <button class="btn btn--primary btn--sm" (click)="togglePlanForm()" aria-label="Alternar formulario de plan">
+        @if (showPlanForm) {
+          @if (editingPlanId !== null) { Cancelar edicion } @else { Cerrar }
+        } @else {
+          + Nuevo plan
+        }
+      </button>
+    </div>
+
+    @if (showPlanForm) {
+      <div class="card form-card fade-in" style="margin-bottom: 16px;">
+        <h3 style="margin-bottom: 16px; font-size: 1rem;">
+          @if (editingPlanId !== null) { Editar plan } @else { Crear plan de membresia }
+        </h3>
+        <form [formGroup]="planForm" (ngSubmit)="savePlan()" aria-label="Formulario de plan de membresia">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="planName">Nombre</label>
+              <input id="planName" type="text" formControlName="name" placeholder="Plan Gold">
+            </div>
+            <div class="form-group">
+              <label for="planMonthlyFee">Cuota mensual</label>
+              <input id="planMonthlyFee" type="number" min="1" step="0.01" formControlName="monthlyFee" placeholder="90000">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="planDescription">Descripcion</label>
+            <textarea id="planDescription" rows="3" formControlName="description" placeholder="Beneficios del plan"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="planDiscount">Descuento (%)</label>
+              <input id="planDiscount" type="number" min="0" max="100" step="0.01" formControlName="discountPercentage">
+            </div>
+            <div class="form-group">
+              <label for="planDuration">Duracion (dias)</label>
+              <input id="planDuration" type="number" min="1" formControlName="durationInDays">
+            </div>
+          </div>
+
+          <div class="inline-actions" style="margin-top: 16px;">
+            <button type="submit" class="btn btn--success" [disabled]="planForm.invalid || submittingPlan">
+              @if (submittingPlan) { Guardando... } @else {
+                @if (editingPlanId !== null) { Guardar cambios } @else { Crear plan }
+              }
+            </button>
+            @if (editingPlanId !== null) {
+              <button type="button" class="btn btn--outline" (click)="cancelPlanEdit()">Cancelar</button>
+            }
+          </div>
+        </form>
+      </div>
+    }
+
+    @if (loadingPlans) {
+      <qp-loading></qp-loading>
+    } @else {
+      <div class="table-container card" style="padding: 0;">
+        <table aria-label="Tabla de planes de membresia">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Descripcion</th>
+              <th scope="col">Mensualidad</th>
+              <th scope="col">Descuento</th>
+              <th scope="col">Duracion</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (plan of plans; track plan.id) {
+              <tr>
+                <td>{{ plan.id }}</td>
+                <td>{{ plan.name }}</td>
+                <td>{{ plan.description }}</td>
+                <td>{{ plan.monthlyFee | currencyFormat }}</td>
+                <td>{{ plan.discountPercentage }}%</td>
+                <td>{{ plan.durationInDays }} dias</td>
+                <td><span class="badge {{ getPlanStatusBadge(plan.status.toString()) }}">{{ plan.status }}</span></td>
+                <td class="actions-cell">
+                  <button class="btn btn--outline btn--sm" (click)="editPlan(plan)">Editar</button>
+                  <button class="btn btn--danger btn--sm" (click)="deletePlan(plan.id)">Eliminar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="8" style="text-align: center; color: #7F8C8D;">No hay planes registrados.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- Memberships table -->
+  <section role="region" aria-label="Membresías registradas">
+    <h2 class="section-title">Membresías registradas</h2>
+    @if (loadingMemberships) {
+      <qp-loading></qp-loading>
+    } @else {
+      <div class="table-container card" style="padding: 0;">
+        <table aria-label="Tabla de membresías">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Plan</th>
+              <th scope="col">Inicio</th>
+              <th scope="col">Fin</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Auto-renovar</th>
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (m of memberships; track m.id) {
+              <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.userId }}</td>
+                <td>{{ m.membershipPlanId }}</td>
+                <td>{{ m.startDate | date:'shortDate' }}</td>
+                <td>{{ m.endDate | date:'shortDate' }}</td>
+                <td><span class="badge {{ getStatusBadge(m.status.toString()) }}">{{ m.status }}</span></td>
+                <td>{{ m.autoRenew ? 'Sí' : 'No' }}</td>
+                <td class="actions-cell">
+                  @if (m.status !== 'ACTIVE') {
+                    <button class="btn btn--success btn--sm" (click)="activate(m.id)" aria-label="Activar membresía {{ m.id }}">Activar</button>
+                  }
+                  @if (m.status === 'ACTIVE') {
+                    <button class="btn btn--outline btn--sm" (click)="renew(m.id)" aria-label="Renovar membresía {{ m.id }}">Renovar</button>
+                    <button class="btn btn--danger btn--sm" (click)="cancel(m.id)" aria-label="Cancelar membresía {{ m.id }}">Cancelar</button>
+                  }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="8" style="text-align: center; color: #7F8C8D;">No hay membresías registradas</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+} @else {
+  <!-- User View -->
+  <div class="page-header">
+    <h1>Planes de Membresía</h1>
+    <p>Elige el plan que mejor se adapte a ti y disfruta de los beneficios.</p>
+  </div>
+
+  @if (loadingPlans) {
     <qp-loading></qp-loading>
   } @else {
-    <div class="table-container card" style="padding: 0;">
-      <table aria-label="Tabla de membresías">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Usuario</th>
-            <th scope="col">Plan</th>
-            <th scope="col">Inicio</th>
-            <th scope="col">Fin</th>
-            <th scope="col">Estado</th>
-            <th scope="col">Auto-renovar</th>
-            <th scope="col">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (m of memberships; track m.id) {
-            <tr>
-              <td>{{ m.id }}</td>
-              <td>{{ m.userId }}</td>
-              <td>{{ m.membershipPlanId }}</td>
-              <td>{{ m.startDate | date:'shortDate' }}</td>
-              <td>{{ m.endDate | date:'shortDate' }}</td>
-              <td><span class="badge {{ getStatusBadge(m.status.toString()) }}">{{ m.status }}</span></td>
-              <td>{{ m.autoRenew ? 'Sí' : 'No' }}</td>
-              <td class="actions-cell">
-                @if (m.status !== 'ACTIVE') {
-                  <button class="btn btn--success btn--sm" (click)="activate(m.id)" aria-label="Activar membresía {{ m.id }}">Activar</button>
-                }
-                @if (m.status === 'ACTIVE') {
-                  <button class="btn btn--outline btn--sm" (click)="renew(m.id)" aria-label="Renovar membresía {{ m.id }}">Renovar</button>
-                  <button class="btn btn--danger btn--sm" (click)="cancel(m.id)" aria-label="Cancelar membresía {{ m.id }}">Cancelar</button>
-                }
-              </td>
-            </tr>
-          } @empty {
-            <tr><td colspan="8" style="text-align: center; color: #7F8C8D;">No hay membresías registradas</td></tr>
-          }
-        </tbody>
-      </table>
+    <div class="plans-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+      @for (plan of plans; track plan.id) {
+        @if (plan.status === RecordStatus.ACTIVE) {
+          <div class="card plan-card fade-in" style="display: flex; flex-direction: column; text-align: center; padding: 32px 24px;">
+            <h2 style="font-size: 1.5rem; color: var(--primary); margin-bottom: 8px; font-weight: bold;">{{ plan.name }}</h2>
+            <p style="color: var(--text-light); margin-bottom: 24px; flex-grow: 1;">{{ plan.description }}</p>
+
+            <div style="margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color, #E0E6E3);">
+              <h3 style="font-size: 2.5rem; margin-bottom: 4px; color: var(--text);">
+                {{ plan.monthlyFee | currencyFormat }}
+                <span style="font-size: 1rem; color: var(--text-light); font-weight: normal;">/ mes</span>
+              </h3>
+            </div>
+
+            <div style="margin-bottom: 24px; text-align: left; font-size: 0.95rem;">
+               <p style="margin-bottom: 8px;">✔️ <strong>Duración:</strong> {{ plan.durationInDays }} días</p>
+               @if (plan.discountPercentage > 0) {
+                 <p style="margin-bottom: 8px; color: var(--success); font-weight: bold;">
+                   ✔️ ¡Ahorras un {{ plan.discountPercentage }}%!
+                 </p>
+               }
+            </div>
+
+            <label class="checkbox-label" style="text-align: left; margin-bottom: 24px; font-size: 0.95rem; cursor: pointer;">
+              <input type="checkbox" [(ngModel)]="autoRenewSelection[plan.id]">
+              Activar renovación automática
+            </label>
+
+            <button class="btn btn--primary btn--lg"
+                    (click)="subscribeToPlan(plan.id)"
+                    [disabled]="checkoutLoading === plan.id"
+                    style="width: 100%; border-radius: 8px;">
+              @if (checkoutLoading === plan.id) {
+                Procesando pago...
+              } @else {
+                💳 Suscribirse
+              }
+            </button>
+          </div>
+        }
+      } @empty {
+        <p style="text-align: center; color: var(--text-light); grid-column: 1 / -1; padding: 48px;">
+          No hay planes de membresía disponibles en este momento.
+        </p>
+      }
     </div>
   }
-</section>
-
+}

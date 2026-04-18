@@ -2,7 +2,7 @@ import { VehicleType } from '../../../shared/models/enums.model';
 
 export interface VehicleDTO {
   id: number;
-  userId: number;
+  userId: number | null;
   licensePlate: string;
   vehicleType: VehicleType | string;
   brand: string;
@@ -16,3 +16,7 @@ export interface CreateVehicleWithoutUserDTO {
   color?: string;
 }
 
+export interface AssignVehicleToUserDTO {
+  vehicleId: number;
+  userId: number;
+}

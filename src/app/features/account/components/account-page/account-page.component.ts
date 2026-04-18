@@ -23,6 +23,9 @@ export class AccountPageComponent implements OnInit {
   savingProfile = false;
   savingPassword = false;
   loading = true;
+  requestingDeletion = false;
+  showDeletionConfirm = false;
+  deletionConfirmWord = '';
 
   constructor(
     private fb: FormBuilder,
@@ -154,6 +157,34 @@ export class AccountPageComponent implements OnInit {
     });
   }
 
+  requestAccountDeletion(): void {
+    this.showDeletionConfirm = true;
+    this.deletionConfirmWord = '';
+  }
+
+  cancelAccountDeletion(): void {
+    this.showDeletionConfirm = false;
+    this.deletionConfirmWord = '';
+  }
+
+  confirmAccountDeletion(): void {
+    if (this.deletionConfirmWord.toLowerCase() === 'eliminar') {
+      this.requestingDeletion = true;
+      this.userService.requestAccountDeletion().subscribe({
+        next: () => {
+          this.notify.success('Tu solicitud está siendo procesada. Cuando se elimine la cuenta, se enviará un aviso por correo electrónico.');
+          this.requestingDeletion = false;
+          this.showDeletionConfirm = false;
+        },
+        error: (err) => {
+          this.notify.error(err.error?.message || 'Error al solicitar la eliminación de la cuenta. Por favor, intenta de nuevo más tarde.');
+          this.requestingDeletion = false;
+          this.showDeletionConfirm = false;
+        }
+      });
+    }
+  }
+
   // ── Form helpers ──
 
   isInvalid(form: FormGroup, field: string): boolean {
@@ -176,4 +207,3 @@ export class AccountPageComponent implements OnInit {
   get pwHasNumber(): boolean { return /\d/.test(this.newPasswordValue); }
   get pwHasSpecial(): boolean { return /[@$!#%*?&]/.test(this.newPasswordValue); }
 }
-

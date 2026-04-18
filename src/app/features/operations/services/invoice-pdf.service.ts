@@ -2,6 +2,16 @@ import { Injectable } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { InvoicePrintDTO } from '../../payment/models/invoice-print.model';
 
+export interface EntryTicketData {
+  sessionId: number;
+  licensePlate: string;
+  parkingSpaceId: number | string;
+  checkInTime: string;
+  vehicleType?: string;
+  brand?: string;
+  color?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -231,5 +241,113 @@ export class InvoicePdfService {
   private translateSessionStatus(s: string): string {
     const m: Record<string, string> = { ACTIVE: 'Activa', COMPLETED: 'Completada', PENDING_PAYMENT: 'Pago pendiente', CANCELLED: 'Cancelada' };
     return m[s] || s || '—';
+  }
+
+  // ═══════════════════════════════════════
+  //  TICKET DE ENTRADA
+  // ═══════════════════════════════════════
+
+  generateEntryTicket(data: EntryTicketData): void {
+    // Ticket pequeño: 80mm de ancho x 150mm de alto (similar a ticket térmica)
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: [80, 150] });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 6;
+    const rightX = pageW - margin;
+    let y = 12;
+
+    // ── Encabezado ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(26, 35, 126); // azul oscuro
+    doc.text('QUINDIPARKING', pageW / 2, y, { align: 'center' });
+    y += 6;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Sistema de Parqueadero', pageW / 2, y, { align: 'center' });
+    y += 5;
+
+    // Línea doble
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.4);
+    doc.line(margin, y, rightX, y);
+    y += 1.5;
+    doc.line(margin, y, rightX, y);
+    y += 6;
+
+    // ── Título ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(40, 40, 40);
+    doc.text('TICKET DE ENTRADA', pageW / 2, y, { align: 'center' });
+    y += 8;
+
+    // ── Placa destacada ──
+    doc.setFillColor(26, 35, 126);
+    doc.roundedRect(margin, y - 5, pageW - margin * 2, 12, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text(data.licensePlate.toUpperCase(), pageW / 2, y + 3, { align: 'center' });
+    y += 16;
+
+    // Línea punteada
+    y = this.addDottedLine(doc, margin, rightX, y);
+
+    // ── Datos de la sesión ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(90, 90, 90);
+    doc.text('INFORMACIÓN DE ENTRADA', pageW / 2, y, { align: 'center' });
+    y += 6;
+
+    y = this.addTicketRow(doc, margin, rightX, y, 'Sesión', '#' + data.sessionId);
+    y = this.addTicketRow(doc, margin, rightX, y, 'Espacio', String(data.parkingSpaceId));
+    y += 2;
+
+    // Hora de entrada destacada
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(40, 40, 40);
+    doc.text('Hora de entrada', margin, y);
+    y += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(26, 35, 126);
+    doc.text(this.formatDateTime(data.checkInTime), pageW / 2, y, { align: 'center' });
+    y += 10;
+
+    // Línea doble
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineWidth(0.4);
+    doc.line(margin, y, rightX, y);
+    y += 1.5;
+    doc.line(margin, y, rightX, y);
+    y += 8;
+
+    // ── Footer ──
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 100, 100);
+    doc.text('¡Bienvenido a QuindiParking!', pageW / 2, y, { align: 'center' });
+    y += 4;
+    doc.setFontSize(6.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Conserve este ticket. Lo necesitará a la salida.', pageW / 2, y, { align: 'center' });
+
+    const plate = data.licensePlate.replace(/\s/g, '');
+    doc.save('ticket_entrada_' + plate + '_' + this.timestamp() + '.pdf');
+  }
+
+  private addTicketRow(doc: jsPDF, leftX: number, rightX: number, y: number, label: string, value: string): number {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(110, 110, 110);
+    doc.text(label, leftX, y);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(33, 33, 33);
+    doc.text(value || '—', rightX, y, { align: 'right' });
+    return y + 5.5;
   }
 }

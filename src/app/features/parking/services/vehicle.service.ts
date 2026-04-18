@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
-import { VehicleDTO, CreateVehicleWithoutUserDTO } from '../models/vehicle.model';
+import { VehicleDTO, CreateVehicleWithoutUserDTO, AssignVehicleToUserDTO } from '../models/vehicle.model';
 import { VehicleType } from '../../../shared/models/enums.model';
 import { ExistsDTO } from '../../../shared/models/api-response.model';
 
@@ -19,6 +18,10 @@ export class VehicleService extends ApiService {
 
   createVehicleWithoutUser(dto: CreateVehicleWithoutUserDTO): Observable<VehicleDTO> {
     return this.post<VehicleDTO>('/vehicles/without-user', dto);
+  }
+
+  assignVehicleToUser(dto: AssignVehicleToUserDTO): Observable<VehicleDTO> {
+    return this.patch<VehicleDTO>('/vehicles/assign-user', dto);
   }
 
   getAllVehicles(): Observable<VehicleDTO[]> {
@@ -57,4 +60,3 @@ export class VehicleService extends ApiService {
     return this.get<ExistsDTO>(`/vehicles/check-plate/${licensePlate}`);
   }
 }
-

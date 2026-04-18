@@ -40,9 +40,16 @@
   }
 
   .legal-logo {
-    font-size: 3rem;
     margin-bottom: 8px;
     margin-top: 8px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .auth-logo-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
   }
 
   h1 {

@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MembershipPageComponent } from './components/membership-page/membership-page.component';
 import { RoleGuard } from '../../core/auth/guards/role.guard';
+import { VehiclesPageComponent } from './components/vehicles-page/vehicles-page.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: MembershipPageComponent
+    component: VehiclesPageComponent,
+    canActivate: [RoleGuard],
+    data: { roles: ['ADMIN', 'OPERATOR'] }
   }
 ];
 
@@ -14,4 +16,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class MembershipRoutingModule {}
+export class VehiclesRoutingModule {}
+
