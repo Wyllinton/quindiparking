@@ -51,10 +51,7 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
   userRole = '';
   isStaff = false; // true for ADMIN or OPERATOR
 
-  // Reservation message (USER only)
-  showReservationMsg = false;
-
-  // Pending payment (USER only)
+  // Pending payment state
   pendingPlate = '';
   searchingPending = false;
   pendingPayment: PendingPaymentInfoDTO | null = null;
@@ -249,16 +246,10 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
     this.checkingOut = false;
   }
 
-  // ── Reservation (USER only) ──
-  onReserveClick(): void {
-    this.showReservationMsg = true;
-  }
+  // ════════════════════════════════════════
+  // USER PENDING PAYMENT
+  // ════════════════════════════════════════
 
-  dismissReservationMsg(): void {
-    this.showReservationMsg = false;
-  }
-
-  // ── Pending payment (USER only) ──
   searchPendingPayment(): void {
     const plate = this.pendingPlate.trim().toUpperCase();
     if (!plate) return;
@@ -332,4 +323,3 @@ export class ParkingGridComponent implements OnInit, OnDestroy {
     }
   }
 }
-

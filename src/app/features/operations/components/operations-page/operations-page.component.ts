@@ -68,6 +68,12 @@ export class OperationsPageComponent {
   performCheckIn(): void {
     const plate = this.checkInPlate.trim().toUpperCase();
     if (!plate) return;
+
+    if (!/^[A-Z0-9]{6}$/.test(plate)) {
+      this.notify.warning('La placa debe tener exactamente 6 caracteres alfanuméricos');
+      return;
+    }
+
     this.checkingIn = true;
     this.checkInResult = null;
     this.showRegisterForm = false;
@@ -147,6 +153,12 @@ export class OperationsPageComponent {
   searchActiveSession(): void {
     const plate = this.checkOutPlate.trim().toUpperCase();
     if (!plate) return;
+
+    if (!/^[A-Z0-9]{6}$/.test(plate)) {
+      this.notify.warning('La placa debe tener exactamente 6 caracteres alfanuméricos');
+      return;
+    }
+
     this.searchingSession = true;
     this.activeSession = null;
     this.foundVehicle = null;
@@ -254,7 +266,4 @@ export class OperationsPageComponent {
     this.selectedPaymentMethod = null;
   }
 }
-
-
-
 
