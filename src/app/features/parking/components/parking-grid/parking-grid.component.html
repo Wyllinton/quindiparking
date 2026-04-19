@@ -53,28 +53,19 @@
 
     <!-- ── Reserve button (USER only) ── -->
     @if (!isStaff) {
-      <div class="reserve-section">
-        <button class="btn btn--primary btn--lg reserve-btn" (click)="onReserveClick()" aria-label="Reservar espacio">
-          🅿️ Reservar espacio
-        </button>
-      </div>
-
-      @if (showReservationMsg) {
-        <div class="reserve-message fade-in">
-          <div class="reserve-message-icon">ℹ️</div>
-          <div class="reserve-message-body">
-            <h4>Reserva de espacio</h4>
-            <p>
-              Para asignarle un espacio de estacionamiento, por favor acérquese directamente al parqueadero.
-              Un operador verificará la disponibilidad y le asignará un lugar de manera presencial.
-            </p>
-            <p class="reserve-message-sub">
-              Horario de atención: Lunes a Sábado, 6:00 a.m. – 10:00 p.m.
-            </p>
-          </div>
-          <button class="btn btn--outline btn--sm" (click)="dismissReservationMsg()" aria-label="Cerrar mensaje">Entendido</button>
+      <div class="reserve-message fade-in">
+        <div class="reserve-message-icon">ℹ️</div>
+        <div class="reserve-message-body">
+          <h4>Asignación de espacio</h4>
+          <p>
+            ¡Hay espacios disponibles! Para asignarle un espacio de estacionamiento, por favor acérquese directamente al parqueadero.
+            Un operador verificará la disponibilidad y le asignará un lugar de manera presencial.
+          </p>
+          <p class="reserve-message-sub">
+            Atención 24 horas
+          </p>
         </div>
-      }
+      </div>
 
       <!-- ── Pending payment section ── -->
       <div class="pending-section">
@@ -354,4 +345,3 @@
   }
 </qp-modal>
 }
-

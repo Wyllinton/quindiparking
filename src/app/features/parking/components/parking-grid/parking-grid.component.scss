@@ -294,6 +294,23 @@
 .slot--readonly {
   cursor: default;
   pointer-events: none;
+  border-color: transparent !important;
+
+  &.slot--available {
+    background: rgba(#2ECC71, 0.08);
+  }
+
+  &.slot--occupied {
+    background: rgba(#95A5A6, 0.1);
+  }
+
+  &.slot--reserved {
+    background: rgba(#F1C40F, 0.08);
+  }
+
+  &.slot--oos {
+    background: rgba(#E74C3C, 0.05);
+  }
 
   &:hover {
     transform: none;
@@ -815,4 +832,3 @@
     p { color: #ccc !important; strong { color: #fff !important; } }
   }
 }
-
